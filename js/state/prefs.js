@@ -68,5 +68,5 @@ export function applyTheme() {
     ownTheme = false;
   }
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', effectiveTheme() === 'dark' ? '#10151E' : '#F3F5F8');
+  if (meta) meta.setAttribute('content', effectiveTheme() === 'dark' ? '#171A3D' : '#B9E4FA');
 }

@@ -9,6 +9,7 @@ import { goalsService, projectsService } from './goalsService.js';
 import { journalService } from './journalService.js';
 import { birthdaysService } from './birthdaysService.js';
 import { aiService } from './aiService.js';
+import { subjectsService, classSessionsService, homeworkService } from './schoolService.js';
 
 const LOADERS = [
   ['Ажлууд', tasksService],
@@ -20,6 +21,9 @@ const LOADERS = [
   ['AI яриа', aiService.conversations],
   ['AI мессеж', aiService.messages],
   ['AI санамж', aiService.memories],
+  ['Хичээл', subjectsService],
+  ['Хичээлийн хуваарь', classSessionsService],
+  ['Гэрийн даалгавар', homeworkService],
 ];
 
 /** Returns a list of { label, message, hint } for tables that failed. */

@@ -245,7 +245,7 @@ export function pageHead({ eyebrow = '', title, sub = '', actions = '' }) {
   return `<header class="page-head">
     <div class="page-head-text">
       ${eyebrow ? `<p class="eyebrow">${esc(eyebrow)}</p>` : ''}
-      <h1 class="page-title"><span class="hl">${esc(title)}</span></h1>
+      <h1 class="page-title" data-text="${esc(title)}"><span class="hl">${esc(title)}</span></h1>
       ${sub ? `<p class="page-sub">${sub}</p>` : ''}
     </div>
     ${actions ? `<div class="page-actions">${actions}</div>` : ''}

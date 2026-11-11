@@ -19,6 +19,9 @@ const state = {
   conversations: [],
   messages: [],
   memories: [],
+  subjects: [],
+  classSessions: [],
+  homework: [],
 };
 
 const meta = {

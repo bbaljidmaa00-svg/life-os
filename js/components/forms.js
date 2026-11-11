@@ -309,9 +309,10 @@ export function openBirthdayForm(person = null, { onSaved } = {}) {
 }
 
 /* ───────────── "New" menu (top bar) ───────────── */
-export function openNewMenu(anchor) {
+export function openNewMenu(anchor, { extra = [] } = {}) {
   openMenu(anchor, [
     { label: 'Ажил', icon: 'tasks', onSelect: () => openTaskForm() },
+    ...extra,
     { label: 'Үйл явдал', icon: 'calendar', onSelect: () => openEventForm() },
     'sep',
     { label: 'Зорилго', icon: 'goals', onSelect: () => openGoalForm() },

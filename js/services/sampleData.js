@@ -11,6 +11,7 @@ import { goalsService, projectsService } from './goalsService.js';
 import { journalService } from './journalService.js';
 import { birthdaysService } from './birthdaysService.js';
 import { aiService } from './aiService.js';
+import { subjectsService, classSessionsService, homeworkService } from './schoolService.js';
 import { todayKey, addDaysKey, fromKey } from '../lib/dates.js';
 
 export async function loadSampleData() {
@@ -101,4 +102,30 @@ export async function loadSampleData() {
 
   await aiService.memories.create({ content: 'Би үдээс өмнө хамгийн сайн төвлөрч ажилладаг.', source: 'user' });
   await aiService.memories.create({ content: 'Баасан гарагийн үдээс хойш бичиг цаасны ажилд зориулна.', source: 'user' });
+
+  /* Сургууль: хичээл → хуваарь → гэрийн даалгавар */
+  const math = await subjectsService.create({ name: 'Бизнесийн математик', teacher: 'Б. Төмөрбаатар', color: '#1F6FB5' });
+  const phil = await subjectsService.create({ name: 'Философи', teacher: 'Д. Сарангэрэл', color: '#7357D9' });
+  const mkt = await subjectsService.create({ name: 'Маркетинг', teacher: 'Г. Анужин', color: '#DB2E72' });
+  const eng = await subjectsService.create({ name: 'Англи хэл', teacher: 'J. Miller', color: '#14A09C' });
+  const sessions = [
+    [math, 1, '08:00', '09:20', '305 тоот', 'lecture'], [math, 3, '09:40', '11:00', '214 тоот', 'seminar'],
+    [phil, 2, '11:20', '12:40', 'А байр 401', 'lecture'], [phil, 4, '14:00', '15:20', 'А байр 210', 'seminar'],
+    [mkt, 1, '11:20', '12:40', '507 тоот', 'lecture'], [mkt, 5, '09:40', '11:00', 'Лаб 2', 'workshop'],
+    [eng, 2, '08:00', '09:20', '118 тоот', 'seminar'], [eng, 4, '08:00', '09:20', '118 тоот', 'seminar'],
+  ];
+  // Өнөөдөр ч хичээл харагдахаар нэг цаг нэмнэ (жишээ өгөгдөлд л)
+  const wd = fromKey(T).getDay();
+  if (!sessions.some((s) => s[1] === wd)) sessions.push([eng, wd, '15:40', '17:00', '118 тоот', 'seminar']);
+  for (const [subject, weekday, start_time, end_time, room, kind] of sessions) {
+    await classSessionsService.create({ subject_id: subject.id, weekday, start_time, end_time, room, kind });
+  }
+  const homework = [
+    { subject_id: math.id, title: 'Хүүгийн бодлого 1–12 (3-р бүлэг)', start_date: d(0), start_time: '19:00', due_date: d(1), due_time: '09:40', estimated_minutes: 90, status: 'in_progress' },
+    { subject_id: phil.id, title: 'Семинарын эссэ: «Хүн гэж хэн бэ?»', start_date: d(1), start_time: '16:00', due_date: d(3), due_time: '14:00', estimated_minutes: 120, status: 'todo' },
+    { subject_id: mkt.id, title: 'Брэндийн SWOT шинжилгээ (багийн ажил)', start_date: d(2), due_date: d(6), due_time: '23:59', estimated_minutes: 180, status: 'todo' },
+    { subject_id: eng.id, title: 'Unit 5 vocabulary + essay', start_date: d(-2), due_date: d(-1), due_time: '08:00', estimated_minutes: 45, status: 'todo' },
+    { subject_id: eng.id, title: 'Listening practice 4', due_date: d(-3), due_time: '08:00', estimated_minutes: 30, status: 'submitted', completed_at: doneAt(-4, 21) },
+  ];
+  for (const h of homework) await homeworkService.create({ assigned_date: d(-3), ...h });
 }

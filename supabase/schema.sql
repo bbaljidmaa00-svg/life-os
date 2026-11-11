@@ -14,6 +14,9 @@
 --    birthdays        name ↔ person_name · сар/өдөр/он ↔ birth_date (+ birth_year_known)
 --    ai_messages      actions + source ↔ metadata (jsonb)
 --
+--  Сургуулийн хүснэгтүүд (subjects, class_sessions, homework):
+--    supabase/migrations/20261111_school_subjects_classes_homework.sql
+--
 --  Таны санд мөн profiles, user_preferences, reminders, time_entries,
 --  in_app_notifications, decision_logs, monthly_reports хүснэгтүүд бий —
 --  апп одоогоор ашиглахгүй, ирээдүйн функцэд (сануулга, таймер…) бэлэн.

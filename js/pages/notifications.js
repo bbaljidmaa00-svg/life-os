@@ -7,6 +7,8 @@ import { tasksService } from '../services/tasksService.js';
 import { eventsService } from '../services/eventsService.js';
 import { birthdaysService } from '../services/birthdaysService.js';
 import { openTaskForm, openEventForm, openBirthdayForm } from '../components/forms.js';
+import { openHomeworkForm } from '../components/schoolForms.js';
+import { homeworkService } from '../services/schoolService.js';
 import { toggleTask } from '../components/taskItem.js';
 import { emptyState, pageHead, toast } from '../lib/ui.js';
 import { esc } from '../lib/dom.js';
@@ -25,6 +27,7 @@ function openRef(n) {
     openEventForm(ev);
   }
   if (kind === 'birthday') openBirthdayForm(birthdaysService.get(id));
+  if (kind === 'homework') openHomeworkForm(homeworkService.get(id));
   if (kind === 'goal') navigate(`goals/${id}`);
   if (kind === 'project') navigate(`goals/${goalId || 'none'}`);
 }

@@ -13,6 +13,7 @@ import { store } from '../state/store.js';
 import { tasksService } from './tasksService.js';
 import { eventsService } from './eventsService.js';
 import { birthdaysService, daysUntil, nextOccurrence, ageAt } from './birthdaysService.js';
+import { homeworkService, subjectById, dueMoment, dueCountdown } from './schoolService.js';
 import { goalsService, projectsService } from './goalsService.js';
 import { todayKey, addDaysKey, diffDays, relDay, fmtTime, timeToMin, nowMinutes } from '../lib/dates.js';
 import { plural } from '../lib/dom.js';
@@ -46,6 +47,19 @@ function compute() {
       id: `event-${e.id}-${e.event_date}`, group: 'upcoming', tone: 'info', icon: 'calendar',
       title: e.title, text: `${relDay(e.event_date)} · ${timed ? fmtTime(e.start_time) : 'Өдөржин'}${e.location ? ` · ${e.location}` : ''}`,
       ref: { kind: 'event', id: e.id }, order: 2, date: e.event_date,
+    });
+  });
+
+  homeworkService.open().forEach((h) => {
+    if (!h.due_date) return;
+    const left = dueMoment(h) - Date.now();
+    if (left > 2 * 86400000) return; // зөвхөн 2 хоногийн дотор дуусах эсвэл хэтэрсэн
+    const subject = subjectById(h.subject_id);
+    list.push({
+      id: `homework-${h.id}-${h.due_date}`, group: left < 0 || h.due_date === today ? 'attention' : 'upcoming',
+      tone: left < 0 ? 'danger' : 'warning', icon: 'book',
+      title: h.title, text: `${subject ? `${subject.name} · ` : ''}${dueCountdown(h)}`,
+      ref: { kind: 'homework', id: h.id }, order: 1, date: h.due_date,
     });
   });
 

@@ -39,6 +39,9 @@ export const TABLES = {
   aiConversations: 'ai_conversations',
   aiMessages: 'ai_messages',
   aiMemories: 'ai_memories',
+  subjects: 'subjects',
+  classSessions: 'class_sessions',
+  homework: 'homework',
 };
 
 /**

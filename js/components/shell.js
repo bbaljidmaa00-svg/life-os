@@ -9,6 +9,7 @@ import { tasksService } from '../services/tasksService.js';
 import { notificationsService } from '../services/notificationsService.js';
 import { bindSearch, openSearchSheet } from './search.js';
 import { openNewMenu, openTaskForm } from './forms.js';
+import { openHomeworkForm } from './schoolForms.js';
 import { openModal } from '../lib/ui.js';
 import { esc } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
@@ -19,6 +20,7 @@ export const NAV = [
   { id: 'calendar', label: 'Календарь', icon: 'calendar' },
   { id: 'tasks', label: 'Ажлууд', icon: 'tasks' },
   { id: 'goals', label: 'Зорилго ба төсөл', icon: 'goals' },
+  { id: 'school', label: 'Сургууль', icon: 'school' },
   { id: 'assistant', label: 'AI туслах', icon: 'assistant' },
   { section: 'Амьдрал' },
   { id: 'journal', label: 'Тэмдэглэл', icon: 'journal' },
@@ -32,7 +34,7 @@ const MOBILE_NAV = [
   { id: 'dashboard', label: 'Нүүр', icon: 'dashboard' },
   { id: 'calendar', label: 'Календарь', icon: 'calendar' },
   { id: 'tasks', label: 'Ажлууд', icon: 'tasks' },
-  { id: 'assistant', label: 'Туслах', icon: 'assistant' },
+  { id: 'school', label: 'Сургууль', icon: 'school' },
 ];
 
 let bannerDismissed = false;
@@ -90,7 +92,7 @@ export function renderShell(app) {
     switch (el.dataset.shell) {
       case 'theme': prefs.set({ theme: effectiveTheme() === 'dark' ? 'light' : 'dark' }); break;
       case 'search': openSearchSheet(); break;
-      case 'new': openNewMenu(el); break;
+      case 'new': openNewMenu(el, { extra: [{ label: 'Гэрийн даалгавар', icon: 'book', onSelect: () => openHomeworkForm() }] }); break;
       case 'more': openMoreSheet(); break;
       case 'banner-dismiss': bannerDismissed = true; updateBanner(); break;
       case 'reload': location.reload(); break;

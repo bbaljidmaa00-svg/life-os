@@ -21,8 +21,9 @@ import birthdays from './pages/birthdays.js';
 import notifications from './pages/notifications.js';
 import analytics from './pages/analytics.js';
 import settings from './pages/settings.js';
+import school from './pages/school.js';
 
-export const ROUTES = { dashboard, calendar, tasks, goals, assistant, journal, birthdays, notifications, analytics, settings };
+export const ROUTES = { dashboard, calendar, tasks, goals, school, assistant, journal, birthdays, notifications, analytics, settings };
 
 let lastPageKey = null;
 let frame = 0;

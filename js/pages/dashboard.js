@@ -19,6 +19,7 @@ import { icon } from '../lib/icons.js';
 import { todayKey, addDaysKey, fmt, relDay, fmtTime, fmtDuration, greeting, fromKey } from '../lib/dates.js';
 import { prefs } from '../state/prefs.js';
 import { PRIORITIES } from '../services/tasksService.js';
+import { schoolDashboardCard } from './school.js';
 
 /* ── Нүүрний том бичих талбар ───────────────────────────────────────────────
    Бичих явцад өгүүлбэрийг задлаад (огноо, цаг, ач холбогдол…) урьдчилан
@@ -65,10 +66,7 @@ function composerPreview(text) {
 
 /** «Өдрийн мэнд» → «Өдрийн <strong>мэнд</strong>» — нимгэн + тод үсгийн хослол. */
 function heroGreeting(name) {
-  const words = greeting().split(' ');
-  const last = words.pop();
-  const head = words.length ? `${esc(words.join(' '))} ` : '';
-  return `${head}<strong>${esc(last)}</strong>${name ? `, ${esc(name)}` : ''}`;
+  return `${greeting()}${name ? `, ${name}` : ''}`;
 }
 
 function composerHTML() {
@@ -273,9 +271,11 @@ export default {
 
     root.innerHTML = `
       <header class="hero">
+        <span class="sky-bubble b1" aria-hidden="true"></span><span class="sky-bubble b2" aria-hidden="true"></span><span class="sky-bubble b3" aria-hidden="true"></span>
+        <span class="sparkle s1" aria-hidden="true">✦</span><span class="sparkle s2" aria-hidden="true">✦</span><span class="sparkle s3" aria-hidden="true">✧</span>
         <div class="hero-text">
           <p class="eyebrow">${fmt.long(today)}</p>
-          <h1 class="page-title hero-title">${heroGreeting(name)}</h1>
+          <h1 class="page-title hero-title" data-text="${esc(heroGreeting(name))}">${esc(heroGreeting(name))}</h1>
           <p class="hero-sub">${summary}</p>
           ${composerHTML()}
           <div class="hero-actions">
@@ -296,7 +296,7 @@ export default {
         ${kpis({ todays, todayDone, plannedMin, overdue: overdueTasks.length, avgGoal, activeGoals: activeGoals.length })}
         <div class="dash-grid">
           <div class="dash-col">${todayCard(todays, overdueTasks)}${prioritiesCard()}${weekCard()}</div>
-          <div class="dash-col">${upcomingCard()}${moodCard()}${goalsCard()}</div>
+          <div class="dash-col">${schoolDashboardCard()}${upcomingCard()}${moodCard()}${goalsCard()}</div>
         </div>`}`;
 
     startPlaceholderCycle();

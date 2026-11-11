@@ -14,6 +14,8 @@ const PATHS = {
   analytics: '<path d="M4 20V4M4 20h16"/><path d="M8.5 16v-4.5M13 16V8M17.5 16v-6"/>',
   settings: '<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
+  school: '<path d="M2.5 9.5L12 5l9.5 4.5L12 14z"/><path d="M6.5 11.8V16c0 1.5 2.5 3 5.5 3s5.5-1.5 5.5-3v-4.2M21.5 9.5v5.5"/>',
+  book: '<path d="M12 6.5C10.2 5 7.6 4.5 4 4.5v13c3.6 0 6.2.5 8 2 1.8-1.5 4.4-2 8-2v-13c-3.6 0-6.2.5-8 2z"/><path d="M12 6.5v13"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
   x: '<path d="M17.5 6.5l-11 11M6.5 6.5l11 11"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',

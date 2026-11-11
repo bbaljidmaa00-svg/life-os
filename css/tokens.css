@@ -1,163 +1,171 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Design tokens — бүх өнгө, фонт, радиус, сүүдэр энд байна.
-   Загвар: «Өнгөлөг» — цагаан дэвсгэр дээр тод ягаан, ногоон цэнхэр (teal),
-   шар, цэнхэр өнгөтэй хавтгай (flat) блокууд.
-   Гэгээлэг горим анхдагч; харанхуй горим системээр эсвэл Тохиргооноос.
+   Загвар: «Тэнгэрийн бөмбөлөг» — цэнхэр тэнгэр, цагаан үүл, гялгар ягаан
+   хийлдэг бөмбөлөг үсэг, сүүн шилэн картууд. Харанхуй горим нь шөнийн тэнгэр.
    ═══════════════════════════════════════════════════════════════════════════ */
 :root {
   --font-sans: 'Nunito', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-display: 'Oswald', 'Roboto Condensed', 'Arial Narrow', 'Nunito', sans-serif; /* кирилл (ө, ү) дэмждэг */
+  --font-display: 'Nunito', ui-rounded, 'SF Pro Rounded', system-ui, sans-serif; /* 900–1000 жинтэй: бөмбөлөг үсэг, кирилл Ө Ү-тэй */
   --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
+  /* Тэнгэр (body-ийн дэвсгэр) */
+  --sky-top: #74C6F1;
+  --sky-mid: #B9E4FA;
+  --sky-bottom: #FDE6F0;
+  --cloud: rgba(255, 255, 255, .92);
+
+  /* Сүүн шил (картууд) */
+  --glass: rgba(255, 255, 255, .76);
+  --glass-strong: rgba(255, 255, 255, .9);
+  --glass-border: rgba(255, 255, 255, .95);
+
   /* Surfaces */
-  --bg: #F3F5F8;
-  --bg-elev: #F8F9FB;
+  --bg: #E4F4FD;
+  --bg-elev: #F2FAFE;
   --surface: #FFFFFF;
-  --surface-2: #F1F3F7;
-  --surface-3: #E7EBF1;
-  --border: #E3E7EE;
-  --border-strong: #CDD4DF;
+  --surface-2: #F3F8FD;
+  --surface-3: #E6F0FA;
+  --border: #D9E8F5;
+  --border-strong: #BED5EA;
 
-  /* Text — хар хөх */
-  --text: #1D2433;
-  --text-2: #556073;
-  --text-3: #8790A1;
+  /* Text — гүн индиго */
+  --text: #2A2350;
+  --text-2: #5B5683;
+  --text-3: #85819F;
 
-  /* Accent — тод ягаан */
-  --accent: #DB2E72;
-  --accent-hover: #C42563;
-  --accent-soft: #FDE4EE;
+  /* Accent — бохь ягаан */
+  --accent: #D6347C;
+  --accent-hover: #BF2A6C;
+  --accent-soft: #FFE3EF;
   --accent-contrast: #FFFFFF;
-  --accent-fill: #DB2E72;
-  --accent-fill-hover: #C42563;
-  --accent-fill-text: #FFFFFF;
-  --focus: #DB2E72;
+  --accent-fill: #FF9EC7;
+  --accent-fill-hover: #FF8BBB;
+  --accent-fill-text: #6E0F3E;
+  --focus: #FF6FA8;
 
-  /* Өнгөлөг палитр (чимэглэл, дүрс, хавтан) */
-  --pink: #DB2E72;
-  --pink-bright: #F45B93;
-  --teal: #14A09C;
-  --teal-deep: #0E8381;
-  --yellow: #F6B935;
-  --blue: #1F6FB5;
-  --violet: #7357D9;
-  --orange: #F07C3E;
-  --slate: #5A6270;
-  --on-yellow: #1D2433;
+  /* Бөмбөлөг үсэг (puffy) */
+  --puff-1: #FFC9DE;
+  --puff-2: #FF8DBB;
+  --puff-3: #F56AA4;
+  --puff-d1: #EE5C98;
+  --puff-d2: #DC4C88;
+  --puff-d3: #C63F78;
+  --puff-shadow: rgba(214, 52, 124, .32);
 
-  /* Хавтангийн өнгө — хоёр горимд ижил (цагаан текст уншигдахуйц) */
-  --tile-pink: #DB2E72;
-  --tile-teal: #0E8784;
-  --tile-yellow: #F6B935;
-  --tile-blue: #1F6FB5;
+  /* Пастел палитр */
+  --pink: #FF7EB3;
+  --sky: #4FB6EA;
+  --lilac: #9D86F5;
+  --peach: #FF9E7A;
+  --mint: #3FC9A6;
+  --butter: #FFD45C;
 
-  /* Нүүрний туузан hero */
-  --hero-from: #0E8381;
-  --hero-to: #19ADA8;
-  --hero-ink: #FFFFFF;
-  --ring-track: rgba(255, 255, 255, .3);
-
-  /* Дэвсгэрийн бүдэг гэрлэн толбо (bokeh) */
-  --bokeh-1: rgba(244, 91, 147, .13);
-  --bokeh-2: rgba(246, 185, 53, .14);
-  --bokeh-3: rgba(20, 160, 156, .11);
+  /* KPI бөмбөлөг хавтан (2 өнгийн градиент) */
+  --tile-1a: #FFE1EE; --tile-1b: #FFC2DC;
+  --tile-2a: #DDF2FF; --tile-2b: #BCE4FF;
+  --tile-3a: #EEE8FF; --tile-3b: #D9CDFF;
+  --tile-4a: #DCF8EF; --tile-4b: #BDEFDF;
 
   /* Status */
-  --danger: #C8322B;   --danger-soft: #FDE6E4;
-  --warning: #A86A0C;  --warning-soft: #FFF3D9;
-  --success: #1E8A5A;  --success-soft: #E1F5EB;
-  --info: #1F6FB5;     --info-soft: #E3EEF9;
+  --danger: #D33A4B;   --danger-soft: #FFE4E7;
+  --warning: #A86400;  --warning-soft: #FFF1D6;
+  --success: #1C8656;  --success-soft: #DDF5E9;
+  --info: #2580C4;     --info-soft: #E0F1FC;
 
   /* Priorities */
-  --p-high: #C8322B;
-  --p-medium: #D99A1A;
-  --p-low: #A7B0BF;
+  --p-high: #D33A4B;
+  --p-medium: #E89A1C;
+  --p-low: #A9B4CC;
 
   /* Event categories */
-  --ev-work: #1F6FB5;
-  --ev-personal: #DB2E72;
-  --ev-health: #14A09C;
+  --ev-work: #2E8FD0;
+  --ev-personal: #E8508F;
+  --ev-health: #18A58F;
   --ev-social: #F0A21E;
-  --ev-focus: #7357D9;
-  --ev-other: #8A93A3;
-  --ev-birthday: #F07C3E;
-  --ev-task: #556073;
+  --ev-focus: #8A6CF0;
+  --ev-other: #8B88AE;
+  --ev-birthday: #FF8A5B;
+  --ev-task: #5B5683;
 
   /* Mood scale 1 → 5 */
-  --mood-1: #E5484D;
-  --mood-2: #F07C3E;
-  --mood-3: #F6B935;
-  --mood-4: #5CC28E;
-  --mood-5: #14A09C;
+  --mood-1: #FF6B7A;
+  --mood-2: #FFA26B;
+  --mood-3: #FFD36B;
+  --mood-4: #7FD8A8;
+  --mood-5: #5CC0EE;
 
-  /* Shape & depth — хавтгай, бага сүүдэртэй */
-  --radius-sm: 6px;
-  --radius: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
-  --shadow-xs: 0 1px 0 rgba(29, 36, 51, .04);
-  --shadow-sm: 0 1px 2px rgba(29, 36, 51, .06);
-  --shadow: 0 1px 2px rgba(29, 36, 51, .05), 0 10px 24px -16px rgba(29, 36, 51, .22);
-  --shadow-lg: 0 2px 6px rgba(29, 36, 51, .07), 0 28px 56px -22px rgba(29, 36, 51, .32);
-  --backdrop: rgba(17, 22, 33, .45);
+  /* Shape & depth — бөмбөлөг шиг зөөлөн */
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --shadow-xs: 0 1px 2px rgba(70, 110, 190, .08);
+  --shadow-sm: 0 2px 8px rgba(70, 110, 190, .12);
+  --shadow: 0 12px 30px -14px rgba(60, 100, 180, .38), 0 2px 6px rgba(255, 120, 170, .08);
+  --shadow-lg: 0 24px 60px -20px rgba(50, 80, 160, .45), 0 4px 12px rgba(255, 120, 170, .12);
+  --backdrop: rgba(40, 50, 110, .35);
 
   /* Motion */
   --ease: cubic-bezier(.2, .75, .25, 1);
   --dur: .18s;
 
   /* Layout */
-  --sidebar-w: 260px;
-  --rail-w: 72px;
+  --sidebar-w: 264px;
+  --rail-w: 76px;
   --topbar-h: 64px;
-  --bottom-h: 64px;
+  --bottom-h: 66px;
 
   color-scheme: light;
 }
 
-/* Харанхуй горим — Тохиргооноос сонгосон үед… */
+/* Харанхуй горим — шөнийн тэнгэр. Тохиргооноос сонгосон үед… */
 :root[data-theme="dark"] {
-  --bg: #10151E; --bg-elev: #141A24; --surface: #19212D; --surface-2: #202937; --surface-3: #283243;
-  --border: #263041; --border-strong: #364256;
-  --text: #EEF2F8; --text-2: #A9B3C4; --text-3: #75809A;
-  --accent: #FF6FA3; --accent-hover: #FF8DB7; --accent-soft: #3A1D2B; --accent-contrast: #2A0716; --focus: #FF6FA3;
-  --accent-fill: #FF6FA3; --accent-fill-hover: #FF8DB7; --accent-fill-text: #2A0716;
-  --pink: #FF6FA3; --pink-bright: #FF8DB7; --teal: #3CC9C3; --teal-deep: #0E8784; --yellow: #F4C04E; --blue: #6FB0F0; --violet: #A893F5; --orange: #FF9A63; --slate: #8A93A3;
-  --hero-from: #0A5F5E; --hero-to: #0F807C; --ring-track: rgba(255, 255, 255, .22);
-  --bokeh-1: rgba(255, 111, 163, .09); --bokeh-2: rgba(244, 192, 78, .06); --bokeh-3: rgba(60, 201, 195, .07);
-  --danger: #FF7A72; --danger-soft: #3B1C1F; --warning: #F4C04E; --warning-soft: #3A2E14;
-  --success: #5FD39A; --success-soft: #15301F; --info: #6FB0F0; --info-soft: #172638;
-  --p-high: #FF7A72; --p-medium: #F4C04E; --p-low: #4C566A;
-  --ev-work: #6FB0F0; --ev-personal: #FF6FA3; --ev-health: #3CC9C3; --ev-social: #F4C04E; --ev-focus: #A893F5; --ev-other: #8A93A3; --ev-birthday: #FF9A63; --ev-task: #A9B3C4;
-  --mood-1: #FF7A72; --mood-2: #FF9A63; --mood-3: #F4C04E; --mood-4: #6FD6A0; --mood-5: #3CC9C3;
-  --shadow-xs: 0 1px 0 rgba(0, 0, 0, .2);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
-  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 28px -18px rgba(0, 0, 0, .7);
-  --shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 32px 64px -24px rgba(0, 0, 0, .8);
-  --backdrop: rgba(0, 0, 0, .6);
+  --sky-top: #12153F; --sky-mid: #262163; --sky-bottom: #55296C; --cloud: rgba(205, 190, 255, .12);
+  --glass: rgba(33, 37, 88, .72); --glass-strong: rgba(33, 37, 88, .9); --glass-border: rgba(255, 255, 255, .1);
+  --bg: #171A3D; --bg-elev: #1C2049; --surface: #22275A; --surface-2: #2A2F68; --surface-3: #333877;
+  --border: #343A78; --border-strong: #474E95;
+  --text: #F4F1FF; --text-2: #C7C2EE; --text-3: #9690C8;
+  --accent: #FF8EC0; --accent-hover: #FFA8CF; --accent-soft: #4A2752; --accent-contrast: #3A0B26; --focus: #FF8EC0;
+  --accent-fill: #FF9EC7; --accent-fill-hover: #FFB3D4; --accent-fill-text: #4A0A2C;
+  --puff-1: #FFD3E5; --puff-2: #FF9CC6; --puff-3: #FF78B0; --puff-d1: #E25E9B; --puff-d2: #C24C85; --puff-d3: #9E3A6E; --puff-shadow: rgba(255, 110, 180, .35);
+  --pink: #FF8EC0; --sky: #7CC8FF; --lilac: #B7A6FF; --peach: #FFB08F; --mint: #6FE0C2; --butter: #FFDD7A;
+  --tile-1a: #5B2A63; --tile-1b: #742F70; --tile-2a: #233F7A; --tile-2b: #2B4F91; --tile-3a: #3B2E80; --tile-3b: #4A3A99; --tile-4a: #1F4A5E; --tile-4b: #245A6E;
+  --danger: #FF7A85; --danger-soft: #4A1F33; --warning: #FFC266; --warning-soft: #43351A;
+  --success: #6FE0A8; --success-soft: #173A2E; --info: #7CC8FF; --info-soft: #1D2F5C;
+  --p-high: #FF7A85; --p-medium: #FFC266; --p-low: #5A608F;
+  --ev-work: #7CC8FF; --ev-personal: #FF8EC0; --ev-health: #6FE0C2; --ev-social: #FFC266; --ev-focus: #B7A6FF; --ev-other: #9690C8; --ev-birthday: #FFB08F; --ev-task: #C7C2EE;
+  --mood-1: #FF7A85; --mood-2: #FFB08F; --mood-3: #FFDD7A; --mood-4: #8FE6B8; --mood-5: #7CC8FF;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, .25);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3);
+  --shadow: 0 14px 34px -16px rgba(0, 0, 0, .7), 0 2px 6px rgba(255, 120, 190, .08);
+  --shadow-lg: 0 28px 64px -24px rgba(0, 0, 0, .8);
+  --backdrop: rgba(5, 6, 25, .6);
   color-scheme: dark;
 }
 
 /* … эсвэл Тохиргоо «Систем» үед үйлдлийн системээр. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #10151E; --bg-elev: #141A24; --surface: #19212D; --surface-2: #202937; --surface-3: #283243;
-    --border: #263041; --border-strong: #364256;
-    --text: #EEF2F8; --text-2: #A9B3C4; --text-3: #75809A;
-    --accent: #FF6FA3; --accent-hover: #FF8DB7; --accent-soft: #3A1D2B; --accent-contrast: #2A0716; --focus: #FF6FA3;
-    --accent-fill: #FF6FA3; --accent-fill-hover: #FF8DB7; --accent-fill-text: #2A0716;
-    --pink: #FF6FA3; --pink-bright: #FF8DB7; --teal: #3CC9C3; --teal-deep: #0E8784; --yellow: #F4C04E; --blue: #6FB0F0; --violet: #A893F5; --orange: #FF9A63; --slate: #8A93A3;
-    --hero-from: #0A5F5E; --hero-to: #0F807C; --ring-track: rgba(255, 255, 255, .22);
-    --bokeh-1: rgba(255, 111, 163, .09); --bokeh-2: rgba(244, 192, 78, .06); --bokeh-3: rgba(60, 201, 195, .07);
-    --danger: #FF7A72; --danger-soft: #3B1C1F; --warning: #F4C04E; --warning-soft: #3A2E14;
-    --success: #5FD39A; --success-soft: #15301F; --info: #6FB0F0; --info-soft: #172638;
-    --p-high: #FF7A72; --p-medium: #F4C04E; --p-low: #4C566A;
-    --ev-work: #6FB0F0; --ev-personal: #FF6FA3; --ev-health: #3CC9C3; --ev-social: #F4C04E; --ev-focus: #A893F5; --ev-other: #8A93A3; --ev-birthday: #FF9A63; --ev-task: #A9B3C4;
-    --mood-1: #FF7A72; --mood-2: #FF9A63; --mood-3: #F4C04E; --mood-4: #6FD6A0; --mood-5: #3CC9C3;
-    --shadow-xs: 0 1px 0 rgba(0, 0, 0, .2);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 28px -18px rgba(0, 0, 0, .7);
-    --shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 32px 64px -24px rgba(0, 0, 0, .8);
-    --backdrop: rgba(0, 0, 0, .6);
+    --sky-top: #12153F; --sky-mid: #262163; --sky-bottom: #55296C; --cloud: rgba(205, 190, 255, .12);
+    --glass: rgba(33, 37, 88, .72); --glass-strong: rgba(33, 37, 88, .9); --glass-border: rgba(255, 255, 255, .1);
+    --bg: #171A3D; --bg-elev: #1C2049; --surface: #22275A; --surface-2: #2A2F68; --surface-3: #333877;
+    --border: #343A78; --border-strong: #474E95;
+    --text: #F4F1FF; --text-2: #C7C2EE; --text-3: #9690C8;
+    --accent: #FF8EC0; --accent-hover: #FFA8CF; --accent-soft: #4A2752; --accent-contrast: #3A0B26; --focus: #FF8EC0;
+    --accent-fill: #FF9EC7; --accent-fill-hover: #FFB3D4; --accent-fill-text: #4A0A2C;
+    --puff-1: #FFD3E5; --puff-2: #FF9CC6; --puff-3: #FF78B0; --puff-d1: #E25E9B; --puff-d2: #C24C85; --puff-d3: #9E3A6E; --puff-shadow: rgba(255, 110, 180, .35);
+    --pink: #FF8EC0; --sky: #7CC8FF; --lilac: #B7A6FF; --peach: #FFB08F; --mint: #6FE0C2; --butter: #FFDD7A;
+    --tile-1a: #5B2A63; --tile-1b: #742F70; --tile-2a: #233F7A; --tile-2b: #2B4F91; --tile-3a: #3B2E80; --tile-3b: #4A3A99; --tile-4a: #1F4A5E; --tile-4b: #245A6E;
+    --danger: #FF7A85; --danger-soft: #4A1F33; --warning: #FFC266; --warning-soft: #43351A;
+    --success: #6FE0A8; --success-soft: #173A2E; --info: #7CC8FF; --info-soft: #1D2F5C;
+    --p-high: #FF7A85; --p-medium: #FFC266; --p-low: #5A608F;
+    --ev-work: #7CC8FF; --ev-personal: #FF8EC0; --ev-health: #6FE0C2; --ev-social: #FFC266; --ev-focus: #B7A6FF; --ev-other: #9690C8; --ev-birthday: #FFB08F; --ev-task: #C7C2EE;
+    --mood-1: #FF7A85; --mood-2: #FFB08F; --mood-3: #FFDD7A; --mood-4: #8FE6B8; --mood-5: #7CC8FF;
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, .25);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3);
+    --shadow: 0 14px 34px -16px rgba(0, 0, 0, .7), 0 2px 6px rgba(255, 120, 190, .08);
+    --shadow-lg: 0 28px 64px -24px rgba(0, 0, 0, .8);
+    --backdrop: rgba(5, 6, 25, .6);
     color-scheme: dark;
   }
 }

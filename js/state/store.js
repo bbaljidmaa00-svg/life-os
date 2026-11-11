@@ -28,6 +28,7 @@ const state = {
   orders: [],
   workContacts: [],
   workGoals: [],
+  wishes: [],
 };
 
 const meta = {

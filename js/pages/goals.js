@@ -1,19 +1,25 @@
 /**
- * Goals & Projects.
- *   #/goals          → goal cards with progress, filter + sort, loose projects
- *   #/goals/<id>     → one goal: its projects, each with its tasks
- *   #/goals/none     → projects that don't belong to a goal
+ * Хүсэл, зорилго, төсөл.
+ *   #/goals?tab=wishes  → хүсэл мөрөөдөл: 4 ангилал (Болох · Хийх · Эзэмших · Өгөх), хугацаагүй
+ *   #/goals?tab=goals   → goal cards with progress, filter + sort, loose projects
+ *   #/goals/<id>        → one goal: its wish, its projects, each with its tasks
+ *   #/goals/none        → projects that don't belong to a goal
+ *
+ * Гинж:  Хүсэл  →  Зорилго (goals.wish_id)  →  Төсөл (projects.goal_id)  →  Хийх зүйлс (tasks.project_id)
  */
-import { goalsService, projectsService, goalProgress, projectProgress, deleteGoal, deleteProject, STATUSES, STATUS_TONE } from '../services/goalsService.js';
+import {
+  goalsService, projectsService, goalProgress, projectProgress, deleteGoal, deleteProject, STATUSES, STATUS_TONE,
+  wishesService, WISH_CATEGORIES, wishCategory, goalsOfWish, wishProgress,
+} from '../services/goalsService.js';
 import { tasksService, sortTasks } from '../services/tasksService.js';
 import { taskListHTML, handleTaskAction } from '../components/taskItem.js';
-import { openGoalForm, openProjectForm } from '../components/forms.js';
+import { openGoalForm, openProjectForm, openWishForm } from '../components/forms.js';
 import { parseTaskInput } from '../lib/nlp.js';
 import { prefs } from '../state/prefs.js';
 import { emptyState, pageHead, progressBar, confirmDialog, openMenu, toast, options } from '../lib/ui.js';
-import { esc, plural } from '../lib/dom.js';
+import { esc } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
-import { navigate } from '../lib/nav.js';
+import { navigate, parseRoute } from '../lib/nav.js';
 import { todayKey, diffDays, fmt } from '../lib/dates.js';
 
 let statusFilter = 'active';
@@ -31,8 +37,68 @@ function targetText(dateKey, status) {
   return `${days} хоног үлдсэн · ${fmt.short(dateKey)}`;
 }
 
-/* ───────────── List ───────────── */
-function renderList(root) {
+/** Хүсэл → Зорилго → Төсөл → Хийх зүйлс гинжийг харуулах жижиг мөр. */
+const chainHTML = () => `<span class="chain" aria-label="Хүсэл, зорилго, төсөл, хийх зүйлсийн холбоо">
+  <span class="chain-step is-wish">${icon('sparkle', 13)}Хүсэл</span>${icon('chevronRight', 13)}
+  <span class="chain-step is-goal">${icon('goals', 13)}Зорилго</span>${icon('chevronRight', 13)}
+  <span class="chain-step is-project">${icon('folder', 13)}Төсөл</span>${icon('chevronRight', 13)}
+  <span class="chain-step is-task">${icon('tasks', 13)}Хийх зүйлс</span></span>`;
+
+const wishChip = (wish) => (wish ? `<span class="goal-wish" style="--wc:${wishCategory(wish.category).color}">${icon(wishCategory(wish.category).icon, 12)}${esc(wish.title)}</span>` : '');
+
+/* ───────────── Хүсэл мөрөөдөл ───────────── */
+function wishItem(w) {
+  const goals = goalsOfWish(w.id);
+  const achieved = Boolean(w.achieved_at);
+  return `<li class="wish ${achieved ? 'is-achieved' : ''}" data-wish-id="${w.id}">
+    <div class="wish-row">
+      <button type="button" class="wish-main" data-action="edit-wish">
+        <span class="wish-title">${achieved ? '✨ ' : ''}${esc(w.title)}</span>
+        ${w.note ? `<span class="wish-note">${esc(w.note)}</span>` : ''}
+      </button>
+      <button type="button" class="icon-btn icon-btn-sm" data-action="wish-menu" aria-label="Сонголт: ${esc(w.title)}" aria-haspopup="menu">${icon('more', 16)}</button>
+    </div>
+    ${goals.length ? `<ul class="wish-goals">${goals.map((g) => {
+    const p = goalProgress(g.id);
+    return `<li><a class="wish-goal ${g.status === 'completed' ? 'is-done' : ''}" href="#/goals/${g.id}">
+        <span class="wg-name">${icon('goals', 13)}${esc(g.title)}</span>
+        <span class="wg-sub">${p.projects} төсөл · ${p.pct}%</span>
+        ${progressBar(p.pct)}
+      </a></li>`;
+  }).join('')}</ul>` : ''}
+    ${achieved ? '' : `<div class="wish-actions">
+      <button type="button" class="wish-to-goal ${goals.length ? 'is-more' : ''}" data-action="to-goal">${icon(goals.length ? 'plus' : 'arrowRight', 14)}${goals.length ? 'Өөр зорилго' : 'Зорилго болгох'}</button>
+    </div>`}
+  </li>`;
+}
+
+function wishesTab() {
+  const total = wishesService.all().length;
+  const intro = total ? '' : `<div class="card wish-intro">
+      <span class="wish-intro-icon">${icon('sparkle', 22)}</span>
+      <div><p class="wish-intro-title">Мөрөөдлөө чөлөөтэй бич</p>
+      <p class="small muted">Хүсэлд хугацаа хэрэггүй. Болмоор, хиймээр, эзэмшмээр, бусдад өгмөөр байгаа бүхнээ доорх 4 хайрцагт бичээрэй. Бэлэн болсон үедээ «Зорилго болгох» дарж хугацаа, төсөлтэй болгоно.</p></div>
+    </div>`;
+  return `${intro}<div class="wish-board">${WISH_CATEGORIES.map((c) => {
+    const list = wishesService.byCategory(c.value);
+    const open = list.filter((w) => !w.achieved_at).length;
+    return `<section class="card wish-col" style="--wc:${c.color}" aria-label="${esc(c.label)}">
+      <header class="wish-head">
+        <span class="wish-icon">${icon(c.icon, 20)}</span>
+        <div class="wish-head-text"><h2 class="wish-cat">${esc(c.label)}</h2><p class="wish-hint">${esc(c.hint)}</p></div>
+        <span class="wish-count" title="${open} хүсэл">${list.length}</span>
+      </header>
+      <form class="wish-add" data-cat="${c.value}" autocomplete="off">
+        <input class="wish-add-input" id="wishAdd-${c.value}" placeholder="${esc(c.example)}" aria-label="${esc(c.label)} — хүсэл нэмэх" maxlength="200">
+        <button type="submit" class="wish-add-btn" aria-label="Нэмэх">${icon('plus', 16)}</button>
+      </form>
+      ${list.length ? `<ul class="wish-list">${list.map(wishItem).join('')}</ul>` : '<p class="wish-empty small faint">Энд хүслээ бичээд Enter дарна.</p>'}
+    </section>`;
+  }).join('')}</div>`;
+}
+
+/* ───────────── Зорилго ───────────── */
+function goalsTab() {
   const goals = goalsService.all();
   const counts = Object.fromEntries(['active', 'paused', 'completed'].map((s) => [s, goals.filter((g) => g.status === s).length]));
   let list = goals.filter((g) => statusFilter === 'all' || g.status === statusFilter);
@@ -47,21 +113,16 @@ function renderList(root) {
     const p = goalProgress(g.id);
     return `<a class="card goal-card" href="#/goals/${g.id}">
       <div class="goal-card-top">${statusBadge(g.status)}<span class="goal-card-pct">${p.pct}%</span></div>
+      ${wishChip(wishesService.get(g.wish_id))}
       <h3 class="goal-card-title">${esc(g.title)}</h3>
       ${g.description ? `<p class="goal-card-desc">${esc(g.description)}</p>` : ''}
       ${progressBar(p.pct)}
-      <div class="goal-card-meta"><span>${icon('folder', 14)}${p.projects} төсөл</span><span>${icon('tasks', 14)}${p.done}/${p.total} ажил</span></div>
+      <div class="goal-card-meta"><span>${icon('folder', 14)}${p.projects} төсөл</span><span>${icon('tasks', 14)}${p.done}/${p.total} зүйл</span></div>
       <p class="goal-card-target small">${icon('flag', 13)}${targetText(g.target_date, g.status)}</p>
     </a>`;
   }).join('');
 
-  root.innerHTML = `
-    ${pageHead({
-    eyebrow: 'Чиглэл',
-    title: 'Зорилго ба төсөл',
-    sub: 'Зорилго нь хүрэх үр дүнг, төсөл нь түүнд хүрэх алхмыг, ажил нь төсөл бүрийн доторх хийх зүйлийг илэрхийлнэ.',
-    actions: `<button type="button" class="btn" data-action="new-project">${icon('folder', 16)} Шинэ төсөл</button><button type="button" class="btn btn-primary" data-action="new-goal">${icon('plus', 16)} Шинэ зорилго</button>`,
-  })}
+  return `
     ${goals.length ? `<div class="toolbar">
       <div class="tabs" role="tablist" aria-label="Зорилго шүүх">
         ${[['active', 'Идэвхтэй'], ['paused', 'Түр зогссон'], ['completed', 'Дууссан'], ['all', 'Бүгд']].map(([v, l]) => `<button type="button" class="tab ${statusFilter === v ? 'is-active' : ''}" data-action="filter" data-value="${v}" role="tab" aria-selected="${statusFilter === v}">${l}<span class="count">${v === 'all' ? goals.length : counts[v]}</span></button>`).join('')}
@@ -73,7 +134,7 @@ function renderList(root) {
     ? (list.length ? `<div class="goal-grid">${cards}</div>` : `<div class="card">${emptyState({ icon: 'goals', title: 'Энэ төлөвтэй зорилго алга', text: 'Бусад зорилгыг харахын тулд шүүлтүүрээ солино уу.' })}</div>`)
     : `<div class="card">${emptyState({
       icon: 'goals', title: 'Эхний зорилгоо тавих',
-      text: 'Зорилго бол утга учиртай үр дүн — “Хагас марафон гүйх”, “Портфолиогоо нийтлэх”. Түүнд төсөл, төсөл бүрт ажил нэмэхэд ахиц автоматаар шинэчлэгдэнэ.',
+      text: 'Зорилго бол утга учиртай үр дүн — “Хагас марафон гүйх”, “Портфолиогоо нийтлэх”. Хүслээсээ эхлүүлж болно: «Хүсэл мөрөөдөл» табаас «Зорилго болгох» дарна.',
       actions: `<button type="button" class="btn btn-primary" data-action="new-goal">${icon('plus', 16)} Шинэ зорилго</button>`,
     })}</div>`}
     ${loose.length ? `<h2 class="section-title">${icon('folder', 16)} Зорилгогүй төслүүд <span class="faint">${loose.length}</span><span class="spacer"></span><a class="card-link" href="#/goals/none">Нээх ${icon('chevronRight', 14)}</a></h2>
@@ -81,16 +142,85 @@ function renderList(root) {
     const pr = projectProgress(p.id);
     return `<a class="project-row" href="#/goals/none"><span class="project-row-title">${esc(p.title)}</span>${statusBadge(p.status)}<span class="project-row-bar">${progressBar(pr.pct)}</span><span class="small faint">${pr.done}/${pr.total}</span></a>`;
   }).join('')}</div>` : ''}`;
+}
+
+/** Хүслээс зорилго үүсгээд, шууд төсөл нэмэх санал тавина. */
+function goalFromWish(wish) {
+  openGoalForm(null, {
+    defaults: { title: wish.title, wish_id: wish.id, description: wish.note || '' },
+    quiet: true,
+    onSaved: (g) => toast(`“${g.title}” зорилго боллоо`, { action: () => openProjectForm(null, { goal_id: g.id }), actionLabel: 'Төсөл нэмэх', duration: 8000 }),
+  });
+}
+
+function renderList(root, route = parseRoute()) {
+  const tab = route.query?.tab === 'goals' ? 'goals' : 'wishes';
+  const wishes = wishesService.all();
+  const goals = goalsService.all();
+  const linked = goals.filter((g) => g.wish_id && wishesService.get(g.wish_id)).length;
+
+  root.innerHTML = `
+    ${pageHead({
+    eyebrow: tab === 'wishes' ? `${wishes.length} хүсэл · ${wishes.filter((w) => w.achieved_at).length} биелсэн · ${linked} зорилготой холбогдсон` : 'Чиглэл',
+    title: 'Зорилго ба төсөл',
+    sub: chainHTML(),
+    actions: tab === 'wishes'
+      ? `<button type="button" class="btn" data-action="new-goal">${icon('goals', 16)} Шинэ зорилго</button><button type="button" class="btn btn-primary" data-action="new-wish">${icon('sparkle', 16)} Шинэ хүсэл</button>`
+      : `<button type="button" class="btn" data-action="new-project">${icon('folder', 16)} Шинэ төсөл</button><button type="button" class="btn btn-primary" data-action="new-goal">${icon('plus', 16)} Шинэ зорилго</button>`,
+  })}
+    <nav class="tabs page-tabs" aria-label="Хүсэл ба зорилго">
+      <a class="tab ${tab === 'wishes' ? 'is-active' : ''}" href="#/goals?tab=wishes" ${tab === 'wishes' ? 'aria-current="page"' : ''}>${icon('sparkle', 15)} Хүсэл мөрөөдөл<span class="count">${wishes.length}</span></a>
+      <a class="tab ${tab === 'goals' ? 'is-active' : ''}" href="#/goals?tab=goals" ${tab === 'goals' ? 'aria-current="page"' : ''}>${icon('goals', 15)} Зорилго ба төсөл<span class="count">${goals.length}</span></a>
+    </nav>
+    ${tab === 'wishes' ? wishesTab() : goalsTab()}`;
 
   root.onclick = (e) => {
     const el = e.target.closest('[data-action]');
     if (!el) return;
-    if (el.dataset.action === 'new-goal') openGoalForm(null, { onSaved: (g) => navigate(`goals/${g.id}`) });
-    if (el.dataset.action === 'new-project') openProjectForm();
-    if (el.dataset.action === 'filter') { statusFilter = el.dataset.value; renderList(root); }
+    const wishId = el.closest('[data-wish-id]')?.dataset.wishId;
+    const wish = wishId && wishesService.get(wishId);
+    switch (el.dataset.action) {
+      case 'new-goal': openGoalForm(null, { onSaved: (g) => navigate(`goals/${g.id}`) }); break;
+      case 'new-project': openProjectForm(); break;
+      case 'new-wish': openWishForm(); break;
+      case 'filter': statusFilter = el.dataset.value; renderList(root, route); break;
+      case 'edit-wish': openWishForm(wish); break;
+      case 'to-goal': goalFromWish(wish); break;
+      case 'wish-menu': {
+        const free = goalsService.all().filter((g) => !g.wish_id || !wishesService.get(g.wish_id));
+        openMenu(el, [
+          { label: 'Засах', icon: 'edit', onSelect: () => openWishForm(wish) },
+          { label: 'Зорилго болгох', icon: 'goals', onSelect: () => goalFromWish(wish) },
+          ...(free.length ? [{
+            label: 'Байгаа зорилго холбох', icon: 'link',
+            onSelect: () => openMenu(el, free.map((g) => ({
+              label: g.title, icon: 'goals',
+              onSelect: () => goalsService.update(g.id, { wish_id: wish.id }).then(() => toast(`“${g.title}” → “${wish.title}”-д холбогдлоо`)).catch((err) => toast(err.message, { tone: 'danger' })),
+            }))),
+          }] : []),
+          wish.achieved_at
+            ? { label: 'Биелээгүй болгох', icon: 'refresh', onSelect: () => wishesService.toggleAchieved(wish) }
+            : { label: 'Биелсэн ✨', icon: 'check', onSelect: () => wishesService.toggleAchieved(wish).then(() => toast(`✨ “${wish.title}” биелжээ! Баяр хүргэе`)) },
+        ]);
+        break;
+      }
+      default:
+    }
   };
-  root.onchange = (e) => { if (e.target.id === 'goalSort') { sortBy = e.target.value; renderList(root); } };
-  root.onsubmit = null;
+  root.onchange = (e) => { if (e.target.id === 'goalSort') { sortBy = e.target.value; renderList(root, route); } };
+  root.onsubmit = async (e) => {
+    const form = e.target.closest('.wish-add');
+    if (!form) return;
+    e.preventDefault();
+    const input = form.querySelector('input');
+    const title = input.value.trim();
+    if (!title) { input.focus(); return; }
+    try {
+      input.value = '';
+      await wishesService.create({ title, category: form.dataset.cat });
+      requestAnimationFrame(() => document.getElementById(`wishAdd-${form.dataset.cat}`)?.focus());
+    } catch (err) { input.value = title; toast(err.message, { tone: 'danger' }); }
+  };
 }
 
 /* ───────────── Detail ───────────── */
@@ -122,8 +252,8 @@ function renderDetail(root, goalId) {
   const isLoose = goalId === 'none';
   const goal = isLoose ? null : goalsService.get(goalId);
   if (!isLoose && !goal) {
-    root.innerHTML = `<a class="back-link" href="#/goals">${icon('arrowLeft', 16)} Бүх зорилго</a>
-      <div class="card" style="margin-top:20px">${emptyState({ icon: 'goals', title: 'Зорилго олдсонгүй', text: 'Устгагдсан байж магадгүй.', actions: '<a class="btn" href="#/goals">Зорилго руу буцах</a>' })}</div>`;
+    root.innerHTML = `<a class="back-link" href="#/goals?tab=goals">${icon('arrowLeft', 16)} Бүх зорилго</a>
+      <div class="card" style="margin-top:20px">${emptyState({ icon: 'goals', title: 'Зорилго олдсонгүй', text: 'Устгагдсан байж магадгүй.', actions: '<a class="btn" href="#/goals?tab=goals">Зорилго руу буцах</a>' })}</div>`;
     root.onclick = null;
     return;
   }
@@ -133,7 +263,7 @@ function renderDetail(root, goalId) {
   const progress = goal ? goalProgress(goal.id) : null;
 
   root.innerHTML = `
-    <a class="back-link" href="#/goals">${icon('arrowLeft', 16)} Бүх зорилго</a>
+    <a class="back-link" href="#/goals?tab=goals">${icon('arrowLeft', 16)} Бүх зорилго</a>
     ${goal ? `
       <header class="page-head">
         <div class="page-head-text">
@@ -146,6 +276,12 @@ function renderDetail(root, goalId) {
           <button type="button" class="icon-btn" data-action="goal-menu" aria-label="Бусад сонголт" aria-haspopup="menu">${icon('more')}</button>
         </div>
       </header>
+      ${(() => {
+    const w = wishesService.get(goal.wish_id);
+    return w
+      ? `<a class="wish-link-bar" href="#/goals?tab=wishes" style="--wc:${wishCategory(w.category).color}">${icon(wishCategory(w.category).icon, 16)}<span>Энэ зорилго <b>«${esc(w.title)}»</b> хүслийн төлөө</span><span class="faint small">${esc(wishCategory(w.category).label)}</span></a>`
+      : `<button type="button" class="wish-link-bar is-empty" data-action="edit-goal">${icon('sparkle', 16)}<span>Энэ зорилгыг аль нэг хүсэлтэйгээ холбох</span>${icon('chevronRight', 14)}</button>`;
+  })()}
       <div class="card goal-summary">
         <div class="goal-summary-main"><span class="goal-summary-pct">${progress.pct}%</span>${progressBar(progress.pct)}<span class="small muted">${progress.total} ажлаас ${progress.done} нь дууссан</span></div>
         <div class="goal-summary-stat"><span class="small faint">Зорилт</span><strong>${goal.target_date ? fmt.medium(goal.target_date) : '—'}</strong><span class="small muted">${targetText(goal.target_date, goal.status)}</span></div>
@@ -183,7 +319,7 @@ function renderDetail(root, goalId) {
             onSelect: async () => {
               const ok = await confirmDialog({ title: 'Энэ зорилгыг устгах уу?', message: `“${goal.title}” устгагдана. Түүний ${projects.length} төсөл, ажлууд хадгалагдаж “Зорилгогүй төслүүд” рүү шилжинэ.` });
               if (!ok) return;
-              try { await deleteGoal(goal.id); toast('Зорилго устгагдлаа'); navigate('goals'); } catch (err) { toast(err.message, { tone: 'danger' }); }
+              try { await deleteGoal(goal.id); toast('Зорилго устгагдлаа'); navigate('goals?tab=goals'); } catch (err) { toast(err.message, { tone: 'danger' }); }
             },
           },
         ]);
@@ -235,6 +371,6 @@ export default {
   title: 'Зорилго ба төсөл',
   render(root, route) {
     if (route.params[0]) renderDetail(root, route.params[0]);
-    else renderList(root);
+    else renderList(root, route);
   },
 };

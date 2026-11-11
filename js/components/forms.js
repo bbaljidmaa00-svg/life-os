@@ -4,11 +4,11 @@
  */
 import { tasksService, PRIORITIES, DURATIONS } from '../services/tasksService.js';
 import { eventsService, EVENT_CATEGORIES } from '../services/eventsService.js';
-import { goalsService, projectsService, STATUSES } from '../services/goalsService.js';
+import { goalsService, projectsService, wishesService, deleteWish, goalsOfWish, STATUSES, WISH_CATEGORIES, wishCategory } from '../services/goalsService.js';
 import { journalService, MOODS } from '../services/journalService.js';
 import { birthdaysService, RELATIONSHIPS, REMINDER_OPTIONS } from '../services/birthdaysService.js';
 import { prefs } from '../state/prefs.js';
-import { openFormModal, openMenu, toast, segmented, options } from '../lib/ui.js';
+import { openFormModal, openMenu, toast, segmented, options, confirmDialog } from '../lib/ui.js';
 import { esc } from '../lib/dom.js';
 import { todayKey, timeToMin, minToTime, fmtDuration, MONTHS } from '../lib/dates.js';
 
@@ -169,9 +169,17 @@ export function openEventForm(ev = null, defaults = {}, { onSaved } = {}) {
 }
 
 /* ───────────── Goal ───────────── */
-export function openGoalForm(goal = null, { onSaved } = {}) {
-  const g = goal || { title: '', description: '', target_date: '', status: 'active' };
-  const id = { title: fid('title'), desc: fid('desc'), date: fid('date'), status: fid('status') };
+function wishOptions(selected) {
+  const groups = WISH_CATEGORIES.map((c) => {
+    const list = wishesService.all().filter((w) => w.category === c.value);
+    return list.length ? `<optgroup label="${esc(c.label)}">${list.map((w) => `<option value="${w.id}" ${w.id === selected ? 'selected' : ''}>${esc(w.title)}</option>`).join('')}</optgroup>` : '';
+  }).join('');
+  return `<option value="">Хүсэлгүй</option>${groups}`;
+}
+
+export function openGoalForm(goal = null, { onSaved, defaults = {}, quiet = false } = {}) {
+  const g = goal || { title: '', description: '', target_date: '', status: 'active', wish_id: '', ...defaults };
+  const id = { title: fid('title'), desc: fid('desc'), date: fid('date'), status: fid('status'), wish: fid('wish') };
   return openFormModal({
     title: goal ? 'Зорилго засах' : 'Шинэ зорилго',
     submitLabel: goal ? 'Хадгалах' : 'Зорилго үүсгэх',
@@ -183,13 +191,51 @@ export function openGoalForm(goal = null, { onSaved } = {}) {
       <div class="field-row">
         <div class="field"><label for="${id.date}">Зорилтот огноо</label><input id="${id.date}" name="target_date" type="date" class="input" value="${g.target_date || ''}"></div>
         <div class="field"><label for="${id.status}">Төлөв</label><select id="${id.status}" name="status" class="select">${options(STATUSES, g.status)}</select></div>
-      </div>`,
+      </div>
+      <div class="field"><label for="${id.wish}">Ямар хүслийн төлөө вэ</label><select id="${id.wish}" name="wish_id" class="select">${wishOptions(g.wish_id)}</select></div>`,
     async onSubmit(data) {
-      const payload = { title: data.title, description: data.description, target_date: data.target_date || null, status: data.status };
+      const payload = { title: data.title, description: data.description, target_date: data.target_date || null, status: data.status, wish_id: data.wish_id || null };
       const saved = goal ? await goalsService.update(goal.id, payload) : await goalsService.create(payload);
-      toast(goal ? 'Зорилго шинэчлэгдлээ' : 'Зорилго үүслээ');
+      if (!quiet) toast(goal ? 'Зорилго шинэчлэгдлээ' : 'Зорилго үүслээ');
       onSaved?.(saved);
     },
+  });
+}
+
+/* ───────────── Хүсэл мөрөөдөл ───────────── */
+export function openWishForm(wish = null, defaults = {}, { onSaved } = {}) {
+  const w = wish || { title: '', category: 'do', note: '', ...defaults };
+  const id = { title: fid('title'), note: fid('note'), done: fid('done') };
+  return openFormModal({
+    title: wish ? 'Хүсэл засах' : 'Шинэ хүсэл',
+    submitLabel: wish ? 'Хадгалах' : 'Нэмэх',
+    fields: `
+      <div class="field"><span class="label">Ангилал</span>
+        <div class="wish-cat-pick" role="radiogroup" aria-label="Ангилал">
+          ${WISH_CATEGORIES.map((c) => `<label class="wish-cat-opt" style="--wc:${c.color}"><input type="radio" name="category" value="${c.value}" ${c.value === w.category ? 'checked' : ''}><span><b>${esc(c.label)}</b><small>${esc(c.hint)}</small></span></label>`).join('')}
+        </div></div>
+      <div class="field"><label for="${id.title}">Хүсэл</label>
+        <input id="${id.title}" name="title" class="input" required maxlength="200" value="${esc(w.title)}" placeholder="${esc(wishCategory(w.category).example)}" ${wish ? '' : 'autofocus'}></div>
+      <div class="field"><label for="${id.note}">Яагаад хүсдэг вэ</label>
+        <textarea id="${id.note}" name="note" class="textarea" rows="3" placeholder="Биелэхэд ямар мэдрэмж төрөх вэ? Хугацаа хэрэггүй — зүгээр л мөрөөд.">${esc(w.note)}</textarea></div>
+      ${wish ? `<label class="switch-row" for="${id.done}"><span class="switch"><input id="${id.done}" type="checkbox" name="achieved" ${wish.achieved_at ? 'checked' : ''}><span></span></span><span>Биелсэн ✨</span></label>` : ''}`,
+    onMount(form) {
+      const title = form.querySelector('[name=title]');
+      form.addEventListener('change', (e) => { if (e.target.name === 'category') title.placeholder = wishCategory(e.target.value).example; });
+    },
+    async onSubmit(data) {
+      const payload = { title: data.title, category: data.category || 'do', note: data.note };
+      if (wish) payload.achieved_at = data.achieved ? (wish.achieved_at || new Date().toISOString()) : null;
+      const saved = wish ? await wishesService.update(wish.id, payload) : await wishesService.create(payload);
+      toast(wish ? 'Хүсэл шинэчлэгдлээ' : `“${saved.title}” хүсэл нэмэгдлээ`);
+      onSaved?.(saved);
+    },
+    onDelete: wish ? async () => {
+      const linked = goalsOfWish(wish.id).length;
+      if (linked && !(await confirmDialog({ title: 'Энэ хүслийг устгах уу?', message: `Холбоотой ${linked} зорилго хадгалагдана (хүсэлгүй болно).` }))) return;
+      await deleteWish(wish.id);
+      toast(`“${wish.title}” устгагдлаа`, linked ? {} : { action: () => wishesService.create({ ...wish }) });
+    } : null,
   });
 }
 
@@ -315,6 +361,7 @@ export function openNewMenu(anchor, { extra = [] } = {}) {
     ...extra,
     { label: 'Үйл явдал', icon: 'calendar', onSelect: () => openEventForm() },
     'sep',
+    { label: 'Хүсэл мөрөөдөл', icon: 'sparkle', onSelect: () => openWishForm() },
     { label: 'Зорилго', icon: 'goals', onSelect: () => openGoalForm() },
     { label: 'Төсөл', icon: 'folder', onSelect: () => openProjectForm() },
     'sep',

@@ -5,7 +5,7 @@
 import { store } from '../state/store.js';
 import { tasksService, sortTasks } from '../services/tasksService.js';
 import { eventsService, eventColor } from '../services/eventsService.js';
-import { goalsService, goalProgress } from '../services/goalsService.js';
+import { goalsService, goalProgress, wishesService } from '../services/goalsService.js';
 import { journalService, MOODS, moodLabel } from '../services/journalService.js';
 import { birthdaysService, ageAt } from '../services/birthdaysService.js';
 import { loadSampleData } from '../services/sampleData.js';
@@ -108,7 +108,7 @@ function isEverythingEmpty() {
   return !tasksService.all().length && !eventsService.all().length && !goalsService.all().length
     && !journalService.all().length && !birthdaysService.all().length
     && !homeworkService.all().length && !subjectsService.all().length
-    && !workplacesService.all().length && !ordersService.all().length;
+    && !workplacesService.all().length && !ordersService.all().length && !wishesService.all().length;
 }
 
 function welcome() {
@@ -152,7 +152,7 @@ function kpis({ todays, todayDone, plannedMin, overdue, avgGoal, activeGoals }) 
       <span class="kpi-value">${overdue}</span>
       <span class="kpi-sub">${overdue ? 'Шинэ огноо өгөх эсвэл дуусгах' : 'Бүгд хугацаандаа'}</span>
     </a>
-    <a class="card kpi" href="#/goals">
+    <a class="card kpi" href="#/goals?tab=goals">
       <span class="kpi-label">${icon('goals', 15)} Зорилго</span>
       <span class="kpi-value">${avgGoal === null ? '—' : `${avgGoal}%`}</span>
       ${avgGoal === null ? '' : progressBar(avgGoal)}
@@ -217,7 +217,7 @@ function upcomingCard() {
 function goalsCard() {
   const goals = goalsService.all().filter((g) => g.status === 'active').slice(0, 4);
   return `<section class="card">
-    <div class="card-head"><h2 class="card-title">${icon('goals')} Зорилгын ахиц</h2><a class="card-link" href="#/goals">Зорилго ${icon('chevronRight', 14)}</a></div>
+    <div class="card-head"><h2 class="card-title">${icon('goals')} Зорилгын ахиц</h2><a class="card-link" href="#/goals?tab=goals">Зорилго ${icon('chevronRight', 14)}</a></div>
     <div class="card-body">${goals.length ? `<div class="goal-mini-list">${goals.map((g) => {
     const p = goalProgress(g.id);
     return `<a class="goal-mini" href="#/goals/${g.id}"><span class="goal-mini-top"><span class="goal-mini-title">${esc(g.title)}</span><span class="goal-mini-pct">${p.pct}%</span></span>${progressBar(p.pct)}<span class="small faint">${p.total ? `${p.total} ажлаас ${p.done} нь дууссан` : 'Ажил алга'}${g.target_date ? ` · зорилт ${fmt.short(g.target_date)}` : ''}</span></a>`;

@@ -4,10 +4,10 @@
  */
 import { tasksService } from '../services/tasksService.js';
 import { eventsService } from '../services/eventsService.js';
-import { goalsService, projectsService } from '../services/goalsService.js';
+import { goalsService, projectsService, wishesService, wishCategory } from '../services/goalsService.js';
 import { journalService } from '../services/journalService.js';
 import { birthdaysService, daysUntil } from '../services/birthdaysService.js';
-import { openTaskForm, openEventForm, openJournalForm, openBirthdayForm } from './forms.js';
+import { openTaskForm, openEventForm, openJournalForm, openBirthdayForm, openWishForm } from './forms.js';
 import { ordersService, contactsService, workplacesService, orderStatusLabel, money } from '../services/workService.js';
 import { homeworkService, subjectById } from '../services/schoolService.js';
 import { openOrderForm, openContactForm, openWorkplaceForm } from './workForms.js';
@@ -34,6 +34,10 @@ export function searchEverything(query) {
     icon: 'calendar', title: e.title,
     sub: `${fmt.medium(e.event_date)}${e.start_time && !e.all_day ? ` · ${fmtTime(e.start_time)}` : ''}${e.location ? ` · ${e.location}` : ''}`,
     open: () => { navigate(`calendar?view=day&date=${e.event_date}`); openEventForm(e); },
+  })));
+  add('Хүсэл мөрөөдөл', wishesService.all().filter((w) => has(w.title, w.note)).map((w) => ({
+    icon: wishCategory(w.category).icon, title: w.title, sub: `${wishCategory(w.category).label}${w.achieved_at ? ' · биелсэн ✨' : ''}`,
+    open: () => { navigate('goals?tab=wishes'); openWishForm(w); },
   })));
   add('Зорилго', goalsService.all().filter((g) => has(g.title, g.description)).map((g) => ({
     icon: 'goals', title: g.title, sub: g.target_date ? `Зорилт: ${fmt.short(g.target_date)}` : 'Зорилго',

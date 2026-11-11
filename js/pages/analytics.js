@@ -172,11 +172,11 @@ export default {
         </section>
 
         <section class="card chart-card span-2">
-          <div class="card-head"><div><h2 class="card-title">Зорилгын ахиц</h2><p class="card-sub">Зорилго бүрийн төслийн ажлуудын гүйцэтгэл</p></div><a class="card-link" href="#/goals">Зорилго ${icon('chevronRight', 14)}</a></div>
+          <div class="card-head"><div><h2 class="card-title">Зорилгын ахиц</h2><p class="card-sub">Зорилго бүрийн төслийн ажлуудын гүйцэтгэл</p></div><a class="card-link" href="#/goals?tab=goals">Зорилго ${icon('chevronRight', 14)}</a></div>
           <div class="card-body">${goals.length ? `<div class="goal-progress-list">${goals.map((g) => {
     const p = goalProgress(g.id);
     return `<a class="goal-progress-row" href="#/goals/${g.id}"><span class="gp-title">${esc(g.title)}</span><span class="gp-bar">${progressBar(p.pct)}</span><span class="gp-val">${p.pct}%</span><span class="gp-sub small faint">${p.done}/${p.total} ажил</span></a>`;
-  }).join('')}</div>` : emptyState({ compact: true, icon: 'goals', title: 'Идэвхтэй зорилго алга', actions: '<a class="btn btn-sm" href="#/goals">Зорилго тавих</a>' })}</div>
+  }).join('')}</div>` : emptyState({ compact: true, icon: 'goals', title: 'Идэвхтэй зорилго алга', actions: '<a class="btn btn-sm" href="#/goals?tab=goals">Зорилго тавих</a>' })}</div>
         </section>
 
         <section class="card report-card span-2">

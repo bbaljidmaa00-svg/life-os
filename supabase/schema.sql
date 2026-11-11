@@ -19,6 +19,8 @@
 --  Ажлын хүснэгтүүд (workplaces, work_shifts, income_entries, orders,
 --  work_contacts, work_goals):
 --    supabase/migrations/20261111_work_shifts_income_orders_goals.sql
+--  Хүсэл мөрөөдөл (wishes) ба goals.wish_id:
+--    supabase/migrations/20261111_wishes_and_goal_link.sql
 --
 --  Таны санд мөн profiles, user_preferences, reminders, time_entries,
 --  in_app_notifications, decision_logs, monthly_reports хүснэгтүүд бий —

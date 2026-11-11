@@ -853,3 +853,77 @@ section.card .goal-mini { margin-top: 10px; text-decoration: none; color: var(--
 .pd-day span { font-size: 9.5px; white-space: nowrap; }
 .card-body.flush .work-note, .card-body.flush .day-empty { padding: 0 12px; }
 .card-body.flush .work-note { margin: 10px 0 4px; }
+
+/* ═══ Хүсэл мөрөөдөл ═════════════════════════════════════════════════════ */
+.chain { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; color: var(--text-3); }
+.chain-step { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 800; color: var(--text-2); background: var(--glass-strong); border: 1px solid var(--glass-border); }
+.chain-step.is-wish { color: var(--accent); background: var(--accent-soft); }
+
+.wish-intro { display: flex; align-items: flex-start; gap: 14px; padding: 16px 18px; margin-bottom: 16px; }
+.wish-intro-icon { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; background: radial-gradient(circle at 32% 28%, #fff 0 10%, var(--puff-2) 55%, var(--puff-3)); }
+.wish-intro-title { font-weight: 900; font-size: 16px; margin-bottom: 2px; }
+
+.wish-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.wish-col { position: relative; padding: 14px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+.wish-col::before { content: ''; position: absolute; inset: 0 0 auto; height: 86px; background: linear-gradient(180deg, color-mix(in srgb, var(--wc) 26%, transparent), transparent); pointer-events: none; }
+.wish-head { position: relative; display: flex; align-items: center; gap: 10px; }
+.wish-icon { flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; color: #fff; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .95) 0 10%, color-mix(in srgb, var(--wc) 70%, #fff) 45%, var(--wc)); box-shadow: inset 0 -3px 6px rgba(0, 0, 0, .1), 0 6px 14px -6px var(--wc); }
+.wish-head-text { min-width: 0; flex: 1; }
+.wish-cat { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 1000; line-height: 1.1; }
+.wish-hint { margin: 2px 0 0; font-size: 12px; font-weight: 700; color: var(--text-2); }
+.wish-count { flex: none; min-width: 28px; height: 28px; padding: 0 8px; display: grid; place-items: center; border-radius: 999px; font-size: 13px; font-weight: 900; background: var(--glass-strong); color: var(--text-2); }
+
+.wish-add { position: relative; display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 14px; border-radius: 999px; background: var(--surface); border: 1.5px dashed color-mix(in srgb, var(--wc) 60%, var(--border)); transition: border-color var(--dur), box-shadow var(--dur); }
+.wish-add:focus-within { border-style: solid; border-color: var(--wc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--wc) 20%, transparent); }
+.wish-add-input { flex: 1; min-width: 0; height: 34px; border: 0; outline: 0; background: transparent; color: var(--text); font: inherit; font-size: 14px; }
+.wish-add-input::placeholder { color: var(--text-3); }
+.wish-add-btn { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; cursor: pointer; color: #fff; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .8) 0 10%, var(--wc) 60%); }
+.wish-empty { margin: 0; padding: 4px 4px 2px; }
+
+.wish-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.wish { display: grid; gap: 8px; padding: 10px 10px 10px 12px; border-radius: 18px; background: color-mix(in srgb, var(--wc) 9%, var(--surface)); border: 1px solid color-mix(in srgb, var(--wc) 22%, var(--border)); }
+.wish-row { display: flex; align-items: flex-start; gap: 6px; }
+.wish-main { flex: 1; min-width: 0; display: grid; gap: 3px; text-align: left; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+.wish-title { font-weight: 900; font-size: 14.5px; line-height: 1.35; overflow-wrap: anywhere; }
+.wish-note { font-size: 12.5px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.wish.is-achieved { background: linear-gradient(135deg, color-mix(in srgb, var(--butter) 22%, var(--surface)), var(--surface)); border-color: color-mix(in srgb, var(--butter) 50%, var(--border)); }
+.wish.is-achieved .wish-title { color: var(--text-2); }
+
+.wish-goals { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.wish-goal { display: grid; gap: 4px; padding: 8px 10px; border-radius: 12px; text-decoration: none; color: var(--text); background: var(--surface); border: 1px solid var(--border); transition: transform var(--dur), box-shadow var(--dur); }
+.wish-goal:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.wish-goal .wg-name { display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 800; overflow-wrap: anywhere; }
+.wish-goal .wg-name .icon { flex: none; color: var(--accent); }
+.wish-goal .wg-sub { font-size: 11.5px; font-weight: 700; color: var(--text-3); }
+.wish-goal .progress { height: 5px; }
+.wish-goal.is-done .wg-name { color: var(--success); }
+
+.wish-actions { display: flex; }
+.wish-to-goal { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 999px; border: 0; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 900; color: var(--accent-fill-text); background: linear-gradient(180deg, #FFD9E9, var(--accent-fill)); box-shadow: inset 0 2px 3px rgba(255, 255, 255, .7), 0 4px 10px -4px var(--puff-shadow); transition: transform var(--dur); }
+.wish-to-goal:hover { transform: translateY(-1px); }
+.wish-to-goal.is-more { color: var(--text-2); background: transparent; box-shadow: none; padding: 4px 6px; }
+.wish-to-goal.is-more:hover { color: var(--accent); }
+
+.goal-wish { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; color: var(--text-2); background: color-mix(in srgb, var(--wc) 16%, var(--surface)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.goal-wish .icon { flex: none; color: var(--wc); }
+
+.wish-link-bar { display: flex; align-items: center; gap: 10px; width: 100%; margin: 0 0 14px; padding: 12px 16px; border-radius: 18px; text-align: left; font: inherit; color: var(--text); text-decoration: none; background: color-mix(in srgb, var(--wc, var(--lilac)) 14%, var(--surface)); border: 1px solid color-mix(in srgb, var(--wc, var(--lilac)) 30%, var(--border)); }
+.wish-link-bar > span:first-of-type { flex: 1; min-width: 0; }
+.wish-link-bar .icon { flex: none; color: var(--wc, var(--accent)); }
+.wish-link-bar.is-empty { cursor: pointer; border-style: dashed; background: var(--glass); color: var(--text-2); }
+.wish-link-bar.is-empty:hover { color: var(--accent); border-color: var(--accent-fill); }
+
+.wish-cat-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.wish-cat-opt { position: relative; cursor: pointer; }
+.wish-cat-opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.wish-cat-opt span { display: grid; gap: 1px; padding: 10px 12px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--surface); transition: border-color var(--dur), background var(--dur); }
+.wish-cat-opt b { font-weight: 900; }
+.wish-cat-opt small { font-size: 11.5px; color: var(--text-2); }
+.wish-cat-opt input:checked + span { border-color: var(--wc); background: color-mix(in srgb, var(--wc) 16%, var(--surface)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--wc) 22%, transparent); }
+.wish-cat-opt input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+@media (max-width: 1240px) { .wish-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .wish-board { grid-template-columns: minmax(0, 1fr); }
+  .chain-step { font-size: 11.5px; padding: 3px 8px; }
+}

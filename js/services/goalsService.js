@@ -1,12 +1,13 @@
 /**
- * Goals & Projects service — tables: TABLES.goals, TABLES.projects
+ * Wishes, Goals & Projects service — tables: TABLES.wishes, TABLES.goals, TABLES.projects
  *
- * Hierarchy:  Goal  →  Projects (projects.goal_id)  →  Tasks (tasks.project_id)
+ * Hierarchy:  Wish (хугацаагүй хүсэл)  →  Goal (goals.wish_id)  →  Projects (projects.goal_id)  →  Tasks (tasks.project_id)
  * Progress is calculated from task completion, never stored, so it is always accurate.
  */
 import { TABLES } from '../config.js';
 import { createService } from './createService.js';
 import { tasksService } from './tasksService.js';
+import { store } from '../state/store.js';
 
 export const STATUSES = [
   { value: 'active', label: 'Идэвхтэй' },
@@ -21,9 +22,10 @@ const normalizeStatus = (s) => (STATUS_IDS.includes(s) ? s : 'active');
 export const goalsService = createService({
   key: 'goals',
   tableName: TABLES.goals,
-  columns: ['id', 'title', 'description', 'target_date', 'status', 'created_at'],
+  columns: ['id', 'title', 'description', 'target_date', 'status', 'wish_id', 'created_at'],
   normalize: (row) => ({
     ...row,
+    wish_id: row.wish_id || null,
     title: row.title || '',
     description: row.description || '',
     target_date: row.target_date ? String(row.target_date).slice(0, 10) : null,
@@ -71,6 +73,61 @@ export function goalProgress(goalId) {
   }
   if (goal?.status === 'completed') pct = 100;
   return { done, total: tasks.length, pct, projects: projects.length };
+}
+
+/* ── Хүсэл мөрөөдөл ───────────────────────────────────────────────────────
+ * Хүсэлд огноо байхгүй — зүгээр л бичээд, бэлэн болсон үед зорилго болгоно.
+ * 4 ангилал (Be / Do / Have / Give): Болох · Хийх · Эзэмших · Өгөх
+ */
+export const WISH_CATEGORIES = [
+  { value: 'be', label: 'Болох', hint: 'Ямар хүн болмоор байна?', icon: 'sparkle', color: 'var(--lilac)', example: 'Өөртөө итгэлтэй илтгэгч болох' },
+  { value: 'do', label: 'Хийх', hint: 'Юу хийж, туулж үзмээр байна?', icon: 'plane', color: 'var(--sky)', example: 'Японд сакура цэцэглэхийг харах' },
+  { value: 'have', label: 'Эзэмших', hint: 'Юутай болмоор байна?', icon: 'home', color: 'var(--peach)', example: 'Өөрийн гэсэн жижиг студитэй болох' },
+  { value: 'give', label: 'Өгөх', hint: 'Бусдад юу өгмөөр байна?', icon: 'heart', color: 'var(--pink)', example: 'Ээждээ аялал бэлэглэх' },
+];
+const WISH_IDS = WISH_CATEGORIES.map((c) => c.value);
+export const wishCategory = (v) => WISH_CATEGORIES.find((c) => c.value === v) || WISH_CATEGORIES[1];
+
+const wishesBase = createService({
+  key: 'wishes',
+  tableName: TABLES.wishes,
+  columns: ['id', 'title', 'category', 'note', 'achieved_at', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    title: row.title || '',
+    category: WISH_IDS.includes(row.category) ? row.category : 'do',
+    note: row.note || '',
+    achieved_at: row.achieved_at || null,
+  }),
+});
+
+export const wishesService = {
+  ...wishesBase,
+  byCategory: (cat) => wishesBase.all()
+    .filter((w) => w.category === cat)
+    .sort((a, b) => (a.achieved_at ? 1 : 0) - (b.achieved_at ? 1 : 0) || String(a.created_at).localeCompare(String(b.created_at))),
+  toggleAchieved: (w) => wishesBase.update(w.id, { achieved_at: w.achieved_at ? null : new Date().toISOString() }),
+};
+
+/** Хүсэлтэй холбоотой зорилгууд. */
+export const goalsOfWish = (wishId) => goalsService.all().filter((g) => g.wish_id === wishId);
+
+/** { goals, projects, pct } — холбоотой зорилгуудын дундаж ахиц. */
+export function wishProgress(wishId) {
+  const goals = goalsOfWish(wishId);
+  if (!goals.length) return { goals: 0, projects: 0, pct: 0 };
+  const list = goals.map((g) => goalProgress(g.id));
+  return {
+    goals: goals.length,
+    projects: list.reduce((s, p) => s + p.projects, 0),
+    pct: Math.round(list.reduce((s, p) => s + p.pct, 0) / list.length),
+  };
+}
+
+/** Хүсэл устгахад зорилгууд нь үлдэнэ (хүсэлгүй болно) — сан дээр ON DELETE SET NULL. */
+export async function deleteWish(wishId) {
+  await wishesBase.remove(wishId);
+  store.set('goals', store.get('goals').map((g) => (g.wish_id === wishId ? { ...g, wish_id: null } : g)));
 }
 
 /** Deleting a goal keeps its projects (they move to "No goal"). */

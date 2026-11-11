@@ -48,6 +48,7 @@ export const TABLES = {
   orders: 'orders',
   workContacts: 'work_contacts',
   workGoals: 'work_goals',
+  wishes: 'wishes',
 };
 
 /**

@@ -7,7 +7,7 @@
 import { store } from '../state/store.js';
 import { tasksService } from './tasksService.js';
 import { eventsService } from './eventsService.js';
-import { goalsService, projectsService } from './goalsService.js';
+import { goalsService, projectsService, wishesService } from './goalsService.js';
 import { journalService } from './journalService.js';
 import { birthdaysService } from './birthdaysService.js';
 import { aiService } from './aiService.js';
@@ -21,10 +21,22 @@ export async function loadSampleData() {
   const d = (n) => addDaysKey(T, n);
   const doneAt = (n, hour = 16) => { const x = fromKey(d(n)); x.setHours(hour, 15); return x.toISOString(); };
 
+  /* Хүсэл мөрөөдөл (хугацаагүй) → зорилго → төсөл */
+  const wHike = await wishesService.create({ category: 'do', title: 'Хөвсгөл нуурыг тойрч явган аялах', note: 'Найзуудтайгаа майхан, гал, од…' });
+  await wishesService.create({ category: 'do', title: 'Японд сакура цэцэглэхийг харах' });
+  await wishesService.create({ category: 'do', title: 'Шумбаж сурах' });
+  const wStudio = await wishesService.create({ category: 'have', title: 'Өөрийн гэсэн дизайны студитэй болох', note: 'Гэрэлтэй, цэцэгтэй, өөрийн өнгөтэй жижиг өрөө.' });
+  await wishesService.create({ category: 'have', title: 'Фото аппарат' });
+  const wWise = await wishesService.create({ category: 'be', title: 'Олон ном уншдаг, мэдлэгтэй хүн болох' });
+  await wishesService.create({ category: 'be', title: 'Өөртөө итгэлтэй илтгэгч болох' });
+  await wishesService.create({ category: 'be', title: 'Англиар чөлөөтэй ярьдаг болох', achieved_at: doneAt(-40) });
+  await wishesService.create({ category: 'give', title: 'Ээждээ далайн эргийн аялал бэлэглэх', note: 'Ээж далай үзэж байгаагүй.' });
+  await wishesService.create({ category: 'give', title: 'Хүүхдийн асрамжийн газарт сайн дурын ажил хийх' });
+
   /* Зорилго → төслүүд */
-  const fit = await goalsService.create({ title: 'Зуны аялалд бэлтгэж биеэ чийрэгжүүлэх', description: '20 км уулын замыг зогсолтгүй туулах тэсвэр хатуужил олох.', target_date: d(60), status: 'active' });
-  const biz = await goalsService.create({ title: 'Чөлөөт дизайны бизнесээ өргөжүүлэх', description: 'Тогтмол хоёр шинэ харилцагч, сүүлийн ажлуудаа харуулсан портфолио.', target_date: d(90), status: 'active' });
-  await goalsService.create({ title: 'Энэ жил 12 ном унших', description: 'Сард нэг ном, голдуу баримтат.', target_date: d(55), status: 'paused' });
+  const fit = await goalsService.create({ wish_id: wHike.id, title: 'Зуны аялалд бэлтгэж биеэ чийрэгжүүлэх', description: '20 км уулын замыг зогсолтгүй туулах тэсвэр хатуужил олох.', target_date: d(60), status: 'active' });
+  const biz = await goalsService.create({ wish_id: wStudio.id, title: 'Чөлөөт дизайны бизнесээ өргөжүүлэх', description: 'Тогтмол хоёр шинэ харилцагч, сүүлийн ажлуудаа харуулсан портфолио.', target_date: d(90), status: 'active' });
+  await goalsService.create({ wish_id: wWise.id, title: 'Энэ жил 12 ном унших', description: 'Сард нэг ном, голдуу баримтат.', target_date: d(55), status: 'paused' });
 
   const run = await projectsService.create({ goal_id: fit.id, title: '8 долоо хоногийн гүйлтийн хөтөлбөр', description: 'Долоо хоногт гурван удаа, 12 км хүртэл нэмэгдүүлнэ.', due_date: d(40), status: 'active' });
   const meal = await projectsService.create({ goal_id: fit.id, title: 'Хоолоо урьдчилан бэлдэх дадал', due_date: d(21), status: 'active' });

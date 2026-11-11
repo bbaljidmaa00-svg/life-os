@@ -24,7 +24,7 @@ export function taskItemHTML(t, { showDate = true, showProject = true } = {}) {
     const project = projectsService.get(t.project_id);
     if (project) meta.push(`<span class="meta-item">${icon('folder', 13)}${esc(project.title)}</span>`);
   }
-  return `<li class="task prio-${t.priority} ${done ? 'is-done' : ''}" data-task-id="${t.id}">
+  return `<li class="task prio-${t.priority} ${done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''}" data-task-id="${t.id}">
     <button type="button" class="task-check" data-action="task-toggle" aria-pressed="${done}" aria-label="${done ? 'Дуусаагүй болгох' : 'Дуусгах'}: ${esc(t.title)}">${icon('check', 13)}</button>
     <button type="button" class="task-main" data-action="task-edit" aria-label="Засах: ${esc(t.title)}">
       <span class="task-title">${esc(t.title)}</span>

@@ -81,14 +81,20 @@
   --tile-3a: #EEE8FF; --tile-3b: #D9CDFF;
   --tile-4a: #DCF8EF; --tile-4b: #BDEFDF;
 
+  /* Raspberry — хамгийн чухал анхааруулга (хугацаа хэтэрсэн, өндөр ач холбогдол, алдаа) */
+  --raspberry: #C8105A;
+  --raspberry-bright: #F0347D;
+  --raspberry-soft: #FFE0EC;
+  --raspberry-ink: #FFFFFF;
+
   /* Status */
-  --danger: #D33A4B;   --danger-soft: #FFE4E7;
+  --danger: var(--raspberry);   --danger-soft: var(--raspberry-soft);
   --warning: #A86400;  --warning-soft: #FFF1D6;
   --success: #1C8656;  --success-soft: #DDF5E9;
   --info: #2580C4;     --info-soft: #E0F1FC;
 
   /* Priorities */
-  --p-high: #D33A4B;
+  --p-high: var(--raspberry);
   --p-medium: #E89A1C;
   --p-low: #A9B4CC;
 
@@ -145,9 +151,10 @@
   --puff-1: #FFD3E5; --puff-2: #FF9CC6; --puff-3: #FF78B0; --puff-d1: #E25E9B; --puff-d2: #C24C85; --puff-d3: #9E3A6E; --puff-shadow: rgba(255, 110, 180, .35);
   --pink: #FF8EC0; --sky: #7CC8FF; --lilac: #B7A6FF; --peach: #FFB08F; --mint: #6FE0C2; --butter: #FFDD7A;
   --tile-1a: #5B2A63; --tile-1b: #742F70; --tile-2a: #233F7A; --tile-2b: #2B4F91; --tile-3a: #3B2E80; --tile-3b: #4A3A99; --tile-4a: #1F4A5E; --tile-4b: #245A6E;
-  --danger: #FF7A85; --danger-soft: #4A1F33; --warning: #FFC266; --warning-soft: #43351A;
+  --raspberry: #FF5C9A; --raspberry-bright: #FF86B6; --raspberry-soft: #4A1A36; --raspberry-ink: #2A0716;
+    --danger: var(--raspberry); --danger-soft: var(--raspberry-soft); --warning: #FFC266; --warning-soft: #43351A;
   --success: #6FE0A8; --success-soft: #173A2E; --info: #7CC8FF; --info-soft: #1D2F5C;
-  --p-high: #FF7A85; --p-medium: #FFC266; --p-low: #5A608F;
+  --p-high: var(--raspberry); --p-medium: #FFC266; --p-low: #5A608F;
   --ev-work: #7CC8FF; --ev-personal: #FF8EC0; --ev-health: #6FE0C2; --ev-social: #FFC266; --ev-focus: #B7A6FF; --ev-other: #9690C8; --ev-birthday: #FFB08F; --ev-task: #C7C2EE;
   --mood-1: #FF7A85; --mood-2: #FFB08F; --mood-3: #FFDD7A; --mood-4: #8FE6B8; --mood-5: #7CC8FF;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, .25);
@@ -171,9 +178,10 @@
     --puff-1: #FFD3E5; --puff-2: #FF9CC6; --puff-3: #FF78B0; --puff-d1: #E25E9B; --puff-d2: #C24C85; --puff-d3: #9E3A6E; --puff-shadow: rgba(255, 110, 180, .35);
     --pink: #FF8EC0; --sky: #7CC8FF; --lilac: #B7A6FF; --peach: #FFB08F; --mint: #6FE0C2; --butter: #FFDD7A;
     --tile-1a: #5B2A63; --tile-1b: #742F70; --tile-2a: #233F7A; --tile-2b: #2B4F91; --tile-3a: #3B2E80; --tile-3b: #4A3A99; --tile-4a: #1F4A5E; --tile-4b: #245A6E;
-    --danger: #FF7A85; --danger-soft: #4A1F33; --warning: #FFC266; --warning-soft: #43351A;
+    --raspberry: #FF5C9A; --raspberry-bright: #FF86B6; --raspberry-soft: #4A1A36; --raspberry-ink: #2A0716;
+    --danger: var(--raspberry); --danger-soft: var(--raspberry-soft); --warning: #FFC266; --warning-soft: #43351A;
     --success: #6FE0A8; --success-soft: #173A2E; --info: #7CC8FF; --info-soft: #1D2F5C;
-    --p-high: #FF7A85; --p-medium: #FFC266; --p-low: #5A608F;
+    --p-high: var(--raspberry); --p-medium: #FFC266; --p-low: #5A608F;
     --ev-work: #7CC8FF; --ev-personal: #FF8EC0; --ev-health: #6FE0C2; --ev-social: #FFC266; --ev-focus: #B7A6FF; --ev-other: #9690C8; --ev-birthday: #FFB08F; --ev-task: #C7C2EE;
     --mood-1: #FF7A85; --mood-2: #FFB08F; --mood-3: #FFDD7A; --mood-4: #8FE6B8; --mood-5: #7CC8FF;
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, .25);
@@ -1736,6 +1744,65 @@ body::after { /* хөвөн үүлс */
   .sky-bubble, .sparkle, .hero-ring, .composer.is-shake, .task.is-new, .hw.is-new, .cp-done { animation: none; }
   .kpis .kpi:hover, .nav-item:hover .icon { transform: none; }
 }
+
+/* ═══ Raspberry — хамгийн чухал анхааруулга ═══════════════════════════════
+   Хугацаа хэтэрсэн ажил/даалгавар, өндөр ач холбогдол, тэмдэг (badge),
+   анхаарах мэдэгдэл. «Удахгүй дуусах» нь шар хэвээр — шатлал ялгагдана. */
+.rasp-fill, .attn-chip, .bell-badge, .nav-badge.is-alert, .more-item .nav-badge,
+.hw.is-overdue .hw-count, .task-group-head.is-danger .count, .notif-icon.tone-danger {
+  color: var(--raspberry-ink);
+  background: radial-gradient(circle at 30% 18%, rgba(255, 255, 255, .5) 0 10%, transparent 38%), linear-gradient(180deg, var(--raspberry-bright), var(--raspberry));
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, .45), 0 4px 10px -4px color-mix(in srgb, var(--raspberry) 70%, transparent);
+}
+.bell-badge { border-color: var(--glass-strong); font-weight: 900; }
+.nav-item[aria-current="page"] .nav-badge.is-alert {
+  color: var(--raspberry-ink);
+  background: radial-gradient(circle at 30% 18%, rgba(255, 255, 255, .5) 0 10%, transparent 38%), linear-gradient(180deg, var(--raspberry-bright), var(--raspberry));
+}
+
+.hero-eyebrow-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.attn-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 900; letter-spacing: .02em; text-decoration: none;
+  animation: attn-pulse 2.4s ease-in-out infinite;
+}
+.attn-chip:hover { filter: brightness(1.06); }
+@keyframes attn-pulse {
+  0%, 100% { outline: 0 solid color-mix(in srgb, var(--raspberry) 40%, transparent); }
+  50% { outline: 7px solid transparent; }
+}
+.attn-chip { outline-offset: 0; }
+
+/* «Хугацаа хэтэрсэн» KPI — бүтэн raspberry бөмбөлөг хавтан */
+.kpis .kpi.is-alert {
+  border-color: transparent; color: var(--raspberry-ink);
+  background: radial-gradient(circle at 85% 0%, rgba(255, 255, 255, .28), transparent 45%), linear-gradient(160deg, var(--raspberry-bright) 0%, var(--raspberry) 100%);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, .35), 0 16px 30px -14px var(--raspberry);
+}
+.kpis .kpi.is-alert .kpi-label, .kpis .kpi.is-alert .kpi-sub { color: var(--raspberry-ink); }
+.kpis .kpi.is-alert .kpi-value {
+  background: none; -webkit-text-fill-color: var(--raspberry-ink); color: var(--raspberry-ink);
+  filter: drop-shadow(0 2px 0 color-mix(in srgb, var(--raspberry) 60%, #000));
+}
+.kpis .kpi.is-alert .kpi-label .icon { background: var(--raspberry-ink); color: var(--raspberry); }
+.kpis .kpi.is-alert .progress { background: rgba(255, 255, 255, .3); }
+
+/* Хугацаа хэтэрсэн мөрүүд — зүүн талд raspberry зураас, зөөлөн туяа */
+.task.is-overdue, .hw.is-overdue {
+  border-radius: 14px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--raspberry) 11%, transparent), transparent 70%);
+  box-shadow: inset 4px 0 0 var(--raspberry);
+}
+.task.is-overdue .task-title, .hw.is-overdue .hw-title { color: var(--text); }
+.meta-item.is-danger, .meta-item.is-high { color: var(--raspberry); font-weight: 900; }
+.task.prio-high:not(.is-done) .task-check { border-color: var(--raspberry); }
+.task-group-head.is-danger, .section-title.is-attention { color: var(--raspberry); }
+.task-group-head.is-danger::before, .section-title.is-attention::before { color: var(--raspberry); }
+.task-group-head.is-danger .count { padding: 1px 8px; border-radius: 999px; }
+.dh-count.is-overdue { color: var(--raspberry); font-weight: 900; }
+.notif-icon.tone-danger .icon { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) { .attn-chip { animation: none; } }
 
 </style>
 <script>
@@ -5948,7 +6015,7 @@ function taskItemHTML(t, { showDate = true, showProject = true } = {}) {
     const project = projectsService.get(t.project_id);
     if (project) meta.push(`<span class="meta-item">${icon('folder', 13)}${esc(project.title)}</span>`);
   }
-  return `<li class="task prio-${t.priority} ${done ? 'is-done' : ''}" data-task-id="${t.id}">
+  return `<li class="task prio-${t.priority} ${done ? 'is-done' : ''} ${overdue ? 'is-overdue' : ''}" data-task-id="${t.id}">
     <button type="button" class="task-check" data-action="task-toggle" aria-pressed="${done}" aria-label="${done ? 'Дуусаагүй болгох' : 'Дуусгах'}: ${esc(t.title)}">${icon('check', 13)}</button>
     <button type="button" class="task-main" data-action="task-edit" aria-label="Засах: ${esc(t.title)}">
       <span class="task-title">${esc(t.title)}</span>
@@ -6261,6 +6328,7 @@ const { todayKey, addDaysKey, fmt, relDay, fmtTime, fmtDuration, greeting, fromK
 const { prefs } = __req("js/state/prefs.js");
 const { PRIORITIES } = __req("js/services/tasksService.js");
 const { schoolDashboardCard } = __req("js/pages/school.js");
+const { homeworkService } = __req("js/services/schoolService.js");
 
 /* ── Нүүрний том бичих талбар ───────────────────────────────────────────────
    Бичих явцад өгүүлбэрийг задлаад (огноо, цаг, ач холбогдол…) урьдчилан
@@ -6308,6 +6376,15 @@ function composerPreview(text) {
 /** «Өдрийн мэнд» → «Өдрийн <strong>мэнд</strong>» — нимгэн + тод үсгийн хослол. */
 function heroGreeting(name) {
   return `${greeting()}${name ? `, ${name}` : ''}`;
+}
+
+/** Хугацаа хэтэрсэн ажил, даалгавар байвал анхаарал татах raspberry товч. */
+function attentionChip() {
+  const tasks = tasksService.overdue().length;
+  const hw = homeworkService.overdue().length;
+  if (!tasks && !hw) return '';
+  const parts = [tasks ? `${tasks} ажил` : '', hw ? `${hw} даалгавар` : ''].filter(Boolean).join(', ');
+  return `<a class="attn-chip" href="${tasks ? '#/tasks?due=overdue' : '#/school'}">${icon('alert', 14)} ${parts} хугацаа хэтэрсэн</a>`;
 }
 
 function composerHTML() {
@@ -6515,7 +6592,7 @@ const __default = {
         <span class="sky-bubble b1" aria-hidden="true"></span><span class="sky-bubble b2" aria-hidden="true"></span><span class="sky-bubble b3" aria-hidden="true"></span>
         <span class="sparkle s1" aria-hidden="true">✦</span><span class="sparkle s2" aria-hidden="true">✦</span><span class="sparkle s3" aria-hidden="true">✧</span>
         <div class="hero-text">
-          <p class="eyebrow">${fmt.long(today)}</p>
+          <div class="hero-eyebrow-row"><p class="eyebrow">${fmt.long(today)}</p>${attentionChip()}</div>
           <h1 class="page-title hero-title" data-text="${esc(heroGreeting(name))}">${esc(heroGreeting(name))}</h1>
           <p class="hero-sub">${summary}</p>
           ${composerHTML()}
@@ -8319,7 +8396,7 @@ const __default = {
         </div>
       </div>
       ${list.length ? `
-        ${attention.length ? `<h2 class="section-title">Анхаарах</h2><div class="card card-list"><ul class="notif-list">${attention.map(itemHTML).join('')}</ul></div>` : ''}
+        ${attention.length ? `<h2 class="section-title is-attention">Анхаарах</h2><div class="card card-list"><ul class="notif-list">${attention.map(itemHTML).join('')}</ul></div>` : ''}
         ${upcoming.length ? `<h2 class="section-title">Удахгүй</h2><div class="card card-list"><ul class="notif-list">${upcoming.map(itemHTML).join('')}</ul></div>` : ''}`
     : `<div class="card">${emptyState({
       icon: 'bell', title: tab === 'unread' ? 'Уншаагүй мэдэгдэл алга' : 'Шинэ мэдэгдэл алга',

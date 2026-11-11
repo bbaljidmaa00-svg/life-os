@@ -66,14 +66,20 @@
   --tile-3a: #EEE8FF; --tile-3b: #D9CDFF;
   --tile-4a: #DCF8EF; --tile-4b: #BDEFDF;
 
+  /* Raspberry — хамгийн чухал анхааруулга (хугацаа хэтэрсэн, өндөр ач холбогдол, алдаа) */
+  --raspberry: #C8105A;
+  --raspberry-bright: #F0347D;
+  --raspberry-soft: #FFE0EC;
+  --raspberry-ink: #FFFFFF;
+
   /* Status */
-  --danger: #D33A4B;   --danger-soft: #FFE4E7;
+  --danger: var(--raspberry);   --danger-soft: var(--raspberry-soft);
   --warning: #A86400;  --warning-soft: #FFF1D6;
   --success: #1C8656;  --success-soft: #DDF5E9;
   --info: #2580C4;     --info-soft: #E0F1FC;
 
   /* Priorities */
-  --p-high: #D33A4B;
+  --p-high: var(--raspberry);
   --p-medium: #E89A1C;
   --p-low: #A9B4CC;
 
@@ -130,9 +136,10 @@
   --puff-1: #FFD3E5; --puff-2: #FF9CC6; --puff-3: #FF78B0; --puff-d1: #E25E9B; --puff-d2: #C24C85; --puff-d3: #9E3A6E; --puff-shadow: rgba(255, 110, 180, .35);
   --pink: #FF8EC0; --sky: #7CC8FF; --lilac: #B7A6FF; --peach: #FFB08F; --mint: #6FE0C2; --butter: #FFDD7A;
   --tile-1a: #5B2A63; --tile-1b: #742F70; --tile-2a: #233F7A; --tile-2b: #2B4F91; --tile-3a: #3B2E80; --tile-3b: #4A3A99; --tile-4a: #1F4A5E; --tile-4b: #245A6E;
-  --danger: #FF7A85; --danger-soft: #4A1F33; --warning: #FFC266; --warning-soft: #43351A;
+  --raspberry: #FF5C9A; --raspberry-bright: #FF86B6; --raspberry-soft: #4A1A36; --raspberry-ink: #2A0716;
+    --danger: var(--raspberry); --danger-soft: var(--raspberry-soft); --warning: #FFC266; --warning-soft: #43351A;
   --success: #6FE0A8; --success-soft: #173A2E; --info: #7CC8FF; --info-soft: #1D2F5C;
-  --p-high: #FF7A85; --p-medium: #FFC266; --p-low: #5A608F;
+  --p-high: var(--raspberry); --p-medium: #FFC266; --p-low: #5A608F;
   --ev-work: #7CC8FF; --ev-personal: #FF8EC0; --ev-health: #6FE0C2; --ev-social: #FFC266; --ev-focus: #B7A6FF; --ev-other: #9690C8; --ev-birthday: #FFB08F; --ev-task: #C7C2EE;
   --mood-1: #FF7A85; --mood-2: #FFB08F; --mood-3: #FFDD7A; --mood-4: #8FE6B8; --mood-5: #7CC8FF;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, .25);
@@ -156,9 +163,10 @@
     --puff-1: #FFD3E5; --puff-2: #FF9CC6; --puff-3: #FF78B0; --puff-d1: #E25E9B; --puff-d2: #C24C85; --puff-d3: #9E3A6E; --puff-shadow: rgba(255, 110, 180, .35);
     --pink: #FF8EC0; --sky: #7CC8FF; --lilac: #B7A6FF; --peach: #FFB08F; --mint: #6FE0C2; --butter: #FFDD7A;
     --tile-1a: #5B2A63; --tile-1b: #742F70; --tile-2a: #233F7A; --tile-2b: #2B4F91; --tile-3a: #3B2E80; --tile-3b: #4A3A99; --tile-4a: #1F4A5E; --tile-4b: #245A6E;
-    --danger: #FF7A85; --danger-soft: #4A1F33; --warning: #FFC266; --warning-soft: #43351A;
+    --raspberry: #FF5C9A; --raspberry-bright: #FF86B6; --raspberry-soft: #4A1A36; --raspberry-ink: #2A0716;
+    --danger: var(--raspberry); --danger-soft: var(--raspberry-soft); --warning: #FFC266; --warning-soft: #43351A;
     --success: #6FE0A8; --success-soft: #173A2E; --info: #7CC8FF; --info-soft: #1D2F5C;
-    --p-high: #FF7A85; --p-medium: #FFC266; --p-low: #5A608F;
+    --p-high: var(--raspberry); --p-medium: #FFC266; --p-low: #5A608F;
     --ev-work: #7CC8FF; --ev-personal: #FF8EC0; --ev-health: #6FE0C2; --ev-social: #FFC266; --ev-focus: #B7A6FF; --ev-other: #9690C8; --ev-birthday: #FFB08F; --ev-task: #C7C2EE;
     --mood-1: #FF7A85; --mood-2: #FFB08F; --mood-3: #FFDD7A; --mood-4: #8FE6B8; --mood-5: #7CC8FF;
     --shadow-xs: 0 1px 2px rgba(0, 0, 0, .25);

@@ -81,7 +81,7 @@ export default {
         </div>
       </div>
       ${list.length ? `
-        ${attention.length ? `<h2 class="section-title">Анхаарах</h2><div class="card card-list"><ul class="notif-list">${attention.map(itemHTML).join('')}</ul></div>` : ''}
+        ${attention.length ? `<h2 class="section-title is-attention">Анхаарах</h2><div class="card card-list"><ul class="notif-list">${attention.map(itemHTML).join('')}</ul></div>` : ''}
         ${upcoming.length ? `<h2 class="section-title">Удахгүй</h2><div class="card card-list"><ul class="notif-list">${upcoming.map(itemHTML).join('')}</ul></div>` : ''}`
     : `<div class="card">${emptyState({
       icon: 'bell', title: tab === 'unread' ? 'Уншаагүй мэдэгдэл алга' : 'Шинэ мэдэгдэл алга',

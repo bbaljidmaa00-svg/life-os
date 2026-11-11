@@ -20,6 +20,7 @@ import { todayKey, addDaysKey, fmt, relDay, fmtTime, fmtDuration, greeting, from
 import { prefs } from '../state/prefs.js';
 import { PRIORITIES } from '../services/tasksService.js';
 import { schoolDashboardCard } from './school.js';
+import { homeworkService } from '../services/schoolService.js';
 
 /* ── Нүүрний том бичих талбар ───────────────────────────────────────────────
    Бичих явцад өгүүлбэрийг задлаад (огноо, цаг, ач холбогдол…) урьдчилан
@@ -67,6 +68,15 @@ function composerPreview(text) {
 /** «Өдрийн мэнд» → «Өдрийн <strong>мэнд</strong>» — нимгэн + тод үсгийн хослол. */
 function heroGreeting(name) {
   return `${greeting()}${name ? `, ${name}` : ''}`;
+}
+
+/** Хугацаа хэтэрсэн ажил, даалгавар байвал анхаарал татах raspberry товч. */
+function attentionChip() {
+  const tasks = tasksService.overdue().length;
+  const hw = homeworkService.overdue().length;
+  if (!tasks && !hw) return '';
+  const parts = [tasks ? `${tasks} ажил` : '', hw ? `${hw} даалгавар` : ''].filter(Boolean).join(', ');
+  return `<a class="attn-chip" href="${tasks ? '#/tasks?due=overdue' : '#/school'}">${icon('alert', 14)} ${parts} хугацаа хэтэрсэн</a>`;
 }
 
 function composerHTML() {
@@ -274,7 +284,7 @@ export default {
         <span class="sky-bubble b1" aria-hidden="true"></span><span class="sky-bubble b2" aria-hidden="true"></span><span class="sky-bubble b3" aria-hidden="true"></span>
         <span class="sparkle s1" aria-hidden="true">✦</span><span class="sparkle s2" aria-hidden="true">✦</span><span class="sparkle s3" aria-hidden="true">✧</span>
         <div class="hero-text">
-          <p class="eyebrow">${fmt.long(today)}</p>
+          <div class="hero-eyebrow-row"><p class="eyebrow">${fmt.long(today)}</p>${attentionChip()}</div>
           <h1 class="page-title hero-title" data-text="${esc(heroGreeting(name))}">${esc(heroGreeting(name))}</h1>
           <p class="hero-sub">${summary}</p>
           ${composerHTML()}

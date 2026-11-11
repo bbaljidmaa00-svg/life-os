@@ -79,7 +79,11 @@ async function callEndpoint(conversationId, text) {
       context: buildContext(),
     }),
   });
-  if (!response.ok) throw new Error(`AI endpoint ${response.status} ${response.statusText} хариу өглөө`);
+  if (!response.ok) {
+    let reason = `${response.status}`;
+    try { reason = (await response.json()).error || reason; } catch { /* JSON биш хариу */ }
+    throw new Error(reason);
+  }
   const json = await response.json();
   return {
     content: String(json.reply ?? ''),
@@ -121,7 +125,10 @@ export const aiService = {
     try {
       result = isAiConfigured() ? await callEndpoint(conversationId, text) : localRespond(text);
     } catch (err) {
-      result = { content: `AI endpoint-тэй холбогдож чадсангүй: ${err.message}. Юу ч өөрчлөгдөөгүй.`, actions: [], source: 'error' };
+      // AI ажиллахгүй бол (түлхүүр тохируулаагүй, интернэтгүй…) энгийн дүрмүүдээр хариулна.
+      const fallback = localRespond(text);
+      const reason = err instanceof TypeError ? 'интернэт холболт тасарсан байж магадгүй.' : err.message;
+      result = { ...fallback, content: `(AI одоогоор ажиллахгүй байна: ${reason} Энгийн дүрмээр хариуллаа.)\n\n${fallback.content}`, source: 'local-rules' };
     }
     return messages.create({ conversation_id: conversationId, role: 'assistant', content: result.content, actions: result.actions, source: result.source });
   },

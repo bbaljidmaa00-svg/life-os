@@ -42,7 +42,8 @@ function transform(abs) {
   // жинхэнэ өгөгдлийн сан руу хэзээ ч холбогдохгүй.
   if (id === 'js/config.js' && !PROD) {
     src = src.replace(/^export const SUPABASE_URL = .*$/m, "export const SUPABASE_URL = '';")
-      .replace(/^export const SUPABASE_ANON_KEY = .*$/m, "export const SUPABASE_ANON_KEY = '';");
+      .replace(/^export const SUPABASE_ANON_KEY = .*$/m, "export const SUPABASE_ANON_KEY = '';")
+      .replace(/^export const AI_ENDPOINT = .*$/m, "export const AI_ENDPOINT = '';");
   }
   const exportsList = [];
   const dir = dirname(abs);

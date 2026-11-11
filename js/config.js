@@ -47,12 +47,13 @@ export const TABLES = {
  * Хүсэлт/хариултын формат README.md → "AI загвар холбох" хэсэгт бий.
  * Хоосон үед Туслах нь тодорхой шошготой энгийн дүрмүүдээр ажиллана.
  */
-export const AI_ENDPOINT = '';
+export const AI_ENDPOINT = 'https://cztdncdfhyrctqzpfwob.supabase.co/functions/v1/life-os-ai'; // supabase/functions/life-os-ai
 
 export function isSupabaseConfigured() {
   return SUPABASE_URL.trim() !== '' && SUPABASE_ANON_KEY.trim() !== '';
 }
 
 export function isAiConfigured() {
-  return AI_ENDPOINT.trim() !== '';
+  // AI функц нэвтэрсэн хэрэглэгчийн токен шаарддаг тул Supabase холбогдсон байх ёстой.
+  return AI_ENDPOINT.trim() !== '' && isSupabaseConfigured();
 }

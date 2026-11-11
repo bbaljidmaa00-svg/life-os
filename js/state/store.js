@@ -22,6 +22,12 @@ const state = {
   subjects: [],
   classSessions: [],
   homework: [],
+  workplaces: [],
+  workShifts: [],
+  income: [],
+  orders: [],
+  workContacts: [],
+  workGoals: [],
 };
 
 const meta = {

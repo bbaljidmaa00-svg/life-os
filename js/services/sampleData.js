@@ -12,6 +12,7 @@ import { journalService } from './journalService.js';
 import { birthdaysService } from './birthdaysService.js';
 import { aiService } from './aiService.js';
 import { subjectsService, classSessionsService, homeworkService } from './schoolService.js';
+import { workplacesService, shiftsService, incomeService, ordersService, contactsService, workGoalsService, weekRange, monthRange } from './workService.js';
 import { todayKey, addDaysKey, fromKey } from '../lib/dates.js';
 
 export async function loadSampleData() {
@@ -128,4 +129,40 @@ export async function loadSampleData() {
     { subject_id: eng.id, title: 'Listening practice 4', due_date: d(-3), due_time: '08:00', estimated_minutes: 30, status: 'submitted', completed_at: doneAt(-4, 21) },
   ];
   for (const h of homework) await homeworkService.create({ assigned_date: d(-3), ...h });
+
+  /* Ажил: ажлын газар → ээлж → орлого, захиалга, хамт ажиллагсад, ойрын зорилго */
+  const cafe = await workplacesService.create({ name: 'Bloom кофе шоп', color: '#E8508F', pay_type: 'hourly', hourly_rate: 9500, payday: 25, payday_2: 10, notes: 'Сөүлийн гудамж 12. Ээлж солих бол 1 өдрийн өмнө Энхжинд хэлнэ.' });
+  const studio = await workplacesService.create({ name: 'Номин Студи', color: '#2E8FD0', pay_type: 'fixed', monthly_salary: 900000, payday: 5, notes: 'Хагас цагийн дизайнер.' });
+  const shifts = [
+    [cafe, -6, '17:00', '22:00', 0], [cafe, -4, '17:00', '22:00', 0], [cafe, -2, '10:00', '16:00', 30], [cafe, -1, '17:00', '22:00', 0],
+    [cafe, 0, '18:00', '23:00', 0], [cafe, 2, '17:00', '22:00', 0], [cafe, 4, '12:00', '18:00', 30], [cafe, 6, '17:00', '22:00', 0],
+    [studio, -5, '10:00', '14:00', 0], [studio, -3, '10:00', '14:00', 0], [studio, 1, '10:00', '14:00', 0], [studio, 3, '13:00', '17:00', 0],
+  ];
+  for (const [wp, n, start_time, end_time, break_minutes] of shifts) {
+    await shiftsService.create({ workplace_id: wp.id, shift_date: d(n), start_time, end_time, break_minutes, extra_pay: n === -2 ? 15000 : 0 });
+  }
+  await incomeService.create({ workplace_id: cafe.id, amount: 380000, received_date: d(-12), kind: 'salary', note: '10-р сарын 2-р хагас' });
+  await incomeService.create({ workplace_id: studio.id, amount: 900000, received_date: d(-6), kind: 'salary' });
+  await incomeService.create({ workplace_id: cafe.id, amount: 25000, received_date: d(-1), kind: 'tips' });
+
+  const orders = [
+    { customer_name: 'Сараа', customer_contact: '9911-4455', items: 'Гүзээлзгэнэтэй бялуу, 20 см', price: 85000, paid_amount: 40000, status: 'preparing', due_date: d(1), due_time: '14:00', delivery: 'Хан-Уул, 15-р хороо', notes: '«Happy birthday, Ээж» гэж бичих' },
+    { customer_name: 'Тэмүүжин', customer_contact: '@temuujin.b', items: 'Нэртэй керамик аяга', quantity: 2, price: 36000, paid_amount: 36000, status: 'new', due_date: d(3), delivery: 'Өөрөө авна' },
+    { customer_name: 'Оюука', customer_contact: '8800-1122', items: 'Төрсөн өдрийн cupcake', quantity: 12, price: 60000, paid_amount: 0, status: 'ready', due_date: d(-1), due_time: '18:00', delivery: 'Сансар, 32-р байр' },
+    { customer_name: 'Батаа', items: 'Шоколадтай cookie хайрцаг', price: 28000, paid_amount: 28000, status: 'delivered', due_date: d(-3), delivered_at: doneAt(-3, 15) },
+    { customer_name: 'Мишээл', items: 'Macaron', quantity: 24, price: 72000, paid_amount: 72000, status: 'delivered', due_date: d(-6), delivered_at: doneAt(-6, 12) },
+    { customer_name: 'Анар', items: 'Цэцгийн баглаа + бялуу', price: 120000, paid_amount: 0, status: 'cancelled', due_date: d(-2) },
+  ];
+  for (const o of orders) await ordersService.create({ quantity: 1, ...o });
+
+  await contactsService.create({ workplace_id: cafe.id, name: 'Энхжин', role: 'Менежер', contact: '9911-2233', notes: 'Ээлж солих бол 1 өдрийн өмнө хэлэх. Баасан бүр хуваарь гаргадаг.' });
+  await contactsService.create({ workplace_id: cafe.id, name: 'Тэмүүлэн', role: 'Ахлах бариста', contact: '9505-7788', notes: 'Латте арт заана гэсэн 🙂' });
+  await contactsService.create({ workplace_id: studio.id, name: 'Номин', role: 'Студийн захирал', contact: 'nomin@studio.mn', notes: 'Баасан бүр 16:00-д долоо хоногийн тайлан.' });
+
+  const wk = weekRange();
+  const mo = monthRange();
+  await workGoalsService.create({ title: 'Энэ 7 хоногт 20 цаг ажиллах', metric: 'hours', target: 20, start_date: wk.from, end_date: wk.to, status: 'active' });
+  await workGoalsService.create({ title: 'Энэ сард 1,500,000₮ олох', metric: 'income', target: 1500000, start_date: mo.from, end_date: mo.to, status: 'active' });
+  await workGoalsService.create({ title: 'Энэ сард 10 захиалга хүргэх', metric: 'orders', target: 10, start_date: mo.from, end_date: mo.to, status: 'active' });
+  await workGoalsService.create({ title: 'Портфолиод 3 шинэ ажил нэмэх', metric: 'custom', target: 3, manual_progress: 1, unit: 'ажил', start_date: d(-5), end_date: d(10), status: 'active' });
 }

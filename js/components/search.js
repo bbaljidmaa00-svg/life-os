@@ -8,6 +8,10 @@ import { goalsService, projectsService } from '../services/goalsService.js';
 import { journalService } from '../services/journalService.js';
 import { birthdaysService, daysUntil } from '../services/birthdaysService.js';
 import { openTaskForm, openEventForm, openJournalForm, openBirthdayForm } from './forms.js';
+import { ordersService, contactsService, workplacesService, orderStatusLabel, money } from '../services/workService.js';
+import { homeworkService, subjectById } from '../services/schoolService.js';
+import { openOrderForm, openContactForm, openWorkplaceForm } from './workForms.js';
+import { openHomeworkForm } from './schoolForms.js';
 import { navigate } from '../lib/nav.js';
 import { openModal } from '../lib/ui.js';
 import { esc, truncate, plural } from '../lib/dom.js';
@@ -21,7 +25,7 @@ export function searchEverything(query) {
   const groups = [];
   const add = (label, items) => { if (items.length) groups.push({ label, items: items.slice(0, 5) }); };
 
-  add('Ажлууд', tasksService.all().filter((t) => has(t.title, t.notes, t.category)).map((t) => ({
+  add('Хийх зүйлс', tasksService.all().filter((t) => has(t.title, t.notes, t.category)).map((t) => ({
     icon: 'tasks', title: t.title,
     sub: [t.status === 'done' ? 'Дууссан' : null, t.due_date ? relDay(t.due_date) : 'Огноогүй', t.category].filter(Boolean).join(' · '),
     open: () => openTaskForm(t),
@@ -48,6 +52,18 @@ export function searchEverything(query) {
     sub: `${b.birth_month}-р сарын ${b.birth_day} · ${daysUntil(b) === 0 ? 'өнөөдөр' : `${daysUntil(b)} хоногийн дараа`}`,
     open: () => openBirthdayForm(b),
   })));
+  add('Гэрийн даалгавар', homeworkService.all().filter((h) => has(h.title, h.description)).map((h) => ({
+    icon: 'book', title: h.title, sub: [subjectById(h.subject_id)?.name, h.due_date ? relDay(h.due_date) : null].filter(Boolean).join(' · '),
+    open: () => openHomeworkForm(h),
+  })));
+  add('Захиалга', ordersService.all().filter((o) => has(o.customer_name, o.items, o.customer_contact, o.notes)).map((o) => ({
+    icon: 'bag', title: `${o.customer_name} — ${o.items}`, sub: [orderStatusLabel(o.status), o.price ? money(o.price) : null, o.due_date ? relDay(o.due_date) : null].filter(Boolean).join(' · '),
+    open: () => openOrderForm(o),
+  })));
+  add('Ажил', [
+    ...workplacesService.all().filter((w) => has(w.name, w.notes)).map((w) => ({ icon: 'briefcase', title: w.name, sub: 'Ажлын газар', open: () => openWorkplaceForm(w) })),
+    ...contactsService.all().filter((c) => has(c.name, c.role, c.notes, c.contact)).map((c) => ({ icon: 'users', title: c.name, sub: c.role || 'Хамт ажиллагч', open: () => openContactForm(c) })),
+  ]);
   return groups;
 }
 
@@ -67,7 +83,7 @@ export function bindSearch(input, results, { floating = true, onPick } = {}) {
   const draw = () => {
     const value = input.value.trim();
     if (!value) {
-      results.innerHTML = floating ? '' : '<p class="sr-empty">Ажил, үйл явдал, зорилго, төсөл, тэмдэглэл, төрсөн өдрөөс хайна.</p>';
+      results.innerHTML = floating ? '' : '<p class="sr-empty">Хийх зүйлс, үйл явдал, зорилго, даалгавар, захиалга, тэмдэглэлээс хайна.</p>';
       results.hidden = floating;
       flat = [];
       return;

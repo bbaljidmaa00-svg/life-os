@@ -16,6 +16,9 @@
 --
 --  Сургуулийн хүснэгтүүд (subjects, class_sessions, homework):
 --    supabase/migrations/20261111_school_subjects_classes_homework.sql
+--  Ажлын хүснэгтүүд (workplaces, work_shifts, income_entries, orders,
+--  work_contacts, work_goals):
+--    supabase/migrations/20261111_work_shifts_income_orders_goals.sql
 --
 --  Таны санд мөн profiles, user_preferences, reminders, time_entries,
 --  in_app_notifications, decision_logs, monthly_reports хүснэгтүүд бий —
@@ -70,7 +73,7 @@ create table if not exists public.projects (
   constraint projects_goal_owner_fk foreign key (goal_id, user_id) references public.goals (id, user_id)
 );
 
--- ── Ажил ────────────────────────────────────────────────────────────────────
+-- ── Хийх зүйлс ──────────────────────────────────────────────────────────────
 create table if not exists public.tasks (
   id                 uuid primary key default gen_random_uuid(),
   user_id            uuid not null references auth.users (id) on delete cascade,

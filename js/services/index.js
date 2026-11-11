@@ -10,9 +10,10 @@ import { journalService } from './journalService.js';
 import { birthdaysService } from './birthdaysService.js';
 import { aiService } from './aiService.js';
 import { subjectsService, classSessionsService, homeworkService } from './schoolService.js';
+import { workplacesService, shiftsService, incomeService, ordersService, contactsService, workGoalsService } from './workService.js';
 
 const LOADERS = [
-  ['Ажлууд', tasksService],
+  ['Хийх зүйлс', tasksService],
   ['Календарийн үйл явдал', eventsService],
   ['Зорилго', goalsService],
   ['Төсөл', projectsService],
@@ -24,6 +25,12 @@ const LOADERS = [
   ['Хичээл', subjectsService],
   ['Хичээлийн хуваарь', classSessionsService],
   ['Гэрийн даалгавар', homeworkService],
+  ['Ажлын газар', workplacesService],
+  ['Ажлын ээлж', shiftsService],
+  ['Орлого', incomeService],
+  ['Захиалга', ordersService],
+  ['Хамт ажиллагсад', contactsService],
+  ['Ойрын зорилго', workGoalsService],
 ];
 
 /** Returns a list of { label, message, hint } for tables that failed. */

@@ -20,7 +20,7 @@ const SECTIONS = [
   ['account', 'Бүртгэл', 'user'],
   ['appearance', 'Харагдах байдал', 'sun'],
   ['time', 'Календарь ба цаг', 'calendar'],
-  ['tasks', 'Ажлууд', 'tasks'],
+  ['tasks', 'Хийх зүйлс', 'tasks'],
   ['notifications', 'Мэдэгдэл', 'bell'],
   ['connection', 'Өгөгдөл ба холболт', 'database'],
   ['about', 'Товчлол ба тухай', 'info'],
@@ -105,7 +105,7 @@ function render(root) {
         </section>
 
         <section class="card settings-section" id="tasks">
-          <h2 class="settings-title">${icon('tasks')} Ажлууд</h2>
+          <h2 class="settings-title">${icon('tasks')} Хийх зүйлс</h2>
           ${row('Анхдагч хугацаа', 'Шинэ ажилд урьдчилан бөглөгдөнө.', `<select class="select select-sm" data-pref="defaultDuration" data-type="number" aria-label="Анхдагч хугацаа">${options(durationOpts, p.defaultDuration)}</select>`)}
           ${row('Анхдагч ач холбогдол', '', segmented('defaultPriority', PRIORITIES, p.defaultPriority, { attrs: 'data-pref="defaultPriority"' }))}
         </section>

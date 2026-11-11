@@ -20,7 +20,9 @@ import { todayKey, addDaysKey, fmt, relDay, fmtTime, fmtDuration, greeting, from
 import { prefs } from '../state/prefs.js';
 import { PRIORITIES } from '../services/tasksService.js';
 import { schoolDashboardCard } from './school.js';
-import { homeworkService } from '../services/schoolService.js';
+import { homeworkService, subjectsService } from '../services/schoolService.js';
+import { workDashboardCard } from './work.js';
+import { ordersService, isOrderLate, workplacesService } from '../services/workService.js';
 
 /* ── Нүүрний том бичих талбар ───────────────────────────────────────────────
    Бичих явцад өгүүлбэрийг задлаад (огноо, цаг, ач холбогдол…) урьдчилан
@@ -55,7 +57,7 @@ function composerPreview(text) {
     return `<span class="cp-hint">Жишээ:</span>${EXAMPLES.slice(0, 3).map((ex) => `<button type="button" class="cp-example" data-action="example" data-text="${esc(ex)}">${esc(ex)}</button>`).join('')}`;
   }
   const p = parseComposer(text);
-  const chips = [`<span class="cp-kind is-${p.kind}">${icon(p.kind === 'event' ? 'calendar' : 'tasks', 13)}${p.kind === 'event' ? 'Үйл явдал' : 'Ажил'}</span>`];
+  const chips = [`<span class="cp-kind is-${p.kind}">${icon(p.kind === 'event' ? 'calendar' : 'tasks', 13)}${p.kind === 'event' ? 'Үйл явдал' : 'Хийх зүйл'}</span>`];
   chips.push(`<span class="cp-title">${esc(p.title || '…')}</span>`);
   chips.push(`<span class="parse-chip">${icon('calendar', 13)}${esc(relDay(p.date))}</span>`);
   if (p.time) chips.push(`<span class="parse-chip">${icon('clock', 13)}${fmtTime(p.time)}${p.endTime ? `–${fmtTime(p.endTime)}` : ''}</span>`);
@@ -74,15 +76,17 @@ function heroGreeting(name) {
 function attentionChip() {
   const tasks = tasksService.overdue().length;
   const hw = homeworkService.overdue().length;
-  if (!tasks && !hw) return '';
-  const parts = [tasks ? `${tasks} ажил` : '', hw ? `${hw} даалгавар` : ''].filter(Boolean).join(', ');
-  return `<a class="attn-chip" href="${tasks ? '#/tasks?due=overdue' : '#/school'}">${icon('alert', 14)} ${parts} хугацаа хэтэрсэн</a>`;
+  const orders = ordersService.open().filter((o) => isOrderLate(o)).length;
+  if (!tasks && !hw && !orders) return '';
+  const parts = [tasks ? `${tasks} хийх зүйл` : '', hw ? `${hw} даалгавар` : '', orders ? `${orders} захиалга` : ''].filter(Boolean).join(', ');
+  const href = tasks ? '#/tasks?due=overdue' : hw ? '#/school' : '#/work?tab=orders';
+  return `<a class="attn-chip" href="${href}">${icon('alert', 14)} ${parts} хугацаа хэтэрсэн</a>`;
 }
 
 function composerHTML() {
   return `<form class="composer" id="dashQuickAdd" autocomplete="off">
       <span class="composer-icon" aria-hidden="true">${icon('sparkle', 20)}</span>
-      <input id="dashQuickInput" class="composer-input" placeholder="${esc(EXAMPLES[0])}" aria-label="Юу хийх вэ? Ажил эсвэл үйл явдлаа бичнэ үү" aria-describedby="dashPreview" maxlength="200" enterkeyhint="done">
+      <input id="dashQuickInput" class="composer-input" placeholder="${esc(EXAMPLES[0])}" aria-label="Юу хийх вэ? Хийх зүйл эсвэл үйл явдлаа бичнэ үү" aria-describedby="dashPreview" maxlength="200" enterkeyhint="done">
       <button type="submit" class="composer-send" aria-label="Нэмэх">${icon('arrowRight', 20)}</button>
     </form>
     <div class="composer-preview" id="dashPreview" aria-live="polite">${composerPreview('')}</div>`;
@@ -102,7 +106,9 @@ function startPlaceholderCycle() {
 
 function isEverythingEmpty() {
   return !tasksService.all().length && !eventsService.all().length && !goalsService.all().length
-    && !journalService.all().length && !birthdaysService.all().length;
+    && !journalService.all().length && !birthdaysService.all().length
+    && !homeworkService.all().length && !subjectsService.all().length
+    && !workplacesService.all().length && !ordersService.all().length;
 }
 
 function welcome() {
@@ -134,10 +140,10 @@ function kpis({ todays, todayDone, plannedMin, overdue, avgGoal, activeGoals }) 
       <span class="kpi-label">${icon('tasks', 15)} Өнөөдөр</span>
       <span class="kpi-value">${todayDone}<small>/ ${todays.length}</small></span>
       ${progressBar(pct)}
-      <span class="kpi-sub">${todays.length ? `${pct}% дууссан` : 'Өнөөдөр дуусах ажил алга'}</span>
+      <span class="kpi-sub">${todays.length ? `${pct}% дууссан` : 'Өнөөдөр дуусах зүйл алга'}</span>
     </a>
     <a class="card kpi" href="#/assistant?prompt=${encodeURIComponent('Өдрөө төлөвлө')}&send=1">
-      <span class="kpi-label">${icon('clock', 15)} Төлөвлөсөн ажил</span>
+      <span class="kpi-label">${icon('clock', 15)} Төлөвлөсөн хугацаа</span>
       <span class="kpi-value">${plannedMin ? fmtDuration(plannedMin) : '—'}</span>
       <span class="kpi-sub">Өнөөдөр үлдсэн тооцоот хугацаа</span>
     </a>
@@ -160,11 +166,11 @@ function todayCard(todays, overdueTasks) {
   let body;
   if (list.length) body = taskListHTML(list, { showDate: false });
   else if (overdueTasks.length) {
-    body = emptyState({ compact: true, icon: 'alert', title: 'Өнөөдөр дуусах ажил алга', text: `Гэхдээ ${overdueTasks.length} ажлын хугацаа хэтэрсэн байна.`, actions: '<a class="btn btn-sm" href="#/tasks?due=overdue">Хоцорсныг харах</a>' });
-  } else body = emptyState({ compact: true, icon: 'tasks', title: 'Өнөөдөр дуусах ажил алга', text: 'Дээрх талбарт бичээд Enter дарахад энд гарна.' });
+    body = emptyState({ compact: true, icon: 'alert', title: 'Өнөөдөр дуусах зүйл алга', text: `Гэхдээ ${overdueTasks.length} зүйлийн хугацаа хэтэрсэн байна.`, actions: '<a class="btn btn-sm" href="#/tasks?due=overdue">Хоцорсныг харах</a>' });
+  } else body = emptyState({ compact: true, icon: 'tasks', title: 'Өнөөдөр дуусах зүйл алга', text: 'Дээрх талбарт бичээд Enter дарахад энд гарна.' });
 
   return `<section class="card">
-    <div class="card-head"><h2 class="card-title">${icon('tasks')} Өнөөдрийн ажлууд</h2><a class="card-link" href="#/tasks?due=today">Бүх ажил ${icon('chevronRight', 14)}</a></div>
+    <div class="card-head"><h2 class="card-title">${icon('tasks')} Өнөөдөр хийх зүйлс</h2><a class="card-link" href="#/tasks?due=today">Бүгд ${icon('chevronRight', 14)}</a></div>
     <div class="card-body flush">${body}</div>
   </section>`;
 }
@@ -173,10 +179,10 @@ function prioritiesCard() {
   const weekEnd = addDaysKey(todayKey(), 6);
   const list = sortTasks(tasksService.open().filter((t) => t.priority === 'high' && (!t.due_date || t.due_date <= weekEnd))).slice(0, 5);
   return `<section class="card">
-    <div class="card-head"><h2 class="card-title">${icon('flag')} Тэргүүлэх ажлууд</h2><a class="card-link" href="#/tasks?priority=high">Бүгдийг харах ${icon('chevronRight', 14)}</a></div>
+    <div class="card-head"><h2 class="card-title">${icon('flag')} Тэргүүлэх зүйлс</h2><a class="card-link" href="#/tasks?priority=high">Бүгдийг харах ${icon('chevronRight', 14)}</a></div>
     <div class="card-body flush">${list.length
     ? taskListHTML(list)
-    : emptyState({ compact: true, icon: 'flag', title: 'Энэ долоо хоногт өндөр ач холбогдолтой ажил алга', text: 'Ажлыг “Өндөр” ач холбогдолтой болговол энд харагдана.' })}</div>
+    : emptyState({ compact: true, icon: 'flag', title: 'Энэ долоо хоногт өндөр ач холбогдолтой зүйл алга', text: 'Ажлыг “Өндөр” ач холбогдолтой болговол энд харагдана.' })}</div>
   </section>`;
 }
 
@@ -249,13 +255,13 @@ function weekCard() {
     <div class="card-head"><h2 class="card-title">${icon('analytics')} Сүүлийн 7 хоног</h2><a class="card-link" href="#/analytics">Шинжилгээ ${icon('chevronRight', 14)}</a></div>
     <div class="card-body">
       <div class="mini-bars" role="img" aria-label="Сүүлийн 7 хоногт өдөр бүр дуусгасан ажил">${stats.perDay.map((d) => `
-        <div class="mini-bar ${d.date === todayKey() ? 'is-today' : ''}" title="${fmt.medium(d.date)}: ${d.count} ажил">
+        <div class="mini-bar ${d.date === todayKey() ? 'is-today' : ''}" title="${fmt.medium(d.date)}: ${d.count} зүйл">
           <span class="mini-bar-val">${d.count || ''}</span>
           <span class="mini-bar-fill" style="height:${Math.max(4, Math.round((d.count / max) * 64))}px"></span>
           <span class="mini-bar-label">${fmt.weekdayNarrow(fromKey(d.date))}</span>
         </div>`).join('')}
       </div>
-      <p class="small muted">${stats.completedCount} ажил дууссан · ${fmtDuration(stats.focusMinutes)} тооцоот ажил</p>
+      <p class="small muted">${stats.completedCount} зүйл дуусгасан · ${fmtDuration(stats.focusMinutes)} тооцоот хугацаа</p>
     </div>
   </section>`;
 }
@@ -276,8 +282,8 @@ export default {
     const left = todays.length - todayDone;
     const pct = todays.length ? Math.round((todayDone / todays.length) * 100) : 0;
     const summary = isEverythingEmpty() ? 'Өдрөө цэгцлэхэд бэлэн үү?'
-      : left || eventsToday ? `Өнөөдөр ${left} ажил, ${eventsToday} үйл явдал хүлээж байна.`
-        : 'Өнөөдрийн бүх ажил дууссан. Амраарай.';
+      : left || eventsToday ? `Өнөөдөр ${left} хийх зүйл, ${eventsToday} үйл явдал хүлээж байна.`
+        : 'Өнөөдрийн бүх зүйл дууссан. Амраарай.';
 
     root.innerHTML = `
       <header class="hero">
@@ -294,7 +300,7 @@ export default {
             <button type="button" class="btn btn-sm btn-glass" data-action="new-event">${icon('calendar', 15)} Үйл явдал</button>
           </div>
         </div>
-        ${todays.length ? `<a class="hero-ring" href="#/tasks?due=today" aria-label="Өнөөдөр ${todays.length}-аас ${todayDone} ажил дууссан">
+        ${todays.length ? `<a class="hero-ring" href="#/tasks?due=today" aria-label="Өнөөдөр ${todays.length}-аас ${todayDone} зүйл дууссан">
           <svg viewBox="0 0 120 120" aria-hidden="true">
             <circle class="ring-track" cx="60" cy="60" r="50" />
             ${pct ? `<circle class="ring-fill" cx="60" cy="60" r="50" pathLength="100" stroke-dasharray="${pct} 100" />` : ''}
@@ -306,7 +312,7 @@ export default {
         ${kpis({ todays, todayDone, plannedMin, overdue: overdueTasks.length, avgGoal, activeGoals: activeGoals.length })}
         <div class="dash-grid">
           <div class="dash-col">${todayCard(todays, overdueTasks)}${prioritiesCard()}${weekCard()}</div>
-          <div class="dash-col">${schoolDashboardCard()}${upcomingCard()}${moodCard()}${goalsCard()}</div>
+          <div class="dash-col">${schoolDashboardCard()}${workDashboardCard()}${upcomingCard()}${moodCard()}${goalsCard()}</div>
         </div>`}`;
 
     startPlaceholderCycle();
@@ -368,7 +374,7 @@ export default {
         }
         lastAddedId = created?.id || null;
         const when = `${relDay(p.date)}${p.time ? ` ${fmtTime(p.time)}` : ''}`;
-        toast(`${p.kind === 'event' ? 'Үйл явдал' : 'Ажил'} нэмэгдлээ: “${p.title}” · ${when}`);
+        toast(`${p.kind === 'event' ? 'Үйл явдал' : 'Хийх зүйл'} нэмэгдлээ: “${p.title}” · ${when}`);
         justAdded = { label: `“${p.title}” нэмэгдлээ`, when };
         clearTimeout(justAddedTimer);
         justAddedTimer = setTimeout(() => {

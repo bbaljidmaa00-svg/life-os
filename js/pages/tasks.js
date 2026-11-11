@@ -59,7 +59,7 @@ function resultsHTML() {
   const all = tasksService.all();
   if (!all.length) {
     return `<div class="card">${emptyState({
-      icon: 'tasks', title: 'Ажил алга байна',
+      icon: 'tasks', title: 'Хийх зүйл алга байна',
       text: 'Бодолд байгаа бүхнээ бичээрэй. Дээрх талбарт энгийнээр бичихэд огноо, цаг, ач холбогдол, #ангиллыг автоматаар таньна.',
       actions: `<button type="button" class="btn btn-primary" data-action="new-task">${icon('plus', 16)} Шинэ ажил</button>`,
     })}</div>`;
@@ -118,7 +118,7 @@ function updateResults() {
 }
 
 export default {
-  title: 'Ажлууд',
+  title: 'Хийх зүйлс',
   render(root, route) {
     if (route.key !== lastRouteKey) {
       lastRouteKey = route.key;
@@ -133,20 +133,20 @@ export default {
     root.innerHTML = `
       ${pageHead({
     eyebrow: `${open.length} дуусаагүй ажил${overdue ? ` · ${overdue} хэтэрсэн` : ''}${todayMin ? ` · өнөөдөр ${fmtDuration(todayMin)}` : ''}`,
-    title: 'Ажлууд',
+    title: 'Хийх зүйлс',
     actions: `<button type="button" class="btn btn-primary" data-action="new-task">${icon('plus', 16)} Шинэ ажил</button>`,
   })}
       <form class="card quick-add" id="taskQuickAdd" autocomplete="off">
         <div class="quick-add-row">
           ${icon('plus', 18)}
-          <input id="quickTaskInput" class="quick-add-input" placeholder="Ажил нэмэх — огноо, цаг, ач холбогдол, #ангилал, хугацаа бичиж болно" aria-label="Хурдан ажил нэмэх" aria-describedby="quickPreview" maxlength="200">
+          <input id="quickTaskInput" class="quick-add-input" placeholder="Хийх зүйл нэмэх — огноо, цаг, ач холбогдол, #ангилал, хугацаа бичиж болно" aria-label="Хурдан нэмэх" aria-describedby="quickPreview" maxlength="200">
           <button type="submit" class="btn btn-primary btn-sm">Нэмэх</button>
         </div>
         <div class="quick-preview" id="quickPreview" aria-live="polite">${previewHTML('')}</div>
       </form>
 
       <div class="toolbar" role="search">
-        <label class="search-field">${icon('search', 16)}<input id="taskSearch" type="search" class="input" placeholder="Ажил хайх" value="${esc(f.q)}" aria-label="Ажил хайх"></label>
+        <label class="search-field">${icon('search', 16)}<input id="taskSearch" type="search" class="input" placeholder="Хайх" value="${esc(f.q)}" aria-label="Хийх зүйлсээс хайх"></label>
         <select class="select" data-filter="status" aria-label="Төлөв">${options([{ value: 'open', label: 'Дуусаагүй' }, { value: 'done', label: 'Дууссан' }, { value: 'all', label: 'Бүх төлөв' }], f.status)}</select>
         <select class="select" data-filter="due" aria-label="Хугацаа">${options([{ value: 'all', label: 'Бүх хугацаа' }, { value: 'overdue', label: 'Хугацаа хэтэрсэн' }, { value: 'today', label: 'Өнөөдөр дуусах' }, { value: 'week', label: 'Ирэх 7 хоног' }, { value: 'nodate', label: 'Огноогүй' }], f.due)}</select>
         <select class="select" data-filter="priority" aria-label="Ач холбогдол">${options([{ value: 'all', label: 'Ач холбогдол' }, { value: 'high', label: 'Өндөр' }, { value: 'medium', label: 'Дунд' }, { value: 'low', label: 'Бага' }], f.priority)}</select>

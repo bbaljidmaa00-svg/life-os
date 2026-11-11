@@ -53,6 +53,14 @@ const PATHS = {
   bellOff: '<path d="M6 9.5a6 6 0 0 1 9.4-4.9M18 9.5c0 6 2.5 7.5 2.5 7.5H8M3.5 17H6M3 3l18 18"/><path d="M10.2 20.5a2 2 0 0 0 3.6 0"/>',
   sparkle: '<path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z"/>',
   play: '<path d="M7 5l12 7-12 7z"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7M3 12.5h18M10.5 12.5v1.5h3v-1.5"/>',
+  wallet: '<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H17v2.5"/><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M20.5 11.5H16a2 2 0 0 0 0 4h4.5"/><circle cx="16.2" cy="13.5" r=".6" fill="currentColor"/>',
+  bag: '<path d="M5.5 8h13l-1 12h-11z"/><path d="M9 10.5V7a3 3 0 0 1 6 0v3.5"/>',
+  users: '<circle cx="9" cy="8.5" r="3.3"/><path d="M3 19.5a6 6 0 0 1 12 0"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.8M17.5 14.2a5.5 5.5 0 0 1 3.5 5.3"/>',
+  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l6.5-6.5M16 5.2l2.5-.2-.2 2.5"/>',
+  truck: '<path d="M3 6.5h11v10H3zM14 10h4l3 3.5v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/>',
+  minus: '<path d="M5 12h14"/>',
+  phone: '<path d="M6.5 3.5h3l1.5 4-2 1.5a10 10 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/>',
   eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
 };
 

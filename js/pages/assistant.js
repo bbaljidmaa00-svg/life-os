@@ -71,7 +71,7 @@ function taskCard(m, a, i) {
       <div><dt>Хугацаа</dt><dd>${d.estimated_minutes ? fmtDuration(d.estimated_minutes) : '—'}</dd></div>
     </dl>
     ${a.status === 'pending' ? `<div class="ac-actions">${btn(`${icon('plus', 14)} Ажил нэмэх`, 'ac-apply', m.id, i, 'btn-primary')}${btn('Засаад нэмэх', 'ac-edit', m.id, i)}${btn('Татгалзах', 'ac-dismiss', m.id, i, 'btn-ghost')}</div>`
-    : `${statusLine(a, 'Ажлуудад нэмэгдлээ')}${a.status === 'applied' && tasksService.get(a.result_id) ? `<div class="ac-actions">${btn('Ажлыг нээх', 'ac-open-task', m.id, i, 'btn-ghost')}</div>` : ''}`}
+    : `${statusLine(a, 'Хийх зүйлст нэмэгдлээ')}${a.status === 'applied' && tasksService.get(a.result_id) ? `<div class="ac-actions">${btn('Нээх', 'ac-open-task', m.id, i, 'btn-ghost')}</div>` : ''}`}
   </div>`;
 }
 
@@ -182,7 +182,7 @@ function breakdownCard(m, a, i) {
         <button type="button" class="icon-btn icon-btn-sm" data-action="ac-step-remove" data-msg="${m.id}" data-i="${i}" data-step="${j}" aria-label="Хасах: алхам ${j + 1}">${icon('x', 15)}</button></li>`).join('')}
     </ol>
     <button type="button" class="link-btn ac-add-step" data-action="ac-step-add" data-msg="${m.id}" data-i="${i}">${icon('plus', 14)} Алхам нэмэх</button>
-    <div class="field ac-target"><label for="target-${m.id}-${i}">Ажлуудыг аль төсөлд үүсгэх вэ</label>
+    <div class="field ac-target"><label for="target-${m.id}-${i}">Хийх зүйлсийг аль төсөлд үүсгэх вэ</label>
       <select class="select select-sm" id="target-${m.id}-${i}" data-target data-msg="${m.id}" data-i="${i}">
         <option value="new" ${draft.target === 'new' ? 'selected' : ''}>Шинэ төсөл: “${esc(a.data.title)}”</option>
         ${projects.map((p) => `<option value="${p.id}" ${draft.target === p.id ? 'selected' : ''}>${esc(p.title)}${goalsService.get(p.goal_id) ? ` — ${esc(goalsService.get(p.goal_id).title)}` : ''}</option>`).join('')}

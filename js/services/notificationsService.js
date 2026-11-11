@@ -15,6 +15,10 @@ import { eventsService } from './eventsService.js';
 import { birthdaysService, daysUntil, nextOccurrence, ageAt } from './birthdaysService.js';
 import { homeworkService, subjectById, dueMoment, dueCountdown } from './schoolService.js';
 import { goalsService, projectsService } from './goalsService.js';
+import {
+  shiftsService, shiftEnd, shiftStart, workplaceById, ordersService, isOrderLate, orderBalance, workplacesService, nextPayday,
+  activeWorkGoals, workGoalProgress, metricValue, money,
+} from './workService.js';
 import { todayKey, addDaysKey, diffDays, relDay, fmtTime, timeToMin, nowMinutes } from '../lib/dates.js';
 import { plural } from '../lib/dom.js';
 
@@ -60,6 +64,58 @@ function compute() {
       tone: left < 0 ? 'danger' : 'warning', icon: 'book',
       title: h.title, text: `${subject ? `${subject.name} · ` : ''}${dueCountdown(h)}`,
       ref: { kind: 'homework', id: h.id }, order: 1, date: h.due_date,
+    });
+  });
+
+  /* Ажил: ойрын ээлж, захиалга, цалингийн өдөр, ойрын зорилго */
+  const nowMs = Date.now();
+  shiftsService.all().forEach((sh) => {
+    if (sh.shift_date !== today && sh.shift_date !== tomorrow) return;
+    if (shiftEnd(sh).getTime() <= nowMs) return;
+    const wp = workplaceById(sh.workplace_id);
+    const live = shiftStart(sh).getTime() <= nowMs;
+    list.push({
+      id: `shift-${sh.id}-${sh.shift_date}`, group: 'upcoming', tone: 'info', icon: 'briefcase',
+      title: `${live ? 'Одоо ээлжтэй' : 'Ээлж'}: ${wp?.name || 'Ажил'}`,
+      text: `${relDay(sh.shift_date)} · ${fmtTime(sh.start_time)}–${fmtTime(sh.end_time)}`,
+      ref: { kind: 'shift', id: sh.id }, order: 2, date: sh.shift_date,
+    });
+  });
+
+  ordersService.open().forEach((o) => {
+    if (!o.due_date || o.due_date > tomorrow) return;
+    const late = isOrderLate(o);
+    const left = orderBalance(o);
+    list.push({
+      id: `order-${o.id}-${o.due_date}`, group: late || o.due_date === today ? 'attention' : 'upcoming',
+      tone: late ? 'danger' : 'warning', icon: 'bag',
+      title: `Захиалга: ${o.customer_name} — ${o.items}`,
+      text: `${late ? 'Хүргэх хугацаа хэтэрсэн' : `${relDay(o.due_date)} хүргэнэ`}${o.due_time ? ` · ${fmtTime(o.due_time)}` : ''}${left ? ` · үлдэгдэл ${money(left)}` : ''}`,
+      ref: { kind: 'order', id: o.id }, order: 1, date: o.due_date,
+    });
+  });
+
+  workplacesService.all().forEach((w) => {
+    const pd = nextPayday(w, today);
+    if (!pd || pd.days > 1) return;
+    list.push({
+      id: `payday-${w.id}-${pd.date}`, group: 'upcoming', tone: 'accent', icon: 'wallet',
+      title: `${pd.days === 0 ? 'Өнөөдөр' : 'Маргааш'} цалингийн өдөр: ${w.name}`,
+      text: 'Хүлээн авсан цалингаа «Ажил → Цалин» хэсэгт бүртгээрэй.',
+      ref: { kind: 'payday', id: w.id }, order: 3, date: pd.date,
+    });
+  });
+
+  activeWorkGoals(today).forEach((g) => {
+    const days = diffDays(today, g.end_date);
+    if (days > 2) return;
+    const p = workGoalProgress(g, today);
+    if (p.reached) return;
+    list.push({
+      id: `wgoal-${g.id}-${g.end_date}`, group: 'upcoming', tone: 'warning', icon: 'target',
+      title: `Ойрын зорилго: ${g.title}`,
+      text: `${days === 0 ? 'Өнөөдөр дуусна' : `${days} хоног үлдсэн`} · ${p.pct}% · ${metricValue(g, p.left)} дутуу`,
+      ref: { kind: 'workGoal', id: g.id }, order: 4, date: g.end_date,
     });
   });
 
@@ -149,6 +205,16 @@ export function startNotificationTicker() {
       if (inMin >= 0 && inMin <= 10 && !alerted.has(key)) {
         alerted.add(key);
         notificationsService.showBrowserNotification(t.title, `${fmtTime(t.due_time)} гэхэд дуусах`);
+      }
+    });
+    // Ажлын ээлж эхлэхээс 30 минутын өмнө
+    shiftsService.all().forEach((sh) => {
+      if (sh.shift_date !== today) return;
+      const inMin = timeToMin(sh.start_time) - now;
+      const key = `s-${sh.id}-${today}`;
+      if (inMin >= 0 && inMin <= 30 && !alerted.has(key)) {
+        alerted.add(key);
+        notificationsService.showBrowserNotification(`Ээлж: ${workplaceById(sh.workplace_id)?.name || 'Ажил'}`, `${fmtTime(sh.start_time)}–${fmtTime(sh.end_time)} · ${inMin} минутын дараа`);
       }
     });
   };

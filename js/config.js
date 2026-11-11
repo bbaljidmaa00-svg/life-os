@@ -42,6 +42,12 @@ export const TABLES = {
   subjects: 'subjects',
   classSessions: 'class_sessions',
   homework: 'homework',
+  workplaces: 'workplaces',
+  workShifts: 'work_shifts',
+  income: 'income_entries',
+  orders: 'orders',
+  workContacts: 'work_contacts',
+  workGoals: 'work_goals',
 };
 
 /**

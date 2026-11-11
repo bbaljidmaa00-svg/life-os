@@ -10,6 +10,7 @@ import { notificationsService } from '../services/notificationsService.js';
 import { bindSearch, openSearchSheet } from './search.js';
 import { openNewMenu, openTaskForm } from './forms.js';
 import { openHomeworkForm } from './schoolForms.js';
+import { openShiftForm, openOrderForm } from './workForms.js';
 import { openModal } from '../lib/ui.js';
 import { esc } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
@@ -18,9 +19,10 @@ import { todayKey } from '../lib/dates.js';
 export const NAV = [
   { id: 'dashboard', label: 'Хянах самбар', icon: 'dashboard' },
   { id: 'calendar', label: 'Календарь', icon: 'calendar' },
-  { id: 'tasks', label: 'Ажлууд', icon: 'tasks' },
+  { id: 'tasks', label: 'Хийх зүйлс', icon: 'tasks' },
   { id: 'goals', label: 'Зорилго ба төсөл', icon: 'goals' },
   { id: 'school', label: 'Сургууль', icon: 'school' },
+  { id: 'work', label: 'Ажил', icon: 'briefcase' },
   { id: 'assistant', label: 'AI туслах', icon: 'assistant' },
   { section: 'Амьдрал' },
   { id: 'journal', label: 'Тэмдэглэл', icon: 'journal' },
@@ -33,8 +35,9 @@ export const NAV = [
 const MOBILE_NAV = [
   { id: 'dashboard', label: 'Нүүр', icon: 'dashboard' },
   { id: 'calendar', label: 'Календарь', icon: 'calendar' },
-  { id: 'tasks', label: 'Ажлууд', icon: 'tasks' },
+  { id: 'tasks', label: 'Хийх зүйлс', icon: 'tasks' },
   { id: 'school', label: 'Сургууль', icon: 'school' },
+  { id: 'work', label: 'Ажил', icon: 'briefcase' },
 ];
 
 let bannerDismissed = false;
@@ -64,7 +67,7 @@ export function renderShell(app) {
         <a class="topbar-brand" href="#/dashboard"><span class="brand-mark" aria-hidden="true"></span><span id="topbarTitle">Хянах самбар</span></a>
         <div class="search" role="search">
           ${icon('search', 16)}
-          <input id="searchInput" type="search" placeholder="Ажил, үйл явдал, зорилго, тэмдэглэлээс хайх…" autocomplete="off" aria-label="Бүгдээс хайх" aria-controls="searchResults">
+          <input id="searchInput" type="search" placeholder="Хийх зүйлс, үйл явдал, захиалга, тэмдэглэлээс хайх…" autocomplete="off" aria-label="Бүгдээс хайх" aria-controls="searchResults">
           <kbd class="kbd">/</kbd>
           <div class="search-results" id="searchResults" role="listbox" hidden></div>
         </div>
@@ -92,7 +95,13 @@ export function renderShell(app) {
     switch (el.dataset.shell) {
       case 'theme': prefs.set({ theme: effectiveTheme() === 'dark' ? 'light' : 'dark' }); break;
       case 'search': openSearchSheet(); break;
-      case 'new': openNewMenu(el, { extra: [{ label: 'Гэрийн даалгавар', icon: 'book', onSelect: () => openHomeworkForm() }] }); break;
+      case 'new': openNewMenu(el, {
+        extra: [
+          { label: 'Гэрийн даалгавар', icon: 'book', onSelect: () => openHomeworkForm() },
+          { label: 'Ажлын ээлж', icon: 'clock', onSelect: () => openShiftForm() },
+          { label: 'Захиалга', icon: 'bag', onSelect: () => openOrderForm() },
+        ],
+      }); break;
       case 'more': openMoreSheet(); break;
       case 'banner-dismiss': bannerDismissed = true; updateBanner(); break;
       case 'reload': location.reload(); break;

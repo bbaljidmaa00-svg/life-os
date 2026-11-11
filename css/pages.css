@@ -698,3 +698,158 @@
   .hw-count { grid-column: 2; grid-row: 2; justify-self: start; }
   .week-grid { grid-template-columns: 1fr; }
 }
+
+/* ═══ Ажил ═══════════════════════════════════════════════════════════════ */
+.week-nav { justify-content: space-between; margin-bottom: 12px; }
+.week-nav .row { align-items: center; gap: 6px; flex-wrap: wrap; }
+.week-label { margin: 0 4px; font-size: 17px; font-weight: 900; }
+.section-btn { margin-top: 12px; }
+.work-note { display: flex; align-items: flex-start; gap: 6px; margin-top: 14px; line-height: 1.5; }
+.work-note .icon { flex: none; margin-top: 2px; }
+
+/* Жижиг статистик хавтангууд */
+.work-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+.ws { display: grid; gap: 2px; padding: 12px 14px; border-radius: 20px; background: var(--glass); border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); min-width: 0; }
+.ws-label { font-size: 12px; font-weight: 800; color: var(--text-2); }
+.ws-value { font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ws-sub { font-size: 11.5px; font-weight: 700; color: var(--text-3); }
+.ws.is-alert { background: linear-gradient(135deg, var(--raspberry-bright), var(--raspberry)); border-color: transparent; }
+.ws.is-alert .ws-label, .ws.is-alert .ws-value, .ws.is-alert .ws-sub { color: var(--raspberry-ink); }
+.ws.is-debt .ws-value { color: var(--raspberry); }
+
+/* Ээлж */
+.shift-item.is-done { opacity: .62; }
+.shift-item.is-done .ci-name::after { content: ' ✓'; color: var(--success); }
+.shift-item.is-live { box-shadow: 0 0 0 2px var(--subj), var(--shadow-sm); }
+.live-text { color: var(--accent); }
+.shift-preview { margin: -2px 0 0; padding: 9px 12px; border-radius: 14px; background: var(--accent-soft); color: var(--text); font-size: 13px; }
+.shift-preview:empty { display: none; }
+.is-raspberry { color: var(--raspberry); }
+.form-hint { margin: -4px 0 0; line-height: 1.45; }
+
+/* Цалин */
+.work-kpis .kpi-value { font-size: 26px !important; }
+.work-split { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; align-items: start; margin-bottom: 4px; }
+.wp-pay, .payday-list, .income-list, .contact-list, .order-list, .wgoal-grid { list-style: none; margin: 0; padding: 0; }
+.wp-pay li, .payday-list li { display: flex; align-items: center; gap: 12px; padding: 10px 2px; }
+.wp-pay li + li, .payday-list li + li { border-top: 1px solid var(--border); }
+.wp-pay .subj-swatch { width: 28px; height: 28px; }
+.wpp-info { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.wpp-amount { font-size: 16px; font-weight: 900; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pd-day { display: grid; place-items: center; flex: none; width: 52px; height: 52px; border-radius: 18px; background: color-mix(in srgb, var(--subj) 16%, var(--surface)); line-height: 1; }
+.pd-day b { font-size: 20px; font-weight: 1000; color: var(--subj); }
+.pd-day span { font-size: 10px; font-weight: 800; color: var(--text-2); }
+.payday-list li.is-soon .wpp-info .small { color: var(--raspberry); font-weight: 900; }
+.income-bar { display: flex; height: 14px; margin: 14px 0 10px; border-radius: 999px; overflow: hidden; gap: 3px; }
+.income-bar span { background: var(--c); min-width: 6px; }
+.income-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.income-legend li { display: flex; align-items: center; gap: 8px; }
+.income-legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.income-legend span { flex: 1; color: var(--text-2); }
+.income-list li + li { border-top: 1px solid var(--border); }
+.income-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; text-align: left; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+.income-row:hover { background: var(--surface-2); }
+.ir-date { flex: none; width: 92px; font-size: 12.5px; font-weight: 800; color: var(--text-2); }
+.ir-main { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.ir-amount { color: var(--success); font-weight: 900; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Захиалга */
+.order-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.order-col { padding: 12px; }
+.order-col-title { display: flex; align-items: center; gap: 6px; margin: 2px 4px 10px; font-size: 14px; font-weight: 900; }
+.order-col-title .count { font-size: 12px; color: var(--text-3); }
+.order-list { display: grid; gap: 10px; }
+.order { position: relative; display: grid; gap: 8px; padding: 12px 12px 12px 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-xs); }
+.order::before { content: ''; position: absolute; left: 6px; top: 12px; bottom: 12px; width: 4px; border-radius: 999px; background: var(--mint); }
+.order.st-new::before { background: var(--sky); }
+.order.st-preparing::before { background: var(--butter); }
+.order.st-delivered::before { background: var(--success); }
+.order.st-cancelled { opacity: .6; }
+.order.st-cancelled::before { background: var(--text-3); }
+.order.is-overdue { border-color: color-mix(in srgb, var(--raspberry) 45%, var(--border)); background: color-mix(in srgb, var(--raspberry-soft) 55%, var(--surface)); }
+.order.is-overdue::before { background: var(--raspberry); }
+.order-main { display: grid; gap: 4px; min-width: 0; text-align: left; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+.order-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; }
+.order-cust { font-weight: 900; }
+.order-due { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
+.order-due.is-soon { background: var(--warning-soft); color: var(--warning); }
+.order-due.is-late { background: var(--raspberry); color: var(--raspberry-ink); }
+.order-items { font-size: 14px; overflow-wrap: anywhere; }
+.order-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px; color: var(--text-2); }
+.order-meta span { display: inline-flex; align-items: center; gap: 3px; }
+.order-price { font-weight: 900; color: var(--text) !important; }
+.order-debt { font-weight: 900; color: var(--raspberry) !important; }
+.order-paid { font-weight: 800; color: var(--success) !important; }
+.order-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.order-list.is-flat { gap: 0; }
+.order-list.is-flat .order { border-radius: 0; border: 0; border-bottom: 1px solid var(--border); box-shadow: none; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.order-list.is-flat .order:last-child { border-bottom: 0; }
+
+/* Хамт ажиллагсад */
+.contact-list li + li { border-top: 1px solid var(--border); }
+.contact-row { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 10px 2px; text-align: left; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; border-radius: 12px; }
+.contact-row:hover { background: var(--surface-2); }
+.contact-avatar { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; font-weight: 1000; color: #fff; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .55) 0 14%, var(--subj) 62%); }
+.contact-info { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.contact-note { font-size: 12.5px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.contact-handle { white-space: nowrap; }
+
+/* Ойрын зорилго */
+.wgoal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.wgoal { display: grid; gap: 8px; padding: 16px; --pace: var(--sky); }
+.wgoal.pace-done { --pace: var(--success); }
+.wgoal.pace-ahead { --pace: var(--mint); }
+.wgoal.pace-behind { --pace: var(--warning); }
+.wgoal.pace-missed { --pace: var(--text-3); }
+.wgoal.is-urgent { box-shadow: 0 0 0 2px var(--raspberry), var(--shadow); }
+.wgoal.is-urgent { --pace: var(--raspberry); }
+.wg-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wg-metric { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--text-2); min-width: 0; }
+.wg-pace { padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 900; color: var(--pace); background: color-mix(in srgb, var(--pace) 14%, var(--surface)); white-space: nowrap; }
+.wgoal.is-urgent .wg-pace { background: var(--raspberry); color: var(--raspberry-ink); }
+.wg-title { text-align: left; background: none; border: 0; padding: 0; color: var(--text); font: inherit; font-size: 16px; font-weight: 900; cursor: pointer; overflow-wrap: anywhere; }
+.wg-numbers { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.wg-numbers b { font-size: 22px; font-weight: 1000; font-variant-numeric: tabular-nums; }
+.wg-numbers span { color: var(--text-2); font-weight: 700; }
+.wg-numbers .wg-pct { margin-left: auto; font-weight: 1000; color: var(--pace); }
+.wg-bar { position: relative; }
+.wg-bar .progress > span { background: linear-gradient(90deg, color-mix(in srgb, var(--pace) 55%, #fff), var(--pace)); }
+.wg-time { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 2px; background: var(--text-2); opacity: .55; }
+.wg-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wg-actions { display: inline-flex; gap: 4px; }
+.wg-plus { background: var(--accent-fill); color: var(--accent-fill-text); }
+.wgoal-grid.is-past .wgoal { opacity: .78; }
+.goal-ideas { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 6px; }
+.chip-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 999px; border: 1px dashed var(--border-strong); background: var(--glass); color: var(--text); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; transition: transform var(--dur), background var(--dur); }
+.chip-btn:hover { background: var(--accent-soft); border-style: solid; border-color: var(--accent-fill); transform: translateY(-1px); }
+.chip-btn .icon { color: var(--accent); }
+
+/* Нүүр хуудасны «Ажил» карт */
+.dash-work-week { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 9px 12px; border-radius: 14px; background: var(--surface-2); font-size: 13px; }
+.dash-work-week span { flex: 1; color: var(--text-2); font-weight: 800; }
+.dash-work-week b { font-variant-numeric: tabular-nums; }
+section.card .goal-mini { margin-top: 10px; text-decoration: none; color: var(--text); }
+
+/* Календарь дахь ээлж */
+.tg-event.tg-shift { background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--c) 20%, var(--surface)) 0 8px, color-mix(in srgb, var(--c) 12%, var(--surface)) 8px 16px); }
+.cal-chip.is-shift b { color: var(--c); }
+
+@media (max-width: 1000px) {
+  .work-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .work-split { grid-template-columns: minmax(0, 1fr); }
+  .order-board { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .week-nav { flex-direction: column; align-items: stretch; gap: 8px; }
+  .week-label { font-size: 15px; }
+  .ws-value { font-size: 17px; }
+  .work-kpis .kpi-value { font-size: 22px !important; }
+  .ir-date { width: 70px; }
+  .wgoal-grid { grid-template-columns: minmax(0, 1fr); }
+  .order-list.is-flat .order { grid-template-columns: minmax(0, 1fr); }
+}
+.work-kpis { margin-bottom: 16px; }
+.pd-day { width: 58px; }
+.pd-day span { font-size: 9.5px; white-space: nowrap; }
+.card-body.flush .work-note, .card-body.flush .day-empty { padding: 0 12px; }
+.card-body.flush .work-note { margin: 10px 0 4px; }

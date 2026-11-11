@@ -356,7 +356,7 @@ code { font-family: var(--font-mono); font-size: .9em; padding: 1px 5px; border-
   #bannerSlot { padding: 0 16px; }
   .bottom-nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-    display: grid; grid-template-columns: repeat(5, 1fr);
+    display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
     height: calc(var(--bottom-h) + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
     background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
@@ -367,6 +367,7 @@ code { font-family: var(--font-mono); font-size: .9em; padding: 1px 5px; border-
   .bn-item { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 500; color: var(--text-3); text-align: center; }
   .bn-item[aria-current="page"], .bn-item.is-active { color: var(--text); }
   .bn-item[aria-current="page"] .icon, .bn-item.is-active .icon { color: var(--accent); }
+  .bn-item > span:not(.bn-dot) { max-width: 100%; padding: 0 2px; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .bn-dot { position: absolute; top: 10px; left: calc(50% + 7px); width: 8px; height: 8px; border-radius: 50%; background: var(--danger); border: 2px solid var(--bg-elev); }
 }
 
@@ -1420,6 +1421,161 @@ body.has-modal { overflow: hidden; }
   .week-grid { grid-template-columns: 1fr; }
 }
 
+/* ═══ Ажил ═══════════════════════════════════════════════════════════════ */
+.week-nav { justify-content: space-between; margin-bottom: 12px; }
+.week-nav .row { align-items: center; gap: 6px; flex-wrap: wrap; }
+.week-label { margin: 0 4px; font-size: 17px; font-weight: 900; }
+.section-btn { margin-top: 12px; }
+.work-note { display: flex; align-items: flex-start; gap: 6px; margin-top: 14px; line-height: 1.5; }
+.work-note .icon { flex: none; margin-top: 2px; }
+
+/* Жижиг статистик хавтангууд */
+.work-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+.ws { display: grid; gap: 2px; padding: 12px 14px; border-radius: 20px; background: var(--glass); border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); min-width: 0; }
+.ws-label { font-size: 12px; font-weight: 800; color: var(--text-2); }
+.ws-value { font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ws-sub { font-size: 11.5px; font-weight: 700; color: var(--text-3); }
+.ws.is-alert { background: linear-gradient(135deg, var(--raspberry-bright), var(--raspberry)); border-color: transparent; }
+.ws.is-alert .ws-label, .ws.is-alert .ws-value, .ws.is-alert .ws-sub { color: var(--raspberry-ink); }
+.ws.is-debt .ws-value { color: var(--raspberry); }
+
+/* Ээлж */
+.shift-item.is-done { opacity: .62; }
+.shift-item.is-done .ci-name::after { content: ' ✓'; color: var(--success); }
+.shift-item.is-live { box-shadow: 0 0 0 2px var(--subj), var(--shadow-sm); }
+.live-text { color: var(--accent); }
+.shift-preview { margin: -2px 0 0; padding: 9px 12px; border-radius: 14px; background: var(--accent-soft); color: var(--text); font-size: 13px; }
+.shift-preview:empty { display: none; }
+.is-raspberry { color: var(--raspberry); }
+.form-hint { margin: -4px 0 0; line-height: 1.45; }
+
+/* Цалин */
+.work-kpis .kpi-value { font-size: 26px !important; }
+.work-split { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; align-items: start; margin-bottom: 4px; }
+.wp-pay, .payday-list, .income-list, .contact-list, .order-list, .wgoal-grid { list-style: none; margin: 0; padding: 0; }
+.wp-pay li, .payday-list li { display: flex; align-items: center; gap: 12px; padding: 10px 2px; }
+.wp-pay li + li, .payday-list li + li { border-top: 1px solid var(--border); }
+.wp-pay .subj-swatch { width: 28px; height: 28px; }
+.wpp-info { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.wpp-amount { font-size: 16px; font-weight: 900; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pd-day { display: grid; place-items: center; flex: none; width: 52px; height: 52px; border-radius: 18px; background: color-mix(in srgb, var(--subj) 16%, var(--surface)); line-height: 1; }
+.pd-day b { font-size: 20px; font-weight: 1000; color: var(--subj); }
+.pd-day span { font-size: 10px; font-weight: 800; color: var(--text-2); }
+.payday-list li.is-soon .wpp-info .small { color: var(--raspberry); font-weight: 900; }
+.income-bar { display: flex; height: 14px; margin: 14px 0 10px; border-radius: 999px; overflow: hidden; gap: 3px; }
+.income-bar span { background: var(--c); min-width: 6px; }
+.income-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13px; }
+.income-legend li { display: flex; align-items: center; gap: 8px; }
+.income-legend i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+.income-legend span { flex: 1; color: var(--text-2); }
+.income-list li + li { border-top: 1px solid var(--border); }
+.income-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; text-align: left; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; }
+.income-row:hover { background: var(--surface-2); }
+.ir-date { flex: none; width: 92px; font-size: 12.5px; font-weight: 800; color: var(--text-2); }
+.ir-main { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.ir-amount { color: var(--success); font-weight: 900; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Захиалга */
+.order-board { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.order-col { padding: 12px; }
+.order-col-title { display: flex; align-items: center; gap: 6px; margin: 2px 4px 10px; font-size: 14px; font-weight: 900; }
+.order-col-title .count { font-size: 12px; color: var(--text-3); }
+.order-list { display: grid; gap: 10px; }
+.order { position: relative; display: grid; gap: 8px; padding: 12px 12px 12px 16px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-xs); }
+.order::before { content: ''; position: absolute; left: 6px; top: 12px; bottom: 12px; width: 4px; border-radius: 999px; background: var(--mint); }
+.order.st-new::before { background: var(--sky); }
+.order.st-preparing::before { background: var(--butter); }
+.order.st-delivered::before { background: var(--success); }
+.order.st-cancelled { opacity: .6; }
+.order.st-cancelled::before { background: var(--text-3); }
+.order.is-overdue { border-color: color-mix(in srgb, var(--raspberry) 45%, var(--border)); background: color-mix(in srgb, var(--raspberry-soft) 55%, var(--surface)); }
+.order.is-overdue::before { background: var(--raspberry); }
+.order-main { display: grid; gap: 4px; min-width: 0; text-align: left; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+.order-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; }
+.order-cust { font-weight: 900; }
+.order-due { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 800; background: var(--surface-2); color: var(--text-2); white-space: nowrap; }
+.order-due.is-soon { background: var(--warning-soft); color: var(--warning); }
+.order-due.is-late { background: var(--raspberry); color: var(--raspberry-ink); }
+.order-items { font-size: 14px; overflow-wrap: anywhere; }
+.order-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 12.5px; color: var(--text-2); }
+.order-meta span { display: inline-flex; align-items: center; gap: 3px; }
+.order-price { font-weight: 900; color: var(--text) !important; }
+.order-debt { font-weight: 900; color: var(--raspberry) !important; }
+.order-paid { font-weight: 800; color: var(--success) !important; }
+.order-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.order-list.is-flat { gap: 0; }
+.order-list.is-flat .order { border-radius: 0; border: 0; border-bottom: 1px solid var(--border); box-shadow: none; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.order-list.is-flat .order:last-child { border-bottom: 0; }
+
+/* Хамт ажиллагсад */
+.contact-list li + li { border-top: 1px solid var(--border); }
+.contact-row { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 10px 2px; text-align: left; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; border-radius: 12px; }
+.contact-row:hover { background: var(--surface-2); }
+.contact-avatar { flex: none; display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; font-weight: 1000; color: #fff; background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .55) 0 14%, var(--subj) 62%); }
+.contact-info { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.contact-note { font-size: 12.5px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.contact-handle { white-space: nowrap; }
+
+/* Ойрын зорилго */
+.wgoal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.wgoal { display: grid; gap: 8px; padding: 16px; --pace: var(--sky); }
+.wgoal.pace-done { --pace: var(--success); }
+.wgoal.pace-ahead { --pace: var(--mint); }
+.wgoal.pace-behind { --pace: var(--warning); }
+.wgoal.pace-missed { --pace: var(--text-3); }
+.wgoal.is-urgent { box-shadow: 0 0 0 2px var(--raspberry), var(--shadow); }
+.wgoal.is-urgent { --pace: var(--raspberry); }
+.wg-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wg-metric { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--text-2); min-width: 0; }
+.wg-pace { padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 900; color: var(--pace); background: color-mix(in srgb, var(--pace) 14%, var(--surface)); white-space: nowrap; }
+.wgoal.is-urgent .wg-pace { background: var(--raspberry); color: var(--raspberry-ink); }
+.wg-title { text-align: left; background: none; border: 0; padding: 0; color: var(--text); font: inherit; font-size: 16px; font-weight: 900; cursor: pointer; overflow-wrap: anywhere; }
+.wg-numbers { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.wg-numbers b { font-size: 22px; font-weight: 1000; font-variant-numeric: tabular-nums; }
+.wg-numbers span { color: var(--text-2); font-weight: 700; }
+.wg-numbers .wg-pct { margin-left: auto; font-weight: 1000; color: var(--pace); }
+.wg-bar { position: relative; }
+.wg-bar .progress > span { background: linear-gradient(90deg, color-mix(in srgb, var(--pace) 55%, #fff), var(--pace)); }
+.wg-time { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 2px; background: var(--text-2); opacity: .55; }
+.wg-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wg-actions { display: inline-flex; gap: 4px; }
+.wg-plus { background: var(--accent-fill); color: var(--accent-fill-text); }
+.wgoal-grid.is-past .wgoal { opacity: .78; }
+.goal-ideas { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 6px; }
+.chip-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 999px; border: 1px dashed var(--border-strong); background: var(--glass); color: var(--text); font: inherit; font-size: 13px; font-weight: 800; cursor: pointer; transition: transform var(--dur), background var(--dur); }
+.chip-btn:hover { background: var(--accent-soft); border-style: solid; border-color: var(--accent-fill); transform: translateY(-1px); }
+.chip-btn .icon { color: var(--accent); }
+
+/* Нүүр хуудасны «Ажил» карт */
+.dash-work-week { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; padding: 9px 12px; border-radius: 14px; background: var(--surface-2); font-size: 13px; }
+.dash-work-week span { flex: 1; color: var(--text-2); font-weight: 800; }
+.dash-work-week b { font-variant-numeric: tabular-nums; }
+section.card .goal-mini { margin-top: 10px; text-decoration: none; color: var(--text); }
+
+/* Календарь дахь ээлж */
+.tg-event.tg-shift { background: repeating-linear-gradient(-45deg, color-mix(in srgb, var(--c) 20%, var(--surface)) 0 8px, color-mix(in srgb, var(--c) 12%, var(--surface)) 8px 16px); }
+.cal-chip.is-shift b { color: var(--c); }
+
+@media (max-width: 1000px) {
+  .work-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .work-split { grid-template-columns: minmax(0, 1fr); }
+  .order-board { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .week-nav { flex-direction: column; align-items: stretch; gap: 8px; }
+  .week-label { font-size: 15px; }
+  .ws-value { font-size: 17px; }
+  .work-kpis .kpi-value { font-size: 22px !important; }
+  .ir-date { width: 70px; }
+  .wgoal-grid { grid-template-columns: minmax(0, 1fr); }
+  .order-list.is-flat .order { grid-template-columns: minmax(0, 1fr); }
+}
+.work-kpis { margin-bottom: 16px; }
+.pd-day { width: 58px; }
+.pd-day span { font-size: 9.5px; white-space: nowrap; }
+.card-body.flush .work-note, .card-body.flush .day-empty { padding: 0 12px; }
+.card-body.flush .work-note { margin: 10px 0 4px; }
+
 /* ── css/decor.css ── */
 /* ═══════════════════════════════════════════════════════════════════════════
    Тэнгэрийн бөмбөлөг — чимэглэлийн давхарга (хамгийн сүүлд ачаална).
@@ -1945,6 +2101,12 @@ const state = {
   subjects: [],
   classSessions: [],
   homework: [],
+  workplaces: [],
+  workShifts: [],
+  income: [],
+  orders: [],
+  workContacts: [],
+  workGoals: [],
 };
 
 const meta = {
@@ -2043,6 +2205,12 @@ const TABLES = {
   subjects: 'subjects',
   classSessions: 'class_sessions',
   homework: 'homework',
+  workplaces: 'workplaces',
+  workShifts: 'work_shifts',
+  income: 'income_entries',
+  orders: 'orders',
+  workContacts: 'work_contacts',
+  workGoals: 'work_goals',
 };
 
 /**
@@ -3487,6 +3655,438 @@ function parseTaskInput(text, options) {
 
 });
 
+__def("js/services/workService.js", function (__e) {
+'use strict';
+Object.defineProperty(__e, "money", { enumerable: true, get: () => money });
+Object.defineProperty(__e, "moneyShort", { enumerable: true, get: () => moneyShort });
+Object.defineProperty(__e, "shiftSpan", { enumerable: true, get: () => shiftSpan });
+Object.defineProperty(__e, "shiftStart", { enumerable: true, get: () => shiftStart });
+Object.defineProperty(__e, "shiftState", { enumerable: true, get: () => shiftState });
+Object.defineProperty(__e, "shiftRate", { enumerable: true, get: () => shiftRate });
+Object.defineProperty(__e, "nextShift", { enumerable: true, get: () => nextShift });
+Object.defineProperty(__e, "weekRange", { enumerable: true, get: () => weekRange });
+Object.defineProperty(__e, "monthRange", { enumerable: true, get: () => monthRange });
+Object.defineProperty(__e, "earnings", { enumerable: true, get: () => earnings });
+Object.defineProperty(__e, "expectedMonthlyPay", { enumerable: true, get: () => expectedMonthlyPay });
+Object.defineProperty(__e, "nextPayday", { enumerable: true, get: () => nextPayday });
+Object.defineProperty(__e, "orderDueMoment", { enumerable: true, get: () => orderDueMoment });
+Object.defineProperty(__e, "workGoalProgress", { enumerable: true, get: () => workGoalProgress });
+Object.defineProperty(__e, "metricValue", { enumerable: true, get: () => metricValue });
+Object.defineProperty(__e, "activeWorkGoals", { enumerable: true, get: () => activeWorkGoals });
+Object.defineProperty(__e, "pastWorkGoals", { enumerable: true, get: () => pastWorkGoals });
+Object.defineProperty(__e, "WORK_COLORS", { enumerable: true, get: () => WORK_COLORS });
+Object.defineProperty(__e, "PAY_TYPES", { enumerable: true, get: () => PAY_TYPES });
+Object.defineProperty(__e, "INCOME_KINDS", { enumerable: true, get: () => INCOME_KINDS });
+Object.defineProperty(__e, "incomeKindLabel", { enumerable: true, get: () => incomeKindLabel });
+Object.defineProperty(__e, "ORDER_STATUSES", { enumerable: true, get: () => ORDER_STATUSES });
+Object.defineProperty(__e, "orderStatusLabel", { enumerable: true, get: () => orderStatusLabel });
+Object.defineProperty(__e, "ORDER_NEXT", { enumerable: true, get: () => ORDER_NEXT });
+Object.defineProperty(__e, "isOrderOpen", { enumerable: true, get: () => isOrderOpen });
+Object.defineProperty(__e, "GOAL_METRICS", { enumerable: true, get: () => GOAL_METRICS });
+Object.defineProperty(__e, "metricInfo", { enumerable: true, get: () => metricInfo });
+Object.defineProperty(__e, "hoursLabel", { enumerable: true, get: () => hoursLabel });
+Object.defineProperty(__e, "workplacesService", { enumerable: true, get: () => workplacesService });
+Object.defineProperty(__e, "shiftsService", { enumerable: true, get: () => shiftsService });
+Object.defineProperty(__e, "incomeService", { enumerable: true, get: () => incomeService });
+Object.defineProperty(__e, "contactsService", { enumerable: true, get: () => contactsService });
+Object.defineProperty(__e, "workGoalsService", { enumerable: true, get: () => workGoalsService });
+Object.defineProperty(__e, "workplaceById", { enumerable: true, get: () => workplaceById });
+Object.defineProperty(__e, "shiftMinutes", { enumerable: true, get: () => shiftMinutes });
+Object.defineProperty(__e, "isOvernight", { enumerable: true, get: () => isOvernight });
+Object.defineProperty(__e, "shiftEnd", { enumerable: true, get: () => shiftEnd });
+Object.defineProperty(__e, "shiftPay", { enumerable: true, get: () => shiftPay });
+Object.defineProperty(__e, "shiftsOn", { enumerable: true, get: () => shiftsOn });
+Object.defineProperty(__e, "shiftsBetween", { enumerable: true, get: () => shiftsBetween });
+Object.defineProperty(__e, "orderDeliveredKey", { enumerable: true, get: () => orderDeliveredKey });
+Object.defineProperty(__e, "orderBalance", { enumerable: true, get: () => orderBalance });
+Object.defineProperty(__e, "isOrderLate", { enumerable: true, get: () => isOrderLate });
+Object.defineProperty(__e, "ordersService", { enumerable: true, get: () => ordersService });
+Object.defineProperty(__e, "PACE_LABEL", { enumerable: true, get: () => PACE_LABEL });
+Object.defineProperty(__e, "WORK_CATEGORY", { enumerable: true, get: () => WORK_CATEGORY });
+Object.defineProperty(__e, "isWorkTask", { enumerable: true, get: () => isWorkTask });
+/**
+ * Ажил — ажлын газар, ээлж, орлого, захиалга, хамт ажиллагсад, ойрын зорилго.
+ * Хүснэгтүүд: TABLES.workplaces, workShifts, income, orders, workContacts, workGoals
+ *
+ * Ажлын даалгавар нь энгийн «Хийх зүйлс» (ангилал «Ажил»), уулзалт нь
+ * календарийн үйл явдал (ангилал «work») — давхар систем үүсгэхгүй.
+ *
+ * Орлогын дүрэм (давхар тоолохгүйн тулд):
+ *  • Цагийн хөлстэй ажил → ээлжээс тооцно (цаг × хөлс + нэмэгдэл).
+ *    Тэр ажлаас авсан «Цалин / Урьдчилгаа» бүртгэл нь уг мөнгөний төлөлт тул нийтэд нэмэгдэхгүй.
+ *  • Тогтмол цалинтай эсвэл ажлын газаргүй → хүлээн авсан «Цалин / Урьдчилгаа» орлогод орно.
+ *  • Урамшуулал, tips, борлуулалт, бусад орлого → үргэлж орно.
+ *  • Хүргэсэн захиалгын үнэ → борлуулалтын орлогод орно.
+ */
+const { TABLES } = __req("js/config.js");
+const { createService } = __req("js/services/createService.js");
+const { todayKey, addDaysKey, diffDays, fromKey, toKey, timeToMin, startOfWeek, keyOfTimestamp } = __req("js/lib/dates.js");
+
+const WORK_COLORS = ['#E8508F', '#2E8FD0', '#F0A21E', '#18A58F', '#8A6CF0', '#F07C3E', '#C8105A', '#5B6B8A'];
+
+const PAY_TYPES = [
+  { value: 'hourly', label: 'Цагийн хөлс' },
+  { value: 'fixed', label: 'Тогтмол цалин' },
+  { value: 'none', label: 'Цалингүй' },
+];
+const INCOME_KINDS = [
+  { value: 'salary', label: 'Цалин' },
+  { value: 'advance', label: 'Урьдчилгаа' },
+  { value: 'bonus', label: 'Урамшуулал' },
+  { value: 'tips', label: 'Tips / цайны мөнгө' },
+  { value: 'sale', label: 'Борлуулалт' },
+  { value: 'other', label: 'Бусад' },
+];
+const incomeKindLabel = (k) => INCOME_KINDS.find((x) => x.value === k)?.label || 'Орлого';
+
+const ORDER_STATUSES = [
+  { value: 'new', label: 'Шинэ' },
+  { value: 'preparing', label: 'Бэлтгэж байна' },
+  { value: 'ready', label: 'Бэлэн' },
+  { value: 'delivered', label: 'Хүргэсэн' },
+  { value: 'cancelled', label: 'Цуцалсан' },
+];
+const orderStatusLabel = (s) => ORDER_STATUSES.find((x) => x.value === s)?.label || 'Шинэ';
+/** Дараагийн алхмын товч: шинэ → бэлтгэх → бэлэн → хүргэсэн */
+const ORDER_NEXT = {
+  new: { status: 'preparing', label: 'Бэлтгэж эхлэх' },
+  preparing: { status: 'ready', label: 'Бэлэн боллоо' },
+  ready: { status: 'delivered', label: 'Хүргэсэн' },
+};
+const isOrderOpen = (o) => o.status !== 'delivered' && o.status !== 'cancelled';
+
+const GOAL_METRICS = [
+  { value: 'hours', label: 'Ажлын цаг', unit: 'цаг' },
+  { value: 'income', label: 'Орлого', unit: '₮' },
+  { value: 'orders', label: 'Хүргэсэн захиалга', unit: 'захиалга' },
+  { value: 'custom', label: 'Өөрөө тоолох', unit: '' },
+];
+const metricInfo = (m) => GOAL_METRICS.find((x) => x.value === m) || GOAL_METRICS[3];
+
+const hhmm = (t) => (t ? String(t).slice(0, 5) : null);
+const num = (v) => (v === null || v === undefined || v === '' ? null : Number(v));
+const dateOnly = (v) => (v ? String(v).slice(0, 10) : null);
+
+/** 1250000 → "1,250,000₮" (бүхэл төгрөг). */
+function money(n, { sign = false } = {}) {
+  const v = Math.round(Number(n) || 0);
+  const s = Math.abs(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return `${v < 0 ? '−' : sign && v > 0 ? '+' : ''}${s}₮`;
+}
+/** 1250000 → "1.25 сая₮", 85000 → "85 мянга₮" — жижиг хавтанд. */
+function moneyShort(n) {
+  const v = Math.round(Number(n) || 0);
+  if (Math.abs(v) >= 1e6) return `${(v / 1e6).toFixed(Math.abs(v) >= 1e7 ? 0 : 2).replace(/\.?0+$/, '')} сая₮`;
+  if (Math.abs(v) >= 1e4) return `${Math.round(v / 1000)} мянга₮`;
+  return money(v);
+}
+/** 510 мин → "8.5 цаг" */
+const hoursLabel = (min) => `${Math.round((min / 60) * 10) / 10} цаг`;
+
+/* ── Сервисүүд ───────────────────────────────────────────────────────────── */
+const workplacesService = createService({
+  key: 'workplaces',
+  tableName: TABLES.workplaces,
+  columns: ['id', 'name', 'color', 'pay_type', 'hourly_rate', 'monthly_salary', 'payday', 'payday_2', 'notes', 'is_active', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    name: row.name || '',
+    color: row.color || WORK_COLORS[0],
+    pay_type: row.pay_type || 'hourly',
+    hourly_rate: num(row.hourly_rate),
+    monthly_salary: num(row.monthly_salary),
+    payday: num(row.payday),
+    payday_2: num(row.payday_2),
+    notes: row.notes || '',
+    is_active: row.is_active !== false,
+  }),
+});
+
+const shiftsService = createService({
+  key: 'workShifts',
+  tableName: TABLES.workShifts,
+  columns: ['id', 'workplace_id', 'shift_date', 'start_time', 'end_time', 'break_minutes', 'hourly_rate', 'extra_pay', 'notes', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    shift_date: dateOnly(row.shift_date),
+    start_time: hhmm(row.start_time),
+    end_time: hhmm(row.end_time),
+    break_minutes: Number(row.break_minutes) || 0,
+    hourly_rate: num(row.hourly_rate),
+    extra_pay: Number(row.extra_pay) || 0,
+    notes: row.notes || '',
+  }),
+});
+
+const incomeService = createService({
+  key: 'income',
+  tableName: TABLES.income,
+  columns: ['id', 'workplace_id', 'amount', 'received_date', 'kind', 'note', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    workplace_id: row.workplace_id || null,
+    amount: Number(row.amount) || 0,
+    received_date: dateOnly(row.received_date),
+    kind: row.kind || 'salary',
+    note: row.note || '',
+  }),
+});
+
+const ordersBase = createService({
+  key: 'orders',
+  tableName: TABLES.orders,
+  columns: ['id', 'customer_name', 'customer_contact', 'items', 'quantity', 'price', 'paid_amount', 'status', 'due_date', 'due_time', 'delivery', 'notes', 'delivered_at', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    customer_name: row.customer_name || '',
+    customer_contact: row.customer_contact || '',
+    items: row.items || '',
+    quantity: Number(row.quantity) || 1,
+    price: Number(row.price) || 0,
+    paid_amount: Number(row.paid_amount) || 0,
+    status: row.status || 'new',
+    due_date: dateOnly(row.due_date),
+    due_time: hhmm(row.due_time),
+    delivery: row.delivery || '',
+    notes: row.notes || '',
+  }),
+});
+
+const contactsService = createService({
+  key: 'workContacts',
+  tableName: TABLES.workContacts,
+  columns: ['id', 'workplace_id', 'name', 'role', 'contact', 'notes', 'created_at'],
+  normalize: (row) => ({ ...row, workplace_id: row.workplace_id || null, name: row.name || '', role: row.role || '', contact: row.contact || '', notes: row.notes || '' }),
+});
+
+const workGoalsService = createService({
+  key: 'workGoals',
+  tableName: TABLES.workGoals,
+  columns: ['id', 'title', 'metric', 'target', 'manual_progress', 'unit', 'workplace_id', 'start_date', 'end_date', 'status', 'completed_at', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    title: row.title || '',
+    metric: row.metric || 'custom',
+    target: Number(row.target) || 1,
+    manual_progress: Number(row.manual_progress) || 0,
+    unit: row.unit || '',
+    workplace_id: row.workplace_id || null,
+    start_date: dateOnly(row.start_date),
+    end_date: dateOnly(row.end_date),
+    status: row.status || 'active',
+  }),
+});
+
+const workplaceById = (id) => (id ? workplacesService.get(id) : null);
+
+/* ── Ээлж ────────────────────────────────────────────────────────────────── */
+/** Ээлжийн нийт минут (завсарлагагүй). end ≤ start бол шөнө дундаас хойш дуусна. */
+function shiftSpan(s) {
+  const start = timeToMin(s.start_time) ?? 0;
+  const end = timeToMin(s.end_time) ?? start;
+  return end > start ? end - start : end + 1440 - start;
+}
+/** Ажилласан минут = үргэлжлэх хугацаа − завсарлага. */
+const shiftMinutes = (s) => Math.max(0, shiftSpan(s) - (s.break_minutes || 0));
+const isOvernight = (s) => (timeToMin(s.end_time) ?? 0) <= (timeToMin(s.start_time) ?? 0);
+
+function shiftStart(s) {
+  const d = fromKey(s.shift_date);
+  const m = timeToMin(s.start_time) ?? 0;
+  d.setHours(Math.floor(m / 60), m % 60, 0, 0);
+  return d;
+}
+const shiftEnd = (s) => new Date(shiftStart(s).getTime() + shiftSpan(s) * 60000);
+
+/** 'upcoming' | 'live' | 'done' */
+function shiftState(s, now = Date.now()) {
+  if (shiftEnd(s).getTime() <= now) return 'done';
+  if (shiftStart(s).getTime() <= now) return 'live';
+  return 'upcoming';
+}
+
+/** Энэ ээлжийн цагийн хөлс (цагийн хөлстэй ажилд). */
+function shiftRate(s) {
+  const wp = workplaceById(s.workplace_id);
+  if (!wp || wp.pay_type !== 'hourly') return 0;
+  return s.hourly_rate ?? wp.hourly_rate ?? 0;
+}
+/** Ээлжээс олох мөнгө: цаг × хөлс + нэмэгдэл (тогтмол цалинтай бол зөвхөн нэмэгдэл). */
+const shiftPay = (s) => (shiftMinutes(s) / 60) * shiftRate(s) + (s.extra_pay || 0);
+
+const byStart = (a, b) => shiftStart(a) - shiftStart(b);
+const shiftsOn = (dateKey) => shiftsService.all().filter((s) => s.shift_date === dateKey).sort(byStart);
+const shiftsBetween = (from, to, workplaceId = null) => shiftsService.all()
+  .filter((s) => s.shift_date >= from && s.shift_date <= to && (!workplaceId || s.workplace_id === workplaceId))
+  .sort(byStart);
+
+/** Одоо явагдаж буй эсвэл дараагийн ээлж. */
+function nextShift(now = Date.now()) {
+  return shiftsService.all()
+    .filter((s) => shiftEnd(s).getTime() > now)
+    .sort(byStart)[0] || null;
+}
+
+/** Тухайн өдөр агуулсан долоо хоногийн эхний ба сүүлийн өдөр. */
+function weekRange(dateKey = todayKey()) {
+  const from = toKey(startOfWeek(fromKey(dateKey)));
+  return { from, to: addDaysKey(from, 6) };
+}
+/** "2026-11" → { from: '2026-11-01', to: '2026-11-30' } */
+function monthRange(ym = todayKey().slice(0, 7)) {
+  const [y, m] = ym.split('-').map(Number);
+  return { from: toKey(new Date(y, m - 1, 1)), to: toKey(new Date(y, m, 0)) };
+}
+
+/* ── Орлого ──────────────────────────────────────────────────────────────── */
+const inRange = (key, from, to) => key && key >= from && key <= to;
+/** Захиалгыг хүргэсэн өдөр (delivered_at байхгүй бол хүргэх өдөр). */
+const orderDeliveredKey = (o) => keyOfTimestamp(o.delivered_at) || o.due_date;
+
+/** Цалин/урьдчилгаа бүртгэл нийт орлогод орох эсэх (цагийн хөлстэй ажлынх бол орохгүй). */
+function salaryCounts(entry) {
+  const wp = workplaceById(entry.workplace_id);
+  return !wp || wp.pay_type !== 'hourly';
+}
+
+/**
+ * Хугацааны орлогын тойм.
+ *  minutes, shiftPay      — дууссан ээлжүүд
+ *  plannedMinutes/Pay     — хараахан болоогүй ээлжүүд
+ *  salaryPaid             — тогтмол цалингийн хүлээн авсан төлбөр
+ *  extras                 — урамшуулал, tips, бусад орлого
+ *  sales                  — хүргэсэн захиалга + «Борлуулалт» бүртгэл
+ *  total                  — олсон нийт орлого (давхардалгүй)
+ *  received               — бүх бүртгэлтэй орлого (бодит хүлээн авсан мөнгө)
+ */
+function earnings(from, to, { workplaceId = null, now = Date.now() } = {}) {
+  const r = { minutes: 0, shiftPay: 0, plannedMinutes: 0, plannedPay: 0, salaryPaid: 0, extras: 0, sales: 0, received: 0, total: 0 };
+  shiftsBetween(from, to, workplaceId).forEach((s) => {
+    if (shiftEnd(s).getTime() <= now) { r.minutes += shiftMinutes(s); r.shiftPay += shiftPay(s); } else { r.plannedMinutes += shiftMinutes(s); r.plannedPay += shiftPay(s); }
+  });
+  incomeService.all().forEach((e) => {
+    if (!inRange(e.received_date, from, to)) return;
+    if (workplaceId && e.workplace_id !== workplaceId) return;
+    r.received += e.amount;
+    if (e.kind === 'salary' || e.kind === 'advance') { if (salaryCounts(e)) r.salaryPaid += e.amount; } else if (e.kind === 'sale') r.sales += e.amount;
+    else r.extras += e.amount;
+  });
+  if (!workplaceId) {
+    ordersBase.all().forEach((o) => { if (o.status === 'delivered' && inRange(orderDeliveredKey(o), from, to)) r.sales += o.price; });
+  }
+  r.total = r.shiftPay + r.salaryPaid + r.extras + r.sales;
+  return r;
+}
+
+/** Ажлын газрын сарын хүлээгдэж буй цалин (цагийн хөлс → тухайн сарын бүх ээлж, тогтмол → сарын цалин). */
+function expectedMonthlyPay(wp, ym = todayKey().slice(0, 7)) {
+  if (wp.pay_type === 'fixed') return wp.monthly_salary || 0;
+  if (wp.pay_type !== 'hourly') return 0;
+  const { from, to } = monthRange(ym);
+  return shiftsBetween(from, to, wp.id).reduce((sum, s) => sum + shiftPay(s), 0);
+}
+
+/** Дараагийн цалингийн өдөр (өнөөдрийг оруулна) → { date, days } | null */
+function nextPayday(wp, from = todayKey()) {
+  const days = [wp.payday, wp.payday_2].filter((d) => d >= 1 && d <= 31);
+  if (!days.length) return null;
+  const base = fromKey(from);
+  let best = null;
+  for (let add = 0; add < 3; add++) {
+    const y = base.getFullYear();
+    const m = base.getMonth() + add;
+    const last = new Date(y, m + 1, 0).getDate();
+    for (const d of days) {
+      const key = toKey(new Date(y, m, Math.min(d, last)));
+      if (key >= from && (!best || key < best)) best = key;
+    }
+    if (best) break;
+  }
+  return best ? { date: best, days: diffDays(from, best) } : null;
+}
+
+/* ── Захиалга ────────────────────────────────────────────────────────────── */
+function orderDueMoment(o) {
+  if (!o.due_date) return Infinity;
+  const d = fromKey(o.due_date);
+  const [h, m] = (o.due_time || '23:59').split(':').map(Number);
+  d.setHours(h, m, 0, 0);
+  return d.getTime();
+}
+const orderBalance = (o) => Math.max(0, (o.price || 0) - (o.paid_amount || 0));
+const isOrderLate = (o, now = Date.now()) => isOrderOpen(o) && orderDueMoment(o) < now;
+
+const ordersService = {
+  ...ordersBase,
+  open: () => ordersBase.all().filter(isOrderOpen).sort((a, b) => orderDueMoment(a) - orderDueMoment(b)),
+  delivered: () => ordersBase.all().filter((o) => o.status === 'delivered').sort((a, b) => String(orderDeliveredKey(b)).localeCompare(String(orderDeliveredKey(a)))),
+  dueWithin: (days) => {
+    const limit = addDaysKey(todayKey(), days);
+    return ordersService.open().filter((o) => o.due_date && o.due_date <= limit);
+  },
+  async setStatus(o, status) {
+    const patch = { status, delivered_at: status === 'delivered' ? (o.delivered_at || new Date().toISOString()) : null };
+    // Хүргэхэд үлдэгдэл төлбөрийг төлсөн гэж үзэхгүй — хэрэглэгч өөрөө тэмдэглэнэ.
+    return ordersBase.update(o.id, patch);
+  },
+  markPaid: (o) => ordersBase.update(o.id, { paid_amount: o.price }),
+};
+
+/* ── Ойрын зорилго ───────────────────────────────────────────────────────── */
+/**
+ * → { value, pct, left, daysLeft, timePct, pace: 'done'|'ahead'|'on'|'behind'|'missed', reached }
+ * Цаг, орлого, захиалга нь өгөгдлөөс автоматаар тоологдоно.
+ */
+function workGoalProgress(g, today = todayKey()) {
+  let value;
+  if (g.metric === 'hours') value = earnings(g.start_date, g.end_date, { workplaceId: g.workplace_id }).minutes / 60;
+  else if (g.metric === 'income') value = earnings(g.start_date, g.end_date, { workplaceId: g.workplace_id }).total;
+  else if (g.metric === 'orders') value = ordersBase.all().filter((o) => o.status === 'delivered' && inRange(orderDeliveredKey(o), g.start_date, g.end_date)).length;
+  else value = g.manual_progress || 0;
+  const pct = Math.min(100, Math.round((value / g.target) * 100));
+  const totalDays = diffDays(g.start_date, g.end_date) + 1;
+  const elapsed = Math.min(totalDays, Math.max(0, diffDays(g.start_date, today) + 1));
+  const timePct = Math.round((elapsed / totalDays) * 100);
+  const daysLeft = diffDays(today, g.end_date);
+  const reached = value >= g.target;
+  let pace;
+  if (reached || g.status === 'done') pace = 'done';
+  else if (daysLeft < 0) pace = 'missed';
+  else if (pct >= timePct + 10) pace = 'ahead';
+  else if (pct >= timePct - 10) pace = 'on';
+  else pace = 'behind';
+  return { value, pct, left: Math.max(0, g.target - value), daysLeft, timePct, pace, reached };
+}
+
+const PACE_LABEL = { done: 'Биелсэн', ahead: 'Түрүүлж байна', on: 'Хэмнэлтэй', behind: 'Хоцорч байна', missed: 'Хугацаа дууссан' };
+
+/** Утгыг хэмжээсээр нь: 12.5 цаг · 450,000₮ · 7 захиалга · 2 кейс */
+function metricValue(g, value) {
+  if (g.metric === 'income') return money(value);
+  if (g.metric === 'hours') return `${Math.round(value * 10) / 10} цаг`;
+  if (g.metric === 'orders') return `${value} захиалга`;
+  const v = Math.round(value * 100) / 100;
+  return `${v}${g.unit ? ` ${g.unit}` : ''}`;
+}
+
+/** Идэвхтэй зорилгууд (хугацаа нь дуусаагүй, биелээгүй) эхэнд, дуусах огноогоор. */
+function activeWorkGoals(today = todayKey()) {
+  return workGoalsService.all()
+    .filter((g) => g.status === 'active' && g.end_date >= today)
+    .sort((a, b) => a.end_date.localeCompare(b.end_date));
+}
+function pastWorkGoals(today = todayKey()) {
+  return workGoalsService.all()
+    .filter((g) => g.status !== 'active' || g.end_date < today)
+    .sort((a, b) => b.end_date.localeCompare(a.end_date));
+}
+
+/* ── Ажлын даалгавар (Хийх зүйлс, ангилал «Ажил») ───────────────────────── */
+const WORK_CATEGORY = 'Ажил';
+const isWorkTask = (t) => String(t.category || '').trim().toLowerCase() === WORK_CATEGORY.toLowerCase();
+
+});
+
 __def("js/lib/planner.js", function (__e) {
 'use strict';
 Object.defineProperty(__e, "planDay", { enumerable: true, get: () => planDay });
@@ -3505,6 +4105,7 @@ Object.defineProperty(__e, "DEFAULT_ESTIMATE", { enumerable: true, get: () => DE
 const { prefs } = __req("js/state/prefs.js");
 const { tasksService, PRIORITY_RANK } = __req("js/services/tasksService.js");
 const { eventsService } = __req("js/services/eventsService.js");
+const { shiftsOn, shiftSpan, workplaceById } = __req("js/services/workService.js");
 const { todayKey, addDaysKey, timeToMin, minToTime, nowMinutes } = __req("js/lib/dates.js");
 
 const DEFAULT_ESTIMATE = 30;
@@ -3530,6 +4131,11 @@ function eventIntervals(dateKey) {
       if (end <= s) end = s + 30;
       return { s, e: end, title: e.title, id: e.id };
     })
+    // Ажлын ээлж ч завгүй цаг — төлөвлөгч түүний дээр юм тавихгүй.
+    .concat(shiftsOn(dateKey).map((sh) => {
+      const s = timeToMin(sh.start_time);
+      return { s, e: Math.min(24 * 60, s + shiftSpan(sh)), title: `Ээлж: ${workplaceById(sh.workplace_id)?.name || 'Ажил'}`, id: sh.id, shift: true };
+    }))
     .sort((a, b) => a.s - b.s);
 }
 
@@ -4301,9 +4907,10 @@ const { journalService } = __req("js/services/journalService.js");
 const { birthdaysService } = __req("js/services/birthdaysService.js");
 const { aiService } = __req("js/services/aiService.js");
 const { subjectsService, classSessionsService, homeworkService } = __req("js/services/schoolService.js");
+const { workplacesService, shiftsService, incomeService, ordersService, contactsService, workGoalsService } = __req("js/services/workService.js");
 
 const LOADERS = [
-  ['Ажлууд', tasksService],
+  ['Хийх зүйлс', tasksService],
   ['Календарийн үйл явдал', eventsService],
   ['Зорилго', goalsService],
   ['Төсөл', projectsService],
@@ -4315,6 +4922,12 @@ const LOADERS = [
   ['Хичээл', subjectsService],
   ['Хичээлийн хуваарь', classSessionsService],
   ['Гэрийн даалгавар', homeworkService],
+  ['Ажлын газар', workplacesService],
+  ['Ажлын ээлж', shiftsService],
+  ['Орлого', incomeService],
+  ['Захиалга', ordersService],
+  ['Хамт ажиллагсад', contactsService],
+  ['Ойрын зорилго', workGoalsService],
 ];
 
 /** Returns a list of { label, message, hint } for tables that failed. */
@@ -4350,6 +4963,7 @@ const { journalService } = __req("js/services/journalService.js");
 const { birthdaysService } = __req("js/services/birthdaysService.js");
 const { aiService } = __req("js/services/aiService.js");
 const { subjectsService, classSessionsService, homeworkService } = __req("js/services/schoolService.js");
+const { workplacesService, shiftsService, incomeService, ordersService, contactsService, workGoalsService, weekRange, monthRange } = __req("js/services/workService.js");
 const { todayKey, addDaysKey, fromKey } = __req("js/lib/dates.js");
 
 async function loadSampleData() {
@@ -4466,6 +5080,42 @@ async function loadSampleData() {
     { subject_id: eng.id, title: 'Listening practice 4', due_date: d(-3), due_time: '08:00', estimated_minutes: 30, status: 'submitted', completed_at: doneAt(-4, 21) },
   ];
   for (const h of homework) await homeworkService.create({ assigned_date: d(-3), ...h });
+
+  /* Ажил: ажлын газар → ээлж → орлого, захиалга, хамт ажиллагсад, ойрын зорилго */
+  const cafe = await workplacesService.create({ name: 'Bloom кофе шоп', color: '#E8508F', pay_type: 'hourly', hourly_rate: 9500, payday: 25, payday_2: 10, notes: 'Сөүлийн гудамж 12. Ээлж солих бол 1 өдрийн өмнө Энхжинд хэлнэ.' });
+  const studio = await workplacesService.create({ name: 'Номин Студи', color: '#2E8FD0', pay_type: 'fixed', monthly_salary: 900000, payday: 5, notes: 'Хагас цагийн дизайнер.' });
+  const shifts = [
+    [cafe, -6, '17:00', '22:00', 0], [cafe, -4, '17:00', '22:00', 0], [cafe, -2, '10:00', '16:00', 30], [cafe, -1, '17:00', '22:00', 0],
+    [cafe, 0, '18:00', '23:00', 0], [cafe, 2, '17:00', '22:00', 0], [cafe, 4, '12:00', '18:00', 30], [cafe, 6, '17:00', '22:00', 0],
+    [studio, -5, '10:00', '14:00', 0], [studio, -3, '10:00', '14:00', 0], [studio, 1, '10:00', '14:00', 0], [studio, 3, '13:00', '17:00', 0],
+  ];
+  for (const [wp, n, start_time, end_time, break_minutes] of shifts) {
+    await shiftsService.create({ workplace_id: wp.id, shift_date: d(n), start_time, end_time, break_minutes, extra_pay: n === -2 ? 15000 : 0 });
+  }
+  await incomeService.create({ workplace_id: cafe.id, amount: 380000, received_date: d(-12), kind: 'salary', note: '10-р сарын 2-р хагас' });
+  await incomeService.create({ workplace_id: studio.id, amount: 900000, received_date: d(-6), kind: 'salary' });
+  await incomeService.create({ workplace_id: cafe.id, amount: 25000, received_date: d(-1), kind: 'tips' });
+
+  const orders = [
+    { customer_name: 'Сараа', customer_contact: '9911-4455', items: 'Гүзээлзгэнэтэй бялуу, 20 см', price: 85000, paid_amount: 40000, status: 'preparing', due_date: d(1), due_time: '14:00', delivery: 'Хан-Уул, 15-р хороо', notes: '«Happy birthday, Ээж» гэж бичих' },
+    { customer_name: 'Тэмүүжин', customer_contact: '@temuujin.b', items: 'Нэртэй керамик аяга', quantity: 2, price: 36000, paid_amount: 36000, status: 'new', due_date: d(3), delivery: 'Өөрөө авна' },
+    { customer_name: 'Оюука', customer_contact: '8800-1122', items: 'Төрсөн өдрийн cupcake', quantity: 12, price: 60000, paid_amount: 0, status: 'ready', due_date: d(-1), due_time: '18:00', delivery: 'Сансар, 32-р байр' },
+    { customer_name: 'Батаа', items: 'Шоколадтай cookie хайрцаг', price: 28000, paid_amount: 28000, status: 'delivered', due_date: d(-3), delivered_at: doneAt(-3, 15) },
+    { customer_name: 'Мишээл', items: 'Macaron', quantity: 24, price: 72000, paid_amount: 72000, status: 'delivered', due_date: d(-6), delivered_at: doneAt(-6, 12) },
+    { customer_name: 'Анар', items: 'Цэцгийн баглаа + бялуу', price: 120000, paid_amount: 0, status: 'cancelled', due_date: d(-2) },
+  ];
+  for (const o of orders) await ordersService.create({ quantity: 1, ...o });
+
+  await contactsService.create({ workplace_id: cafe.id, name: 'Энхжин', role: 'Менежер', contact: '9911-2233', notes: 'Ээлж солих бол 1 өдрийн өмнө хэлэх. Баасан бүр хуваарь гаргадаг.' });
+  await contactsService.create({ workplace_id: cafe.id, name: 'Тэмүүлэн', role: 'Ахлах бариста', contact: '9505-7788', notes: 'Латте арт заана гэсэн 🙂' });
+  await contactsService.create({ workplace_id: studio.id, name: 'Номин', role: 'Студийн захирал', contact: 'nomin@studio.mn', notes: 'Баасан бүр 16:00-д долоо хоногийн тайлан.' });
+
+  const wk = weekRange();
+  const mo = monthRange();
+  await workGoalsService.create({ title: 'Энэ 7 хоногт 20 цаг ажиллах', metric: 'hours', target: 20, start_date: wk.from, end_date: wk.to, status: 'active' });
+  await workGoalsService.create({ title: 'Энэ сард 1,500,000₮ олох', metric: 'income', target: 1500000, start_date: mo.from, end_date: mo.to, status: 'active' });
+  await workGoalsService.create({ title: 'Энэ сард 10 захиалга хүргэх', metric: 'orders', target: 10, start_date: mo.from, end_date: mo.to, status: 'active' });
+  await workGoalsService.create({ title: 'Портфолиод 3 шинэ ажил нэмэх', metric: 'custom', target: 3, manual_progress: 1, unit: 'ажил', start_date: d(-5), end_date: d(10), status: 'active' });
 }
 
 });
@@ -4528,6 +5178,14 @@ const PATHS = {
   bellOff: '<path d="M6 9.5a6 6 0 0 1 9.4-4.9M18 9.5c0 6 2.5 7.5 2.5 7.5H8M3.5 17H6M3 3l18 18"/><path d="M10.2 20.5a2 2 0 0 0 3.6 0"/>',
   sparkle: '<path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z"/>',
   play: '<path d="M7 5l12 7-12 7z"/>',
+  briefcase: '<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7M3 12.5h18M10.5 12.5v1.5h3v-1.5"/>',
+  wallet: '<path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H17v2.5"/><rect x="3.5" y="7.5" width="17" height="12" rx="2.5"/><path d="M20.5 11.5H16a2 2 0 0 0 0 4h4.5"/><circle cx="16.2" cy="13.5" r=".6" fill="currentColor"/>',
+  bag: '<path d="M5.5 8h13l-1 12h-11z"/><path d="M9 10.5V7a3 3 0 0 1 6 0v3.5"/>',
+  users: '<circle cx="9" cy="8.5" r="3.3"/><path d="M3 19.5a6 6 0 0 1 12 0"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 5.8M17.5 14.2a5.5 5.5 0 0 1 3.5 5.3"/>',
+  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12l6.5-6.5M16 5.2l2.5-.2-.2 2.5"/>',
+  truck: '<path d="M3 6.5h11v10H3zM14 10h4l3 3.5v3h-7"/><circle cx="7" cy="18" r="1.8"/><circle cx="17.5" cy="18" r="1.8"/>',
+  minus: '<path d="M5 12h14"/>',
+  phone: '<path d="M6.5 3.5h3l1.5 4-2 1.5a10 10 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/>',
   eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
 };
 
@@ -4843,6 +5501,7 @@ const { eventsService } = __req("js/services/eventsService.js");
 const { birthdaysService, daysUntil, nextOccurrence, ageAt } = __req("js/services/birthdaysService.js");
 const { homeworkService, subjectById, dueMoment, dueCountdown } = __req("js/services/schoolService.js");
 const { goalsService, projectsService } = __req("js/services/goalsService.js");
+const { shiftsService, shiftEnd, shiftStart, workplaceById, ordersService, isOrderLate, orderBalance, workplacesService, nextPayday, activeWorkGoals, workGoalProgress, metricValue, money } = __req("js/services/workService.js");
 const { todayKey, addDaysKey, diffDays, relDay, fmtTime, timeToMin, nowMinutes } = __req("js/lib/dates.js");
 const { plural } = __req("js/lib/dom.js");
 
@@ -4888,6 +5547,58 @@ function compute() {
       tone: left < 0 ? 'danger' : 'warning', icon: 'book',
       title: h.title, text: `${subject ? `${subject.name} · ` : ''}${dueCountdown(h)}`,
       ref: { kind: 'homework', id: h.id }, order: 1, date: h.due_date,
+    });
+  });
+
+  /* Ажил: ойрын ээлж, захиалга, цалингийн өдөр, ойрын зорилго */
+  const nowMs = Date.now();
+  shiftsService.all().forEach((sh) => {
+    if (sh.shift_date !== today && sh.shift_date !== tomorrow) return;
+    if (shiftEnd(sh).getTime() <= nowMs) return;
+    const wp = workplaceById(sh.workplace_id);
+    const live = shiftStart(sh).getTime() <= nowMs;
+    list.push({
+      id: `shift-${sh.id}-${sh.shift_date}`, group: 'upcoming', tone: 'info', icon: 'briefcase',
+      title: `${live ? 'Одоо ээлжтэй' : 'Ээлж'}: ${wp?.name || 'Ажил'}`,
+      text: `${relDay(sh.shift_date)} · ${fmtTime(sh.start_time)}–${fmtTime(sh.end_time)}`,
+      ref: { kind: 'shift', id: sh.id }, order: 2, date: sh.shift_date,
+    });
+  });
+
+  ordersService.open().forEach((o) => {
+    if (!o.due_date || o.due_date > tomorrow) return;
+    const late = isOrderLate(o);
+    const left = orderBalance(o);
+    list.push({
+      id: `order-${o.id}-${o.due_date}`, group: late || o.due_date === today ? 'attention' : 'upcoming',
+      tone: late ? 'danger' : 'warning', icon: 'bag',
+      title: `Захиалга: ${o.customer_name} — ${o.items}`,
+      text: `${late ? 'Хүргэх хугацаа хэтэрсэн' : `${relDay(o.due_date)} хүргэнэ`}${o.due_time ? ` · ${fmtTime(o.due_time)}` : ''}${left ? ` · үлдэгдэл ${money(left)}` : ''}`,
+      ref: { kind: 'order', id: o.id }, order: 1, date: o.due_date,
+    });
+  });
+
+  workplacesService.all().forEach((w) => {
+    const pd = nextPayday(w, today);
+    if (!pd || pd.days > 1) return;
+    list.push({
+      id: `payday-${w.id}-${pd.date}`, group: 'upcoming', tone: 'accent', icon: 'wallet',
+      title: `${pd.days === 0 ? 'Өнөөдөр' : 'Маргааш'} цалингийн өдөр: ${w.name}`,
+      text: 'Хүлээн авсан цалингаа «Ажил → Цалин» хэсэгт бүртгээрэй.',
+      ref: { kind: 'payday', id: w.id }, order: 3, date: pd.date,
+    });
+  });
+
+  activeWorkGoals(today).forEach((g) => {
+    const days = diffDays(today, g.end_date);
+    if (days > 2) return;
+    const p = workGoalProgress(g, today);
+    if (p.reached) return;
+    list.push({
+      id: `wgoal-${g.id}-${g.end_date}`, group: 'upcoming', tone: 'warning', icon: 'target',
+      title: `Ойрын зорилго: ${g.title}`,
+      text: `${days === 0 ? 'Өнөөдөр дуусна' : `${days} хоног үлдсэн`} · ${p.pct}% · ${metricValue(g, p.left)} дутуу`,
+      ref: { kind: 'workGoal', id: g.id }, order: 4, date: g.end_date,
     });
   });
 
@@ -4979,6 +5690,16 @@ function startNotificationTicker() {
         notificationsService.showBrowserNotification(t.title, `${fmtTime(t.due_time)} гэхэд дуусах`);
       }
     });
+    // Ажлын ээлж эхлэхээс 30 минутын өмнө
+    shiftsService.all().forEach((sh) => {
+      if (sh.shift_date !== today) return;
+      const inMin = timeToMin(sh.start_time) - now;
+      const key = `s-${sh.id}-${today}`;
+      if (inMin >= 0 && inMin <= 30 && !alerted.has(key)) {
+        alerted.add(key);
+        notificationsService.showBrowserNotification(`Ээлж: ${workplaceById(sh.workplace_id)?.name || 'Ажил'}`, `${fmtTime(sh.start_time)}–${fmtTime(sh.end_time)} · ${inMin} минутын дараа`);
+      }
+    });
   };
   tick();
   setInterval(tick, 60 * 1000);
@@ -5051,8 +5772,8 @@ function openTaskForm(task = null, defaults = {}, { onSaved } = {}) {
   const id = { title: fid('title'), date: fid('date'), time: fid('time'), cat: fid('cat'), est: fid('est'), proj: fid('proj'), notes: fid('notes'), list: fid('cats') };
 
   return openFormModal({
-    title: task ? 'Ажил засах' : 'Шинэ ажил',
-    submitLabel: task ? 'Хадгалах' : 'Ажил нэмэх',
+    title: task ? 'Хийх зүйл засах' : 'Хийх зүйл нэмэх',
+    submitLabel: task ? 'Хадгалах' : 'Нэмэх',
     fields: `
       <div class="field"><label for="${id.title}">Гарчиг</label>
         <input id="${id.title}" name="title" class="input" required maxlength="200" value="${esc(t.title)}" placeholder="Юу хийх вэ?" ${task ? '' : 'autofocus'}></div>
@@ -5089,10 +5810,10 @@ function openTaskForm(task = null, defaults = {}, { onSaved } = {}) {
           payload.completed_at = data.done ? new Date().toISOString() : null;
         }
         saved = await tasksService.update(task.id, payload);
-        toast('Ажил шинэчлэгдлээ');
+        toast('Шинэчлэгдлээ');
       } else {
         saved = await tasksService.create(payload);
-        toast('Ажил нэмэгдлээ');
+        toast('Хийх зүйлст нэмэгдлээ');
       }
       onSaved?.(saved);
     },
@@ -5309,7 +6030,7 @@ function openBirthdayForm(person = null, { onSaved } = {}) {
 /* ───────────── "New" menu (top bar) ───────────── */
 function openNewMenu(anchor, { extra = [] } = {}) {
   openMenu(anchor, [
-    { label: 'Ажил', icon: 'tasks', onSelect: () => openTaskForm() },
+    { label: 'Хийх зүйл', icon: 'tasks', onSelect: () => openTaskForm() },
     ...extra,
     { label: 'Үйл явдал', icon: 'calendar', onSelect: () => openEventForm() },
     'sep',
@@ -5323,184 +6044,412 @@ function openNewMenu(anchor, { extra = [] } = {}) {
 
 });
 
-__def("js/lib/nav.js", function (__e) {
+__def("js/components/workForms.js", function (__e) {
 'use strict';
-Object.defineProperty(__e, "navigate", { enumerable: true, get: () => navigate });
-Object.defineProperty(__e, "parseRoute", { enumerable: true, get: () => parseRoute });
-Object.defineProperty(__e, "rerender", { enumerable: true, get: () => rerender });
+Object.defineProperty(__e, "parseAmount", { enumerable: true, get: () => parseAmount });
+Object.defineProperty(__e, "openWorkplaceForm", { enumerable: true, get: () => openWorkplaceForm });
+Object.defineProperty(__e, "openShiftForm", { enumerable: true, get: () => openShiftForm });
+Object.defineProperty(__e, "openIncomeForm", { enumerable: true, get: () => openIncomeForm });
+Object.defineProperty(__e, "openOrderForm", { enumerable: true, get: () => openOrderForm });
+Object.defineProperty(__e, "openContactForm", { enumerable: true, get: () => openContactForm });
+Object.defineProperty(__e, "openWorkGoalForm", { enumerable: true, get: () => openWorkGoalForm });
 /**
- * Hash-based navigation helpers. Kept separate from router.js so pages can
- * import them without creating a circular import.
- *
- * Routes look like  #/tasks   #/goals/<id>   #/calendar?view=week&date=2026-11-02
+ * Ажлын маягтууд: ажлын газар, ээлж, орлого, захиалга, хамт ажиллагсад, ойрын зорилго.
  */
-function navigate(path, { replace = false } = {}) {
-  const hash = `#/${String(path).replace(/^#?\/?/, '')}`;
-  if (replace) {
-    history.replaceState(null, '', hash);
-    window.dispatchEvent(new Event('lifeos:route'));
-  } else if (location.hash === hash) {
-    window.dispatchEvent(new Event('lifeos:route'));
-  } else {
-    location.hash = hash;
-  }
+const { workplacesService, shiftsService, incomeService, ordersService, contactsService, workGoalsService, WORK_COLORS, PAY_TYPES, INCOME_KINDS, ORDER_STATUSES, GOAL_METRICS, shiftMinutes, shiftRate, money, hoursLabel, isOvernight, weekRange, monthRange, workplaceById } = __req("js/services/workService.js");
+const { store } = __req("js/state/store.js");
+const { openFormModal, confirmDialog, toast, options } = __req("js/lib/ui.js");
+const { esc } = __req("js/lib/dom.js");
+const { todayKey, addDaysKey, timeToMin, minToTime } = __req("js/lib/dates.js");
+
+let seq = 0;
+const fid = (name) => `w-${name}-${++seq}`;
+
+async function removeWithUndo(service, item, label) {
+  await service.remove(item.id);
+  toast(`“${label}” устгагдлаа`, { action: () => service.create({ ...item }) });
 }
 
-function parseRoute(hash = location.hash) {
-  const clean = hash.replace(/^#\/?/, '');
-  const [path, qs = ''] = clean.split('?');
-  const parts = path.split('/').filter(Boolean).map(decodeURIComponent);
-  return {
-    name: parts[0] || 'dashboard',
-    params: parts.slice(1),
-    query: Object.fromEntries(new URLSearchParams(qs)),
-    key: hash || '#/dashboard',
-  };
+/** "12,500" / "12 500" / "12.5k"-гүй энгийн тоо → 12500. Хоосон бол null. */
+function parseAmount(v) {
+  if (v === null || v === undefined) return null;
+  const clean = String(v).replace(/[\s,₮]/g, '');
+  if (!clean) return null;
+  const n = Number(clean);
+  if (!Number.isFinite(n) || n < 0) throw new Error('Мөнгөн дүнг зөвхөн тоогоор оруулна уу.');
+  return n;
+}
+const amountValue = (n) => (n === null || n === undefined || n === '' ? '' : String(Math.round(Number(n))));
+
+function workplaceOptions(selected, { allowNone = false, noneLabel = 'Ажлын газаргүй' } = {}) {
+  const list = [...workplacesService.all()].sort((a, b) => a.name.localeCompare(b.name, 'mn'));
+  return `${allowNone ? `<option value="">${esc(noneLabel)}</option>` : ''}${list.map((w) => `<option value="${w.id}" ${w.id === selected ? 'selected' : ''}>${esc(w.name)}</option>`).join('')}`;
 }
 
-/** Ask the router to re-render the current page (e.g. after local UI state changed). */
-const rerender = () => window.dispatchEvent(new Event('lifeos:route'));
+const dayOptions = (selected) => `<option value="">Байхгүй</option>${Array.from({ length: 31 }, (_, i) => i + 1)
+  .map((d) => `<option value="${d}" ${Number(selected) === d ? 'selected' : ''}>${d}-ний өдөр</option>`).join('')}`;
 
-});
-
-__def("js/components/search.js", function (__e) {
-'use strict';
-Object.defineProperty(__e, "searchEverything", { enumerable: true, get: () => searchEverything });
-Object.defineProperty(__e, "bindSearch", { enumerable: true, get: () => bindSearch });
-Object.defineProperty(__e, "openSearchSheet", { enumerable: true, get: () => openSearchSheet });
-/**
- * Global search across tasks, events, goals, projects, journal and birthdays.
- * Desktop: the field in the top bar. Mobile: a search sheet.
- */
-const { tasksService } = __req("js/services/tasksService.js");
-const { eventsService } = __req("js/services/eventsService.js");
-const { goalsService, projectsService } = __req("js/services/goalsService.js");
-const { journalService } = __req("js/services/journalService.js");
-const { birthdaysService, daysUntil } = __req("js/services/birthdaysService.js");
-const { openTaskForm, openEventForm, openJournalForm, openBirthdayForm } = __req("js/components/forms.js");
-const { navigate } = __req("js/lib/nav.js");
-const { openModal } = __req("js/lib/ui.js");
-const { esc, truncate, plural } = __req("js/lib/dom.js");
-const { icon } = __req("js/lib/icons.js");
-const { fmt, relDay, fmtTime, MONTHS_SHORT } = __req("js/lib/dates.js");
-
-function searchEverything(query) {
-  const q = query.trim().toLowerCase();
-  if (!q) return [];
-  const has = (...values) => values.some((v) => v && String(v).toLowerCase().includes(q));
-  const groups = [];
-  const add = (label, items) => { if (items.length) groups.push({ label, items: items.slice(0, 5) }); };
-
-  add('Ажлууд', tasksService.all().filter((t) => has(t.title, t.notes, t.category)).map((t) => ({
-    icon: 'tasks', title: t.title,
-    sub: [t.status === 'done' ? 'Дууссан' : null, t.due_date ? relDay(t.due_date) : 'Огноогүй', t.category].filter(Boolean).join(' · '),
-    open: () => openTaskForm(t),
-  })));
-  add('Үйл явдал', eventsService.all().filter((e) => has(e.title, e.location, e.description)).map((e) => ({
-    icon: 'calendar', title: e.title,
-    sub: `${fmt.medium(e.event_date)}${e.start_time && !e.all_day ? ` · ${fmtTime(e.start_time)}` : ''}${e.location ? ` · ${e.location}` : ''}`,
-    open: () => { navigate(`calendar?view=day&date=${e.event_date}`); openEventForm(e); },
-  })));
-  add('Зорилго', goalsService.all().filter((g) => has(g.title, g.description)).map((g) => ({
-    icon: 'goals', title: g.title, sub: g.target_date ? `Зорилт: ${fmt.short(g.target_date)}` : 'Зорилго',
-    open: () => navigate(`goals/${g.id}`),
-  })));
-  add('Төслүүд', projectsService.all().filter((p) => has(p.title, p.description)).map((p) => ({
-    icon: 'folder', title: p.title, sub: goalsService.get(p.goal_id)?.title || 'Зорилгогүй',
-    open: () => navigate(`goals/${p.goal_id || 'none'}`),
-  })));
-  add('Тэмдэглэл', journalService.all().filter((j) => has(j.title, j.reflection, j.gratitude)).map((j) => ({
-    icon: 'journal', title: j.title || fmt.long(j.entry_date), sub: truncate(j.reflection || j.gratitude, 70),
-    open: () => openJournalForm(j),
-  })));
-  add('Төрсөн өдөр', birthdaysService.all().filter((b) => has(b.name, b.notes, b.relationship)).map((b) => ({
-    icon: 'gift', title: b.name,
-    sub: `${b.birth_month}-р сарын ${b.birth_day} · ${daysUntil(b) === 0 ? 'өнөөдөр' : `${daysUntil(b)} хоногийн дараа`}`,
-    open: () => openBirthdayForm(b),
-  })));
-  return groups;
-}
-
-/** Wires a search input to a results container (keyboard friendly). */
-function bindSearch(input, results, { floating = true, onPick } = {}) {
-  let flat = [];
-  let active = -1;
-
-  const highlight = () => {
-    results.querySelectorAll('.sr-item').forEach((el, i) => {
-      el.classList.toggle('is-active', i === active);
-      el.setAttribute('aria-selected', String(i === active));
-      if (i === active) el.scrollIntoView({ block: 'nearest' });
-    });
-  };
-
-  const draw = () => {
-    const value = input.value.trim();
-    if (!value) {
-      results.innerHTML = floating ? '' : '<p class="sr-empty">Ажил, үйл явдал, зорилго, төсөл, тэмдэглэл, төрсөн өдрөөс хайна.</p>';
-      results.hidden = floating;
-      flat = [];
-      return;
-    }
-    const groups = searchEverything(value);
-    flat = groups.flatMap((g) => g.items);
-    active = flat.length ? 0 : -1;
-    let i = -1;
-    results.innerHTML = groups.length
-      ? groups.map((g) => `<div class="sr-group" role="group" aria-label="${esc(g.label)}"><p class="sr-label">${esc(g.label)}</p>${g.items.map((it) => {
-        i += 1;
-        return `<button type="button" class="sr-item ${i === active ? 'is-active' : ''}" data-i="${i}" role="option" aria-selected="${i === active}">${icon(it.icon, 16)}<span class="sr-text"><span class="sr-title">${esc(it.title)}</span>${it.sub ? `<span class="sr-sub">${esc(it.sub)}</span>` : ''}</span></button>`;
-      }).join('')}</div>`).join('')
-      : `<p class="sr-empty">“${esc(value)}” гэсэн илэрц олдсонгүй.</p>`;
-    results.hidden = false;
-  };
-
-  const pick = (i) => {
-    const item = flat[i];
-    if (!item) return;
-    input.value = '';
-    draw();
-    input.blur();
-    onPick?.();
-    item.open();
-  };
-
-  input.addEventListener('input', draw);
-  input.addEventListener('focus', () => { if (input.value.trim()) draw(); });
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (!flat.length) return;
-      active = (active + (e.key === 'ArrowDown' ? 1 : -1) + flat.length) % flat.length;
-      highlight();
-    } else if (e.key === 'Enter') {
-      e.preventDefault();
-      pick(active);
-    } else if (e.key === 'Escape' && floating) {
-      input.value = '';
-      draw();
-      input.blur();
-    }
-  });
-  results.addEventListener('mousedown', (e) => e.preventDefault()); // keep focus while clicking
-  results.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-i]');
-    if (b) pick(Number(b.dataset.i));
-  });
-  if (floating) input.addEventListener('blur', () => setTimeout(() => { results.hidden = true; }, 120));
-  draw();
-}
-
-function openSearchSheet() {
-  openModal({
-    title: 'Хайх',
-    body: `<div class="search-sheet">
-        <div class="search-field">${icon('search', 16)}<input id="searchSheetInput" type="search" class="input" placeholder="Бүгдээс хайх…" autocomplete="off" aria-label="Бүгдээс хайх" autofocus></div>
-        <div class="search-results is-static" id="searchSheetResults" role="listbox"></div>
-      </div>`,
-    onMount(modal, close) {
-      bindSearch(modal.querySelector('#searchSheetInput'), modal.querySelector('#searchSheetResults'), { floating: false, onPick: close });
+/* ── Ажлын газар ────────────────────────────────────────────────────────── */
+function openWorkplaceForm(wp = null, { onSaved } = {}) {
+  const used = new Set(workplacesService.all().map((w) => w.color));
+  const w = wp || { name: '', color: WORK_COLORS.find((c) => !used.has(c)) || WORK_COLORS[0], pay_type: 'hourly', hourly_rate: '', monthly_salary: '', payday: '', payday_2: '', notes: '' };
+  const id = { name: fid('name'), type: fid('type'), rate: fid('rate'), sal: fid('sal'), p1: fid('p1'), p2: fid('p2'), notes: fid('notes') };
+  return openFormModal({
+    title: wp ? 'Ажлын газар засах' : 'Ажлын газар нэмэх',
+    submitLabel: wp ? 'Хадгалах' : 'Нэмэх',
+    fields: `
+      <div class="field"><label for="${id.name}">Нэр</label>
+        <input id="${id.name}" name="name" class="input" required maxlength="120" value="${esc(w.name)}" placeholder="Жишээ нь: Bloom кофе шоп" ${wp ? '' : 'autofocus'}></div>
+      <div class="field"><span class="label">Өнгө</span>
+        <div class="color-pick" role="radiogroup" aria-label="Өнгө">
+          ${WORK_COLORS.map((c, i) => `<label class="color-dot" style="--dot:${c}"><input type="radio" name="color" value="${c}" ${c === w.color ? 'checked' : ''} aria-label="Өнгө ${i + 1}"><span></span></label>`).join('')}
+        </div></div>
+      <div class="field"><label for="${id.type}">Цалингийн төрөл</label><select id="${id.type}" name="pay_type" class="select">${options(PAY_TYPES, w.pay_type)}</select></div>
+      <div class="field" data-pay="hourly"><label for="${id.rate}">Цагийн хөлс (₮)</label>
+        <input id="${id.rate}" name="hourly_rate" class="input" inputmode="numeric" value="${amountValue(w.hourly_rate)}" placeholder="Жишээ нь: 9500"></div>
+      <div class="field" data-pay="fixed"><label for="${id.sal}">Сарын цалин (₮)</label>
+        <input id="${id.sal}" name="monthly_salary" class="input" inputmode="numeric" value="${amountValue(w.monthly_salary)}" placeholder="Жишээ нь: 1200000"></div>
+      <div class="field-row" data-pay="paid">
+        <div class="field"><label for="${id.p1}">Цалингийн өдөр</label><select id="${id.p1}" name="payday" class="select">${dayOptions(w.payday)}</select></div>
+        <div class="field"><label for="${id.p2}">Урьдчилгааны өдөр</label><select id="${id.p2}" name="payday_2" class="select">${dayOptions(w.payday_2)}</select></div>
+      </div>
+      <div class="field"><label for="${id.notes}">Тэмдэглэл</label><textarea id="${id.notes}" name="notes" class="textarea" rows="2" placeholder="Хаяг, менежерийн утас, дүрэм…">${esc(w.notes)}</textarea></div>`,
+    onMount(form) {
+      const type = form.querySelector('[name=pay_type]');
+      const sync = () => {
+        form.querySelector('[data-pay=hourly]').hidden = type.value !== 'hourly';
+        form.querySelector('[data-pay=fixed]').hidden = type.value !== 'fixed';
+        form.querySelector('[data-pay=paid]').hidden = type.value === 'none';
+      };
+      type.addEventListener('change', sync);
+      sync();
     },
+    async onSubmit(data) {
+      const payload = {
+        name: data.name,
+        color: data.color || w.color,
+        pay_type: data.pay_type,
+        hourly_rate: data.pay_type === 'hourly' ? parseAmount(data.hourly_rate) : null,
+        monthly_salary: data.pay_type === 'fixed' ? parseAmount(data.monthly_salary) : null,
+        payday: data.pay_type !== 'none' && data.payday ? Number(data.payday) : null,
+        payday_2: data.pay_type !== 'none' && data.payday_2 ? Number(data.payday_2) : null,
+        notes: data.notes,
+      };
+      const saved = wp ? await workplacesService.update(wp.id, payload) : await workplacesService.create(payload);
+      toast(wp ? 'Ажлын газар шинэчлэгдлээ' : `“${saved.name}” нэмэгдлээ`);
+      onSaved?.(saved);
+    },
+    onDelete: wp ? async () => {
+      const shifts = shiftsService.all().filter((s) => s.workplace_id === wp.id).length;
+      const ok = await confirmDialog({
+        title: `“${wp.name}”-ийг устгах уу?`,
+        message: `${shifts ? `Энэ газрын ${shifts} ээлж хамт устна. ` : ''}Орлогын бүртгэл, хамт ажиллагсад, зорилго үлдэнэ (ажлын газаргүй болно).`,
+      });
+      if (!ok) return;
+      await workplacesService.remove(wp.id);
+      // Сан дээр ээлж CASCADE-ээр устаж, бусдын workplace_id нь NULL болно — санах ойд ч мөн адил.
+      store.set('workShifts', store.get('workShifts').filter((x) => x.workplace_id !== wp.id));
+      ['income', 'workContacts', 'workGoals'].forEach((key) => store.set(key, store.get(key).map((x) => (x.workplace_id === wp.id ? { ...x, workplace_id: null } : x))));
+      toast('Ажлын газар устгагдлаа');
+    } : null,
+  });
+}
+
+/* ── Ээлж ───────────────────────────────────────────────────────────────── */
+const BREAKS = [0, 15, 30, 45, 60, 90];
+const REPEATS = [{ value: '0', label: 'Давтахгүй' }, { value: '2', label: '2 долоо хоног' }, { value: '4', label: '4 долоо хоног' }, { value: '8', label: '8 долоо хоног' }];
+
+function openShiftForm(shift = null, defaults = {}, { onSaved } = {}) {
+  if (!workplacesService.all().length) {
+    toast('Эхлээд ажлын газраа нэмнэ үү.');
+    return openWorkplaceForm(null, { onSaved: () => openShiftForm(shift, defaults, { onSaved }) });
+  }
+  const last = [...shiftsService.all()].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))[0];
+  const s = shift || {
+    workplace_id: last?.workplace_id || workplacesService.all()[0].id,
+    shift_date: todayKey(), start_time: last?.start_time || '09:00', end_time: last?.end_time || '17:00',
+    break_minutes: last?.break_minutes ?? 0, hourly_rate: '', extra_pay: '', notes: '', ...defaults,
+  };
+  const id = { wp: fid('wp'), date: fid('date'), start: fid('start'), end: fid('end'), brk: fid('brk'), rate: fid('rate'), extra: fid('extra'), notes: fid('notes'), rep: fid('rep') };
+  const breakValues = BREAKS.includes(Number(s.break_minutes)) ? BREAKS : [...BREAKS, Number(s.break_minutes)].sort((a, b) => a - b);
+  return openFormModal({
+    title: shift ? 'Ээлж засах' : 'Ээлж нэмэх',
+    submitLabel: shift ? 'Хадгалах' : 'Нэмэх',
+    fields: `
+      <div class="field"><label for="${id.wp}">Ажлын газар</label><select id="${id.wp}" name="workplace_id" class="select" required>${workplaceOptions(s.workplace_id)}</select></div>
+      <div class="field-row">
+        <div class="field"><label for="${id.date}">Огноо</label><input id="${id.date}" name="shift_date" type="date" class="input" required value="${s.shift_date || ''}"></div>
+        ${shift ? '' : `<div class="field"><label for="${id.rep}">Долоо хоног бүр давтах</label><select id="${id.rep}" name="repeat" class="select">${options(REPEATS, '0')}</select></div>`}
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="${id.start}">Эхлэх</label><input id="${id.start}" name="start_time" type="time" class="input" required value="${s.start_time || ''}"></div>
+        <div class="field"><label for="${id.end}">Дуусах</label><input id="${id.end}" name="end_time" type="time" class="input" required value="${s.end_time || ''}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="${id.brk}">Завсарлага</label><select id="${id.brk}" name="break_minutes" class="select">${breakValues.map((m) => `<option value="${m}" ${Number(s.break_minutes) === m ? 'selected' : ''}>${m ? `${m} мин` : 'Байхгүй'}</option>`).join('')}</select></div>
+        <div class="field"><label for="${id.extra}">Нэмэгдэл / урамшуулал (₮)</label><input id="${id.extra}" name="extra_pay" class="input" inputmode="numeric" value="${s.extra_pay ? amountValue(s.extra_pay) : ''}" placeholder="0"></div>
+      </div>
+      <div class="field" data-rate><label for="${id.rate}">Энэ ээлжийн цагийн хөлс (₮)</label><input id="${id.rate}" name="hourly_rate" class="input" inputmode="numeric" value="${amountValue(s.hourly_rate)}" placeholder=""></div>
+      <p class="shift-preview" data-preview aria-live="polite"></p>
+      <div class="field"><label for="${id.notes}">Тэмдэглэл</label><textarea id="${id.notes}" name="notes" class="textarea" rows="2" placeholder="Хэнтэй хамт, юу хийх…">${esc(s.notes)}</textarea></div>`,
+    onMount(form) {
+      const q = (n) => form.querySelector(`[name=${n}]`);
+      const start = q('start_time');
+      const end = q('end_time');
+      let lastStart = start.value;
+      start.addEventListener('change', () => {
+        if (lastStart && end.value && start.value) end.value = minToTime((timeToMin(end.value) - timeToMin(lastStart) + timeToMin(start.value) + 1440) % 1440);
+        lastStart = start.value;
+      });
+      const update = () => {
+        const wp = workplaceById(q('workplace_id').value);
+        const rateField = form.querySelector('[data-rate]');
+        rateField.hidden = wp?.pay_type !== 'hourly';
+        q('hourly_rate').placeholder = wp?.hourly_rate ? `Ердийн: ${money(wp.hourly_rate)}` : 'Ажлын газрын хөлсийг ашиглана';
+        const preview = form.querySelector('[data-preview]');
+        if (!start.value || !end.value || start.value === end.value) { preview.textContent = ''; return; }
+        let rate = 0;
+        let extra = 0;
+        try { rate = parseAmount(q('hourly_rate').value) ?? 0; extra = parseAmount(q('extra_pay').value) ?? 0; } catch { /* оруулж байх үед */ }
+        const draft = { workplace_id: wp?.id, start_time: start.value, end_time: end.value, break_minutes: Number(q('break_minutes').value) || 0, hourly_rate: rate || null };
+        const mins = shiftMinutes(draft);
+        const pay = (mins / 60) * shiftRate(draft) + extra;
+        preview.innerHTML = `<b>${hoursLabel(mins)}</b>${isOvernight(draft) ? ' · дараагийн өглөө дуусна' : ''}${pay ? ` · ≈ <b>${money(pay)}</b>` : ''}`;
+      };
+      form.addEventListener('input', update);
+      form.addEventListener('change', update);
+      update();
+    },
+    async onSubmit(data) {
+      if (data.start_time === data.end_time) throw new Error('Эхлэх, дуусах цаг ижил байж болохгүй.');
+      const payload = {
+        workplace_id: data.workplace_id,
+        shift_date: data.shift_date,
+        start_time: data.start_time,
+        end_time: data.end_time,
+        break_minutes: Number(data.break_minutes) || 0,
+        hourly_rate: workplaceById(data.workplace_id)?.pay_type === 'hourly' ? parseAmount(data.hourly_rate) : null,
+        extra_pay: parseAmount(data.extra_pay) ?? 0,
+        notes: data.notes,
+      };
+      if (shiftMinutes(payload) <= 0) throw new Error('Завсарлага ээлжийн хугацаанаас урт байна.');
+      if (shift) {
+        await shiftsService.update(shift.id, payload);
+        toast('Ээлж шинэчлэгдлээ');
+      } else {
+        const weeks = Math.max(1, Number(data.repeat) || 1);
+        for (let i = 0; i < weeks; i++) await shiftsService.create({ ...payload, shift_date: addDaysKey(payload.shift_date, i * 7) });
+        toast(weeks > 1 ? `${weeks} ээлж нэмэгдлээ (долоо хоног бүр)` : 'Ээлж нэмэгдлээ');
+      }
+      onSaved?.();
+    },
+    onDelete: shift ? () => removeWithUndo(shiftsService, shift, 'Ээлж') : null,
+  });
+}
+
+/* ── Орлого ─────────────────────────────────────────────────────────────── */
+function openIncomeForm(entry = null, defaults = {}, { onSaved } = {}) {
+  const e = entry || { amount: '', received_date: todayKey(), kind: 'salary', workplace_id: workplacesService.all()[0]?.id || '', note: '', ...defaults };
+  const id = { amt: fid('amt'), date: fid('date'), kind: fid('kind'), wp: fid('wp'), note: fid('note') };
+  return openFormModal({
+    title: entry ? 'Орлого засах' : 'Орлого бүртгэх',
+    submitLabel: entry ? 'Хадгалах' : 'Бүртгэх',
+    fields: `
+      <div class="field-row">
+        <div class="field"><label for="${id.amt}">Дүн (₮)</label><input id="${id.amt}" name="amount" class="input" inputmode="numeric" required value="${amountValue(e.amount)}" placeholder="Жишээ нь: 450000" ${entry ? '' : 'autofocus'}></div>
+        <div class="field"><label for="${id.date}">Хүлээн авсан өдөр</label><input id="${id.date}" name="received_date" type="date" class="input" required value="${e.received_date || ''}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="${id.kind}">Төрөл</label><select id="${id.kind}" name="kind" class="select">${options(INCOME_KINDS, e.kind)}</select></div>
+        <div class="field"><label for="${id.wp}">Хаанаас</label><select id="${id.wp}" name="workplace_id" class="select">${workplaceOptions(e.workplace_id, { allowNone: true, noneLabel: 'Бусад эх үүсвэр' })}</select></div>
+      </div>
+      <p class="form-hint small muted" data-hint></p>
+      <div class="field"><label for="${id.note}">Тэмдэглэл</label><input id="${id.note}" name="note" class="input" maxlength="200" value="${esc(e.note)}" placeholder="Заавал биш"></div>`,
+    onMount(form) {
+      const hint = form.querySelector('[data-hint]');
+      const sync = () => {
+        const wp = workplaceById(form.querySelector('[name=workplace_id]').value);
+        const kind = form.querySelector('[name=kind]').value;
+        hint.textContent = wp?.pay_type === 'hourly' && (kind === 'salary' || kind === 'advance')
+          ? 'Цагийн хөлстэй ажлын цалинг ээлжээс аль хэдийн тооцдог тул энэ бүртгэл «Хүлээн авсан»-д харагдаж, орлогын нийлбэрт давхар нэмэгдэхгүй.'
+          : '';
+        hint.hidden = !hint.textContent;
+      };
+      form.addEventListener('change', sync);
+      sync();
+    },
+    async onSubmit(data) {
+      const amount = parseAmount(data.amount);
+      if (!amount) throw new Error('Дүн 0-ээс их байх ёстой.');
+      const payload = { amount, received_date: data.received_date, kind: data.kind, workplace_id: data.workplace_id || null, note: data.note };
+      const saved = entry ? await incomeService.update(entry.id, payload) : await incomeService.create(payload);
+      toast(entry ? 'Орлого шинэчлэгдлээ' : `${money(saved.amount)} бүртгэгдлээ`);
+      onSaved?.(saved);
+    },
+    onDelete: entry ? () => removeWithUndo(incomeService, entry, money(entry.amount)) : null,
+  });
+}
+
+/* ── Захиалга ───────────────────────────────────────────────────────────── */
+function openOrderForm(order = null, defaults = {}, { onSaved } = {}) {
+  const o = order || { customer_name: '', customer_contact: '', items: '', quantity: 1, price: '', paid_amount: '', status: 'new', due_date: addDaysKey(todayKey(), 1), due_time: '', delivery: '', notes: '', ...defaults };
+  const id = { cust: fid('cust'), contact: fid('contact'), items: fid('items'), qty: fid('qty'), price: fid('price'), paid: fid('paid'), status: fid('status'), dd: fid('dd'), dt: fid('dt'), del: fid('del'), notes: fid('notes') };
+  return openFormModal({
+    title: order ? 'Захиалга засах' : 'Шинэ захиалга',
+    submitLabel: order ? 'Хадгалах' : 'Нэмэх',
+    fields: `
+      <div class="field"><label for="${id.items}">Юу захиалсан</label>
+        <input id="${id.items}" name="items" class="input" required maxlength="500" value="${esc(o.items)}" placeholder="Жишээ нь: Гүзээлзгэнэтэй бялуу, 20 см" ${order ? '' : 'autofocus'}></div>
+      <div class="field-row">
+        <div class="field"><label for="${id.cust}">Захиалагч</label><input id="${id.cust}" name="customer_name" class="input" required maxlength="120" value="${esc(o.customer_name)}" placeholder="Нэр"></div>
+        <div class="field"><label for="${id.contact}">Утас / хаяг (сошиал)</label><input id="${id.contact}" name="customer_contact" class="input" maxlength="120" value="${esc(o.customer_contact)}" placeholder="9911…, @instagram"></div>
+      </div>
+      <div class="field-row field-row-3">
+        <div class="field"><label for="${id.qty}">Тоо</label><input id="${id.qty}" name="quantity" type="number" min="1" step="1" class="input" value="${o.quantity || 1}"></div>
+        <div class="field"><label for="${id.price}">Нийт үнэ (₮)</label><input id="${id.price}" name="price" class="input" inputmode="numeric" value="${amountValue(o.price)}" placeholder="0"></div>
+        <div class="field"><label for="${id.paid}">Төлсөн (₮)</label><input id="${id.paid}" name="paid_amount" class="input" inputmode="numeric" value="${amountValue(o.paid_amount)}" placeholder="0"></div>
+      </div>
+      <p class="shift-preview" data-balance aria-live="polite"></p>
+      <div class="field-row">
+        <div class="field"><label for="${id.dd}">Хүргэх өдөр</label><input id="${id.dd}" name="due_date" type="date" class="input" value="${o.due_date || ''}"></div>
+        <div class="field"><label for="${id.dt}">Цаг</label><input id="${id.dt}" name="due_time" type="time" class="input" value="${o.due_time || ''}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="${id.status}">Төлөв</label><select id="${id.status}" name="status" class="select">${options(ORDER_STATUSES, o.status)}</select></div>
+        <div class="field"><label for="${id.del}">Хүргэлт</label><input id="${id.del}" name="delivery" class="input" maxlength="200" value="${esc(o.delivery)}" placeholder="Хаяг эсвэл «Өөрөө авна»"></div>
+      </div>
+      <div class="field"><label for="${id.notes}">Тэмдэглэл</label><textarea id="${id.notes}" name="notes" class="textarea" rows="2" placeholder="Бичээс, өнгө, хэмжээ…">${esc(o.notes)}</textarea></div>`,
+    onMount(form) {
+      const out = form.querySelector('[data-balance]');
+      const sync = () => {
+        let price = 0;
+        let paid = 0;
+        try { price = parseAmount(form.querySelector('[name=price]').value) ?? 0; paid = parseAmount(form.querySelector('[name=paid_amount]').value) ?? 0; } catch { out.textContent = ''; return; }
+        if (!price) { out.textContent = ''; return; }
+        const left = price - paid;
+        out.innerHTML = left > 0 ? `Үлдэгдэл: <b class="is-raspberry">${money(left)}</b>` : left === 0 ? '<b>Бүрэн төлөгдсөн</b>' : `Илүү төлсөн: <b>${money(-left)}</b>`;
+      };
+      form.addEventListener('input', sync);
+      sync();
+    },
+    async onSubmit(data) {
+      const price = parseAmount(data.price) ?? 0;
+      const paid = parseAmount(data.paid_amount) ?? 0;
+      const quantity = Math.max(1, Math.round(Number(data.quantity) || 1));
+      const payload = {
+        customer_name: data.customer_name, customer_contact: data.customer_contact, items: data.items, quantity, price, paid_amount: paid,
+        status: data.status, due_date: data.due_date || null, due_time: data.due_time || null, delivery: data.delivery, notes: data.notes,
+        delivered_at: data.status === 'delivered' ? (order?.delivered_at || new Date().toISOString()) : null,
+      };
+      const saved = order ? await ordersService.update(order.id, payload) : await ordersService.create(payload);
+      toast(order ? 'Захиалга шинэчлэгдлээ' : `${saved.customer_name}-ийн захиалга нэмэгдлээ`);
+      onSaved?.(saved);
+    },
+    onDelete: order ? () => removeWithUndo(ordersService, order, `${order.customer_name}-ийн захиалга`) : null,
+  });
+}
+
+/* ── Хамт ажиллагсад ────────────────────────────────────────────────────── */
+function openContactForm(contact = null, defaults = {}, { onSaved } = {}) {
+  const c = contact || { name: '', role: '', contact: '', notes: '', workplace_id: workplacesService.all()[0]?.id || '', ...defaults };
+  const id = { name: fid('name'), role: fid('role'), wp: fid('wp'), contact: fid('contact'), notes: fid('notes') };
+  return openFormModal({
+    title: contact ? 'Хамт ажиллагч засах' : 'Хамт ажиллагч нэмэх',
+    submitLabel: contact ? 'Хадгалах' : 'Нэмэх',
+    fields: `
+      <div class="field-row">
+        <div class="field"><label for="${id.name}">Нэр</label><input id="${id.name}" name="name" class="input" required maxlength="120" value="${esc(c.name)}" placeholder="Нэр" ${contact ? '' : 'autofocus'}></div>
+        <div class="field"><label for="${id.role}">Албан тушаал</label><input id="${id.role}" name="role" class="input" maxlength="80" value="${esc(c.role)}" placeholder="Менежер, ахлах…"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="${id.wp}">Ажлын газар</label><select id="${id.wp}" name="workplace_id" class="select">${workplaceOptions(c.workplace_id, { allowNone: true })}</select></div>
+        <div class="field"><label for="${id.contact}">Холбоо барих</label><input id="${id.contact}" name="contact" class="input" maxlength="120" value="${esc(c.contact)}" placeholder="Утас, имэйл"></div>
+      </div>
+      <div class="field"><label for="${id.notes}">Тэмдэглэл</label><textarea id="${id.notes}" name="notes" class="textarea" rows="3" placeholder="Юунд туслах, юу ярилцсан, анхаарах зүйл…">${esc(c.notes)}</textarea></div>`,
+    async onSubmit(data) {
+      const payload = { name: data.name, role: data.role, contact: data.contact, notes: data.notes, workplace_id: data.workplace_id || null };
+      const saved = contact ? await contactsService.update(contact.id, payload) : await contactsService.create(payload);
+      toast(contact ? 'Шинэчлэгдлээ' : `${saved.name} нэмэгдлээ`);
+      onSaved?.(saved);
+    },
+    onDelete: contact ? () => removeWithUndo(contactsService, contact, contact.name) : null,
+  });
+}
+
+/* ── Ойрын зорилго ──────────────────────────────────────────────────────── */
+const PERIODS = [{ value: 'week', label: 'Энэ 7 хоног' }, { value: 'month', label: 'Энэ сар' }, { value: 'custom', label: 'Өөрөө сонгох' }];
+
+function periodDates(period) {
+  if (period === 'week') return weekRange();
+  if (period === 'month') return monthRange();
+  return null;
+}
+
+function openWorkGoalForm(goal = null, defaults = {}, { onSaved } = {}) {
+  const week = weekRange();
+  const g = goal || { title: '', metric: 'hours', target: '', unit: '', workplace_id: '', manual_progress: 0, start_date: week.from, end_date: week.to, period: 'week', ...defaults };
+  if (!goal && g.period && g.period !== 'custom') Object.assign(g, { start_date: periodDates(g.period).from, end_date: periodDates(g.period).to });
+  const id = { title: fid('title'), metric: fid('metric'), target: fid('target'), unit: fid('unit'), wp: fid('wp'), period: fid('period'), sd: fid('sd'), ed: fid('ed'), manual: fid('manual') };
+  return openFormModal({
+    title: goal ? 'Зорилго засах' : 'Ойрын зорилго',
+    submitLabel: goal ? 'Хадгалах' : 'Нэмэх',
+    fields: `
+      <div class="field"><label for="${id.title}">Зорилго</label>
+        <input id="${id.title}" name="title" class="input" required maxlength="200" value="${esc(g.title)}" placeholder="Жишээ нь: Энэ 7 хоногт 20 цаг ажиллах" ${goal ? '' : 'autofocus'}></div>
+      <div class="field-row">
+        <div class="field"><label for="${id.metric}">Юугаар хэмжих</label><select id="${id.metric}" name="metric" class="select">${options(GOAL_METRICS, g.metric)}</select></div>
+        <div class="field"><label for="${id.target}">Зорилт <span data-unit-label></span></label><input id="${id.target}" name="target" class="input" inputmode="decimal" required value="${g.target ? (g.metric === 'income' ? amountValue(g.target) : g.target) : ''}" placeholder="20"></div>
+      </div>
+      <div class="field-row" data-custom>
+        <div class="field"><label for="${id.unit}">Нэгж</label><input id="${id.unit}" name="unit" class="input" maxlength="30" value="${esc(g.unit)}" placeholder="кейс, хуудас, удаа…"></div>
+        <div class="field"><label for="${id.manual}">Одоогийн явц</label><input id="${id.manual}" name="manual_progress" type="number" min="0" step="any" class="input" value="${g.manual_progress || 0}"></div>
+      </div>
+      <div class="field" data-wp><label for="${id.wp}">Ажлын газар</label><select id="${id.wp}" name="workplace_id" class="select">${workplaceOptions(g.workplace_id, { allowNone: true, noneLabel: 'Бүх ажил' })}</select></div>
+      ${goal ? '' : `<div class="field"><label for="${id.period}">Хугацаа</label><select id="${id.period}" name="period" class="select">${options(PERIODS, g.period || 'custom')}</select></div>`}
+      <div class="field-row" data-dates>
+        <div class="field"><label for="${id.sd}">Эхлэх</label><input id="${id.sd}" name="start_date" type="date" class="input" required value="${g.start_date || ''}"></div>
+        <div class="field"><label for="${id.ed}">Дуусах</label><input id="${id.ed}" name="end_date" type="date" class="input" required value="${g.end_date || ''}"></div>
+      </div>
+      <p class="form-hint small muted" data-auto></p>`,
+    onMount(form) {
+      const q = (n) => form.querySelector(`[name=${n}]`);
+      const sync = () => {
+        const m = q('metric').value;
+        form.querySelector('[data-custom]').hidden = m !== 'custom';
+        form.querySelector('[data-wp]').hidden = m === 'custom' || m === 'orders';
+        form.querySelector('[data-unit-label]').textContent = m === 'income' ? '(₮)' : m === 'hours' ? '(цаг)' : m === 'orders' ? '(тоо)' : '';
+        form.querySelector('[data-auto]').textContent = {
+          hours: 'Дууссан ээлжүүдийн цагаас автоматаар тоологдоно.',
+          income: 'Ээлжийн цалин, урамшуулал, хүргэсэн захиалга зэргээс автоматаар тоологдоно.',
+          orders: '«Хүргэсэн» болсон захиалгуудаас автоматаар тоологдоно.',
+          custom: 'Явцаа зорилгын карт дээрх −/+ товчоор тэмдэглэнэ.',
+        }[m];
+        const period = q('period');
+        if (period) {
+          const dates = periodDates(period.value);
+          form.querySelector('[data-dates]').hidden = Boolean(dates);
+          if (dates) { q('start_date').value = dates.from; q('end_date').value = dates.to; }
+        }
+      };
+      form.addEventListener('change', (e) => { if (['metric', 'period'].includes(e.target.name)) sync(); });
+      sync();
+    },
+    async onSubmit(data) {
+      const target = data.metric === 'income' ? parseAmount(data.target) : Number(String(data.target).replace(',', '.'));
+      if (!target || target <= 0) throw new Error('Зорилт 0-ээс их тоо байх ёстой.');
+      if (data.end_date < data.start_date) throw new Error('Дуусах өдөр эхлэх өдрөөс хойш байх ёстой.');
+      const payload = {
+        title: data.title, metric: data.metric, target,
+        unit: data.metric === 'custom' ? data.unit : null,
+        manual_progress: data.metric === 'custom' ? Math.max(0, Number(data.manual_progress) || 0) : 0,
+        workplace_id: data.metric === 'hours' || data.metric === 'income' ? (data.workplace_id || null) : null,
+        start_date: data.start_date, end_date: data.end_date,
+      };
+      const saved = goal ? await workGoalsService.update(goal.id, payload) : await workGoalsService.create({ ...payload, status: 'active' });
+      toast(goal ? 'Зорилго шинэчлэгдлээ' : `“${saved.title}” зорилго нэмэгдлээ`);
+      onSaved?.(saved);
+    },
+    onDelete: goal ? () => removeWithUndo(workGoalsService, goal, goal.title) : null,
   });
 }
 
@@ -5689,6 +6638,205 @@ function openHomeworkForm(hw = null, defaults = {}, { onSaved } = {}) {
 
 });
 
+__def("js/lib/nav.js", function (__e) {
+'use strict';
+Object.defineProperty(__e, "navigate", { enumerable: true, get: () => navigate });
+Object.defineProperty(__e, "parseRoute", { enumerable: true, get: () => parseRoute });
+Object.defineProperty(__e, "rerender", { enumerable: true, get: () => rerender });
+/**
+ * Hash-based navigation helpers. Kept separate from router.js so pages can
+ * import them without creating a circular import.
+ *
+ * Routes look like  #/tasks   #/goals/<id>   #/calendar?view=week&date=2026-11-02
+ */
+function navigate(path, { replace = false } = {}) {
+  const hash = `#/${String(path).replace(/^#?\/?/, '')}`;
+  if (replace) {
+    history.replaceState(null, '', hash);
+    window.dispatchEvent(new Event('lifeos:route'));
+  } else if (location.hash === hash) {
+    window.dispatchEvent(new Event('lifeos:route'));
+  } else {
+    location.hash = hash;
+  }
+}
+
+function parseRoute(hash = location.hash) {
+  const clean = hash.replace(/^#\/?/, '');
+  const [path, qs = ''] = clean.split('?');
+  const parts = path.split('/').filter(Boolean).map(decodeURIComponent);
+  return {
+    name: parts[0] || 'dashboard',
+    params: parts.slice(1),
+    query: Object.fromEntries(new URLSearchParams(qs)),
+    key: hash || '#/dashboard',
+  };
+}
+
+/** Ask the router to re-render the current page (e.g. after local UI state changed). */
+const rerender = () => window.dispatchEvent(new Event('lifeos:route'));
+
+});
+
+__def("js/components/search.js", function (__e) {
+'use strict';
+Object.defineProperty(__e, "searchEverything", { enumerable: true, get: () => searchEverything });
+Object.defineProperty(__e, "bindSearch", { enumerable: true, get: () => bindSearch });
+Object.defineProperty(__e, "openSearchSheet", { enumerable: true, get: () => openSearchSheet });
+/**
+ * Global search across tasks, events, goals, projects, journal and birthdays.
+ * Desktop: the field in the top bar. Mobile: a search sheet.
+ */
+const { tasksService } = __req("js/services/tasksService.js");
+const { eventsService } = __req("js/services/eventsService.js");
+const { goalsService, projectsService } = __req("js/services/goalsService.js");
+const { journalService } = __req("js/services/journalService.js");
+const { birthdaysService, daysUntil } = __req("js/services/birthdaysService.js");
+const { openTaskForm, openEventForm, openJournalForm, openBirthdayForm } = __req("js/components/forms.js");
+const { ordersService, contactsService, workplacesService, orderStatusLabel, money } = __req("js/services/workService.js");
+const { homeworkService, subjectById } = __req("js/services/schoolService.js");
+const { openOrderForm, openContactForm, openWorkplaceForm } = __req("js/components/workForms.js");
+const { openHomeworkForm } = __req("js/components/schoolForms.js");
+const { navigate } = __req("js/lib/nav.js");
+const { openModal } = __req("js/lib/ui.js");
+const { esc, truncate, plural } = __req("js/lib/dom.js");
+const { icon } = __req("js/lib/icons.js");
+const { fmt, relDay, fmtTime, MONTHS_SHORT } = __req("js/lib/dates.js");
+
+function searchEverything(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const has = (...values) => values.some((v) => v && String(v).toLowerCase().includes(q));
+  const groups = [];
+  const add = (label, items) => { if (items.length) groups.push({ label, items: items.slice(0, 5) }); };
+
+  add('Хийх зүйлс', tasksService.all().filter((t) => has(t.title, t.notes, t.category)).map((t) => ({
+    icon: 'tasks', title: t.title,
+    sub: [t.status === 'done' ? 'Дууссан' : null, t.due_date ? relDay(t.due_date) : 'Огноогүй', t.category].filter(Boolean).join(' · '),
+    open: () => openTaskForm(t),
+  })));
+  add('Үйл явдал', eventsService.all().filter((e) => has(e.title, e.location, e.description)).map((e) => ({
+    icon: 'calendar', title: e.title,
+    sub: `${fmt.medium(e.event_date)}${e.start_time && !e.all_day ? ` · ${fmtTime(e.start_time)}` : ''}${e.location ? ` · ${e.location}` : ''}`,
+    open: () => { navigate(`calendar?view=day&date=${e.event_date}`); openEventForm(e); },
+  })));
+  add('Зорилго', goalsService.all().filter((g) => has(g.title, g.description)).map((g) => ({
+    icon: 'goals', title: g.title, sub: g.target_date ? `Зорилт: ${fmt.short(g.target_date)}` : 'Зорилго',
+    open: () => navigate(`goals/${g.id}`),
+  })));
+  add('Төслүүд', projectsService.all().filter((p) => has(p.title, p.description)).map((p) => ({
+    icon: 'folder', title: p.title, sub: goalsService.get(p.goal_id)?.title || 'Зорилгогүй',
+    open: () => navigate(`goals/${p.goal_id || 'none'}`),
+  })));
+  add('Тэмдэглэл', journalService.all().filter((j) => has(j.title, j.reflection, j.gratitude)).map((j) => ({
+    icon: 'journal', title: j.title || fmt.long(j.entry_date), sub: truncate(j.reflection || j.gratitude, 70),
+    open: () => openJournalForm(j),
+  })));
+  add('Төрсөн өдөр', birthdaysService.all().filter((b) => has(b.name, b.notes, b.relationship)).map((b) => ({
+    icon: 'gift', title: b.name,
+    sub: `${b.birth_month}-р сарын ${b.birth_day} · ${daysUntil(b) === 0 ? 'өнөөдөр' : `${daysUntil(b)} хоногийн дараа`}`,
+    open: () => openBirthdayForm(b),
+  })));
+  add('Гэрийн даалгавар', homeworkService.all().filter((h) => has(h.title, h.description)).map((h) => ({
+    icon: 'book', title: h.title, sub: [subjectById(h.subject_id)?.name, h.due_date ? relDay(h.due_date) : null].filter(Boolean).join(' · '),
+    open: () => openHomeworkForm(h),
+  })));
+  add('Захиалга', ordersService.all().filter((o) => has(o.customer_name, o.items, o.customer_contact, o.notes)).map((o) => ({
+    icon: 'bag', title: `${o.customer_name} — ${o.items}`, sub: [orderStatusLabel(o.status), o.price ? money(o.price) : null, o.due_date ? relDay(o.due_date) : null].filter(Boolean).join(' · '),
+    open: () => openOrderForm(o),
+  })));
+  add('Ажил', [
+    ...workplacesService.all().filter((w) => has(w.name, w.notes)).map((w) => ({ icon: 'briefcase', title: w.name, sub: 'Ажлын газар', open: () => openWorkplaceForm(w) })),
+    ...contactsService.all().filter((c) => has(c.name, c.role, c.notes, c.contact)).map((c) => ({ icon: 'users', title: c.name, sub: c.role || 'Хамт ажиллагч', open: () => openContactForm(c) })),
+  ]);
+  return groups;
+}
+
+/** Wires a search input to a results container (keyboard friendly). */
+function bindSearch(input, results, { floating = true, onPick } = {}) {
+  let flat = [];
+  let active = -1;
+
+  const highlight = () => {
+    results.querySelectorAll('.sr-item').forEach((el, i) => {
+      el.classList.toggle('is-active', i === active);
+      el.setAttribute('aria-selected', String(i === active));
+      if (i === active) el.scrollIntoView({ block: 'nearest' });
+    });
+  };
+
+  const draw = () => {
+    const value = input.value.trim();
+    if (!value) {
+      results.innerHTML = floating ? '' : '<p class="sr-empty">Хийх зүйлс, үйл явдал, зорилго, даалгавар, захиалга, тэмдэглэлээс хайна.</p>';
+      results.hidden = floating;
+      flat = [];
+      return;
+    }
+    const groups = searchEverything(value);
+    flat = groups.flatMap((g) => g.items);
+    active = flat.length ? 0 : -1;
+    let i = -1;
+    results.innerHTML = groups.length
+      ? groups.map((g) => `<div class="sr-group" role="group" aria-label="${esc(g.label)}"><p class="sr-label">${esc(g.label)}</p>${g.items.map((it) => {
+        i += 1;
+        return `<button type="button" class="sr-item ${i === active ? 'is-active' : ''}" data-i="${i}" role="option" aria-selected="${i === active}">${icon(it.icon, 16)}<span class="sr-text"><span class="sr-title">${esc(it.title)}</span>${it.sub ? `<span class="sr-sub">${esc(it.sub)}</span>` : ''}</span></button>`;
+      }).join('')}</div>`).join('')
+      : `<p class="sr-empty">“${esc(value)}” гэсэн илэрц олдсонгүй.</p>`;
+    results.hidden = false;
+  };
+
+  const pick = (i) => {
+    const item = flat[i];
+    if (!item) return;
+    input.value = '';
+    draw();
+    input.blur();
+    onPick?.();
+    item.open();
+  };
+
+  input.addEventListener('input', draw);
+  input.addEventListener('focus', () => { if (input.value.trim()) draw(); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!flat.length) return;
+      active = (active + (e.key === 'ArrowDown' ? 1 : -1) + flat.length) % flat.length;
+      highlight();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      pick(active);
+    } else if (e.key === 'Escape' && floating) {
+      input.value = '';
+      draw();
+      input.blur();
+    }
+  });
+  results.addEventListener('mousedown', (e) => e.preventDefault()); // keep focus while clicking
+  results.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-i]');
+    if (b) pick(Number(b.dataset.i));
+  });
+  if (floating) input.addEventListener('blur', () => setTimeout(() => { results.hidden = true; }, 120));
+  draw();
+}
+
+function openSearchSheet() {
+  openModal({
+    title: 'Хайх',
+    body: `<div class="search-sheet">
+        <div class="search-field">${icon('search', 16)}<input id="searchSheetInput" type="search" class="input" placeholder="Бүгдээс хайх…" autocomplete="off" aria-label="Бүгдээс хайх" autofocus></div>
+        <div class="search-results is-static" id="searchSheetResults" role="listbox"></div>
+      </div>`,
+    onMount(modal, close) {
+      bindSearch(modal.querySelector('#searchSheetInput'), modal.querySelector('#searchSheetResults'), { floating: false, onPick: close });
+    },
+  });
+}
+
+});
+
 __def("js/components/shell.js", function (__e) {
 'use strict';
 Object.defineProperty(__e, "renderShell", { enumerable: true, get: () => renderShell });
@@ -5706,6 +6854,7 @@ const { notificationsService } = __req("js/services/notificationsService.js");
 const { bindSearch, openSearchSheet } = __req("js/components/search.js");
 const { openNewMenu, openTaskForm } = __req("js/components/forms.js");
 const { openHomeworkForm } = __req("js/components/schoolForms.js");
+const { openShiftForm, openOrderForm } = __req("js/components/workForms.js");
 const { openModal } = __req("js/lib/ui.js");
 const { esc } = __req("js/lib/dom.js");
 const { icon } = __req("js/lib/icons.js");
@@ -5714,9 +6863,10 @@ const { todayKey } = __req("js/lib/dates.js");
 const NAV = [
   { id: 'dashboard', label: 'Хянах самбар', icon: 'dashboard' },
   { id: 'calendar', label: 'Календарь', icon: 'calendar' },
-  { id: 'tasks', label: 'Ажлууд', icon: 'tasks' },
+  { id: 'tasks', label: 'Хийх зүйлс', icon: 'tasks' },
   { id: 'goals', label: 'Зорилго ба төсөл', icon: 'goals' },
   { id: 'school', label: 'Сургууль', icon: 'school' },
+  { id: 'work', label: 'Ажил', icon: 'briefcase' },
   { id: 'assistant', label: 'AI туслах', icon: 'assistant' },
   { section: 'Амьдрал' },
   { id: 'journal', label: 'Тэмдэглэл', icon: 'journal' },
@@ -5729,8 +6879,9 @@ const NAV = [
 const MOBILE_NAV = [
   { id: 'dashboard', label: 'Нүүр', icon: 'dashboard' },
   { id: 'calendar', label: 'Календарь', icon: 'calendar' },
-  { id: 'tasks', label: 'Ажлууд', icon: 'tasks' },
+  { id: 'tasks', label: 'Хийх зүйлс', icon: 'tasks' },
   { id: 'school', label: 'Сургууль', icon: 'school' },
+  { id: 'work', label: 'Ажил', icon: 'briefcase' },
 ];
 
 let bannerDismissed = false;
@@ -5760,7 +6911,7 @@ function renderShell(app) {
         <a class="topbar-brand" href="#/dashboard"><span class="brand-mark" aria-hidden="true"></span><span id="topbarTitle">Хянах самбар</span></a>
         <div class="search" role="search">
           ${icon('search', 16)}
-          <input id="searchInput" type="search" placeholder="Ажил, үйл явдал, зорилго, тэмдэглэлээс хайх…" autocomplete="off" aria-label="Бүгдээс хайх" aria-controls="searchResults">
+          <input id="searchInput" type="search" placeholder="Хийх зүйлс, үйл явдал, захиалга, тэмдэглэлээс хайх…" autocomplete="off" aria-label="Бүгдээс хайх" aria-controls="searchResults">
           <kbd class="kbd">/</kbd>
           <div class="search-results" id="searchResults" role="listbox" hidden></div>
         </div>
@@ -5788,7 +6939,13 @@ function renderShell(app) {
     switch (el.dataset.shell) {
       case 'theme': prefs.set({ theme: effectiveTheme() === 'dark' ? 'light' : 'dark' }); break;
       case 'search': openSearchSheet(); break;
-      case 'new': openNewMenu(el, { extra: [{ label: 'Гэрийн даалгавар', icon: 'book', onSelect: () => openHomeworkForm() }] }); break;
+      case 'new': openNewMenu(el, {
+        extra: [
+          { label: 'Гэрийн даалгавар', icon: 'book', onSelect: () => openHomeworkForm() },
+          { label: 'Ажлын ээлж', icon: 'clock', onSelect: () => openShiftForm() },
+          { label: 'Захиалга', icon: 'bag', onSelect: () => openOrderForm() },
+        ],
+      }); break;
       case 'more': openMoreSheet(); break;
       case 'banner-dismiss': bannerDismissed = true; updateBanner(); break;
       case 'reload': location.reload(); break;
@@ -6288,7 +7445,7 @@ function schoolDashboardCard() {
   })() : '';
   return `<section class="card">
     <div class="card-head"><h2 class="card-title">${icon('school', 18)} Сургууль</h2><a class="card-link" href="#/school">Бүгд</a></div>
-    ${nextLine}
+    <div class="card-body">${nextLine}
     ${soon.length ? `<ul class="dash-hw">${soon.map((h) => {
     const subject = subjectById(h.subject_id);
     const overdue = dueMoment(h) < Date.now();
@@ -6297,9 +7454,532 @@ function schoolDashboardCard() {
         <span class="dh-title">${esc(h.title)}<span class="small muted">${esc(subject?.name || '')}</span></span>
         <span class="dh-count ${overdue ? 'is-overdue' : ''}">${esc(dueCountdown(h))}</span></a></li>`;
   }).join('')}</ul>` : '<p class="small muted dash-hw-empty">Ойрын 3 хоногт дуусах гэрийн даалгавар алга.</p>'}
+  </div></section>`;
+}
+
+
+});
+
+__def("js/pages/work.js", function (__e) {
+'use strict';
+Object.defineProperty(__e, "workDashboardCard", { enumerable: true, get: () => workDashboardCard });
+Object.defineProperty(__e, "default", { enumerable: true, get: () => __default });
+/**
+ * Ажил — ээлж/цаг, цалин/орлого, захиалга, төсөл/уулзалт, ойрын зорилго.
+ * Табууд: ?tab=shifts (анхдагч) | pay | orders | projects | goals
+ * Долоо хоног: ?week=YYYY-MM-DD · сар: ?month=YYYY-MM
+ */
+const { workplacesService, shiftsService, incomeService, ordersService, contactsService, workGoalsService, workplaceById, shiftsOn, shiftsBetween, nextShift, shiftState, shiftStart, shiftEnd, shiftMinutes, shiftPay, isOvernight, weekRange, monthRange, earnings, expectedMonthlyPay, nextPayday, ORDER_STATUSES, ORDER_NEXT, orderStatusLabel, orderBalance, orderDueMoment, isOrderLate, orderDeliveredKey, incomeKindLabel, workGoalProgress, metricValue, metricInfo, activeWorkGoals, pastWorkGoals, PACE_LABEL, money, moneyShort, hoursLabel, isWorkTask, WORK_CATEGORY, PAY_TYPES } = __req("js/services/workService.js");
+const { openWorkplaceForm, openShiftForm, openIncomeForm, openOrderForm, openContactForm, openWorkGoalForm } = __req("js/components/workForms.js");
+const { tasksService, sortTasks } = __req("js/services/tasksService.js");
+const { eventsService, eventColor } = __req("js/services/eventsService.js");
+const { openEventForm } = __req("js/components/forms.js");
+const { taskListHTML, handleTaskAction } = __req("js/components/taskItem.js");
+const { parseTaskInput } = __req("js/lib/nlp.js");
+const { prefs } = __req("js/state/prefs.js");
+const { emptyState, pageHead, toast, openMenu, progressBar } = __req("js/lib/ui.js");
+const { esc } = __req("js/lib/dom.js");
+const { icon } = __req("js/lib/icons.js");
+const { parseRoute } = __req("js/lib/nav.js");
+const { todayKey, addDaysKey, fromKey, toKey, relDay, fmt, fmtTime, fmtDuration, WEEKDAYS, isDateKey, diffDays } = __req("js/lib/dates.js");
+
+const TABS = [
+  { id: 'shifts', label: 'Ээлж, цаг', icon: 'clock' },
+  { id: 'pay', label: 'Цалин, орлого', icon: 'wallet' },
+  { id: 'orders', label: 'Захиалга', icon: 'bag' },
+  { id: 'projects', label: 'Төсөл, уулзалт', icon: 'briefcase' },
+  { id: 'goals', label: 'Ойрын зорилго', icon: 'target' },
+];
+let orderFilter = 'open';
+
+const wpChip = (wp) => (wp
+  ? `<span class="subj-chip" style="--subj:${esc(wp.color)}"><i></i>${esc(wp.name)}</span>`
+  : '<span class="subj-chip is-none"><i></i>Ажлын газаргүй</span>');
+const shiftTime = (s) => `${fmtTime(s.start_time)}–${fmtTime(s.end_time)}${isOvernight(s) ? ' (+1)' : ''}`;
+const ymOf = (key) => key.slice(0, 7);
+const monthLabel = (ym) => { const [y, m] = ym.split('-').map(Number); return fmt.monthYear(new Date(y, m - 1, 1)); };
+const shiftYm = (ym, n) => { const [y, m] = ym.split('-').map(Number); return toKey(new Date(y, m - 1 + n, 1)).slice(0, 7); };
+
+/* ── Дараагийн ээлж ───────────────────────────────────────────────────── */
+function shiftWhen(s, now = Date.now()) {
+  const state = shiftState(s, now);
+  if (state === 'live') return { live: true, text: `Одоо ажиллаж байна · ${fmtDuration(Math.max(1, Math.round((shiftEnd(s) - now) / 60000)))} үлдсэн` };
+  const mins = Math.round((shiftStart(s) - now) / 60000);
+  return { live: false, text: mins <= 90 ? `${mins} минутын дараа` : `${relDay(s.shift_date)} ${fmtTime(s.start_time)}` };
+}
+
+function nextShiftCard() {
+  const s = nextShift();
+  if (!s) return '';
+  const wp = workplaceById(s.workplace_id);
+  const when = shiftWhen(s);
+  const pay = shiftPay(s);
+  return `<section class="card next-class" style="--subj:${esc(wp?.color || 'var(--accent)')}" aria-label="Дараагийн ээлж">
+    <div class="nc-when ${when.live ? 'is-live' : ''}">${when.live ? '<span class="live-dot"></span>' : icon('clock', 15)}${esc(when.text)}</div>
+    <div class="nc-main">
+      <p class="nc-title">${esc(wp?.name || 'Ээлж')}</p>
+      <p class="nc-meta"><span>${shiftTime(s)}</span><span class="badge">${hoursLabel(shiftMinutes(s))}</span>${pay ? `<span>≈ ${money(pay)}</span>` : ''}${s.notes ? `<span>${esc(s.notes)}</span>` : ''}</p>
+    </div>
+    <button type="button" class="btn btn-sm" data-action="edit-shift" data-id="${s.id}">${icon('edit', 14)} Засах</button>
   </section>`;
 }
 
+const stat = (label, value, { tone = '', sub = '' } = {}) => `<div class="ws ${tone}"><span class="ws-label">${label}</span><b class="ws-value">${value}</b>${sub ? `<span class="ws-sub">${sub}</span>` : ''}</div>`;
+
+/* ── Ээлж, цаг ────────────────────────────────────────────────────────── */
+function shiftsTab(route) {
+  if (!workplacesService.all().length) {
+    return `<div class="card">${emptyState({
+      icon: 'briefcase', title: 'Ажлын газраа нэмье',
+      text: 'Ажлын газар, цагийн хөлс эсвэл сарын цалингаа оруулбал ээлж бүрийн цаг, олох мөнгө, цалингийн өдөр автоматаар тооцоологдоно.',
+      actions: `<button type="button" class="btn btn-primary" data-action="new-workplace">${icon('plus', 16)} Ажлын газар нэмэх</button>`,
+    })}</div>`;
+  }
+  const anchor = isDateKey(route.query.week) ? route.query.week : todayKey();
+  const { from, to } = weekRange(anchor);
+  const isThisWeek = from === weekRange().from;
+  const e = earnings(from, to);
+  const today = todayKey();
+  const days = Array.from({ length: 7 }, (_, i) => addDaysKey(from, i));
+  const count = shiftsBetween(from, to).length;
+
+  return `
+    <div class="toolbar week-nav">
+      <div class="row">
+        <a class="icon-btn" href="#/work?tab=shifts&week=${addDaysKey(from, -7)}" aria-label="Өмнөх долоо хоног">${icon('chevronLeft', 18)}</a>
+        <h2 class="week-label">${fmt.short(from)} – ${fmt.short(to)}</h2>
+        <a class="icon-btn" href="#/work?tab=shifts&week=${addDaysKey(from, 7)}" aria-label="Дараагийн долоо хоног">${icon('chevronRight', 18)}</a>
+        ${isThisWeek ? '' : `<a class="btn btn-sm btn-ghost" href="#/work?tab=shifts">Энэ долоо хоног</a>`}
+      </div>
+    </div>
+    <div class="work-stats">
+      ${stat('Ажилласан', hoursLabel(e.minutes))}
+      ${stat('Төлөвлөсөн', hoursLabel(e.plannedMinutes))}
+      ${stat('Ээлжийн цалин', money(e.shiftPay + e.plannedPay), { sub: e.plannedPay ? `${money(e.shiftPay)} нь баталгаажсан` : '' })}
+      ${stat('Ээлж', String(count))}
+    </div>
+    <div class="week-grid">${days.map((k) => {
+    const list = shiftsOn(k);
+    const d = fromKey(k);
+    return `<section class="card day-col ${k === today ? 'is-today' : ''}" aria-label="${fmt.long(k)}">
+        <header class="day-head"><span class="day-name">${WEEKDAYS[d.getDay()]} <span class="faint small">${d.getDate()}</span></span>${k === today ? '<span class="badge">Өнөөдөр</span>' : ''}
+          <button type="button" class="icon-btn icon-btn-sm" data-action="new-shift" data-date="${k}" aria-label="${fmt.long(k)}-нд ээлж нэмэх" title="Ээлж нэмэх">${icon('plus', 15)}</button></header>
+        ${list.length ? `<ul class="class-list">${list.map((s) => {
+      const wp = workplaceById(s.workplace_id);
+      const st = shiftState(s);
+      const pay = shiftPay(s);
+      return `<li><button type="button" class="class-item shift-item is-${st}" data-action="edit-shift" data-id="${s.id}" style="--subj:${esc(wp?.color || 'var(--accent)')}">
+            <span class="ci-time">${shiftTime(s)}${st === 'live' ? ' · <b class="live-text">Одоо</b>' : ''}</span>
+            <span class="ci-name">${esc(wp?.name || 'Ээлж')}</span>
+            <span class="ci-meta"><span>${hoursLabel(shiftMinutes(s))}</span>${pay ? `<span>${money(pay)}</span>` : ''}${s.break_minutes ? `<span>завсар ${s.break_minutes} мин</span>` : ''}</span>
+          </button></li>`;
+    }).join('')}</ul>` : '<p class="small faint day-empty">Чөлөөтэй</p>'}
+      </section>`;
+  }).join('')}</div>
+
+    <h2 class="section-title">Ажлын газрууд<span class="count">${workplacesService.all().length}</span></h2>
+    <div class="card card-list"><ul class="subj-list">${[...workplacesService.all()].sort((a, b) => a.name.localeCompare(b.name, 'mn')).map((w) => {
+    const pd = nextPayday(w);
+    const payText = w.pay_type === 'hourly' ? (w.hourly_rate ? `Цагийн хөлс ${money(w.hourly_rate)}` : 'Цагийн хөлс тодорхойгүй')
+      : w.pay_type === 'fixed' ? (w.monthly_salary ? `Сарын цалин ${money(w.monthly_salary)}` : 'Тогтмол цалин') : 'Цалингүй';
+    return `<li><button type="button" class="subj-row" data-action="edit-workplace" data-id="${w.id}" style="--subj:${esc(w.color)}">
+        <span class="subj-swatch"></span>
+        <span class="subj-info"><span class="subj-name">${esc(w.name)}</span>
+          <span class="small muted">${esc(payText)}${pd ? ` · цалин ${esc(relDay(pd.date))}` : ''}</span></span>
+        <span class="badge">${esc(PAY_TYPES.find((p) => p.value === w.pay_type)?.label || '')}</span>
+      </button></li>`;
+  }).join('')}</ul></div>
+    <button type="button" class="btn section-btn" data-action="new-workplace">${icon('plus', 16)} Ажлын газар нэмэх</button>`;
+}
+
+/* ── Цалин, орлого ────────────────────────────────────────────────────── */
+function payTab(route) {
+  const ym = /^\d{4}-\d{2}$/.test(route.query.month || '') ? route.query.month : ymOf(todayKey());
+  const { from, to } = monthRange(ym);
+  const e = earnings(from, to);
+  const isThisMonth = ym === ymOf(todayKey());
+  const wps = [...workplacesService.all()].sort((a, b) => a.name.localeCompare(b.name, 'mn'));
+  const entries = incomeService.all().filter((x) => x.received_date >= from && x.received_date <= to)
+    .sort((a, b) => b.received_date.localeCompare(a.received_date));
+
+  const parts = [
+    ['Ээлжийн цалин', e.shiftPay, 'var(--pink)'],
+    ['Тогтмол цалин', e.salaryPaid, 'var(--sky)'],
+    ['Урамшуулал, бусад', e.extras, 'var(--lilac)'],
+    ['Борлуулалт', e.sales, 'var(--mint)'],
+  ].filter(([, v]) => v > 0);
+  const breakdown = e.total > 0 ? `<div class="income-bar" role="img" aria-label="Орлогын задаргаа">${parts.map(([l, v, c]) => `<span style="flex:${v};--c:${c}" title="${esc(l)}: ${money(v)}"></span>`).join('')}</div>
+    <ul class="income-legend">${parts.map(([l, v, c]) => `<li><i style="--c:${c}"></i><span>${esc(l)}</span><b>${money(v)}</b></li>`).join('')}</ul>` : '';
+
+  const paydays = wps.map((w) => ({ w, pd: nextPayday(w) })).filter((x) => x.pd).sort((a, b) => a.pd.days - b.pd.days);
+
+  return `
+    <div class="toolbar week-nav">
+      <div class="row">
+        <a class="icon-btn" href="#/work?tab=pay&month=${shiftYm(ym, -1)}" aria-label="Өмнөх сар">${icon('chevronLeft', 18)}</a>
+        <h2 class="week-label">${monthLabel(ym)}</h2>
+        <a class="icon-btn" href="#/work?tab=pay&month=${shiftYm(ym, 1)}" aria-label="Дараагийн сар">${icon('chevronRight', 18)}</a>
+        ${isThisMonth ? '' : '<a class="btn btn-sm btn-ghost" href="#/work?tab=pay">Энэ сар</a>'}
+      </div>
+      <button type="button" class="btn btn-primary btn-sm" data-action="new-income">${icon('plus', 15)} Орлого бүртгэх</button>
+    </div>
+    <div class="kpis work-kpis">
+      <div class="card kpi"><span class="kpi-label">${icon('wallet', 15)} Олсон орлого</span><span class="kpi-value">${moneyShort(e.total)}</span><span class="kpi-sub">${money(e.total)}</span></div>
+      <div class="card kpi"><span class="kpi-label">${icon('clock', 15)} Ажилласан</span><span class="kpi-value">${hoursLabel(e.minutes)}</span><span class="kpi-sub">${e.plannedMinutes ? `+ ${hoursLabel(e.plannedMinutes)} төлөвлөсөн` : 'Дууссан ээлжүүд'}</span></div>
+      <div class="card kpi"><span class="kpi-label">${icon('check', 15)} Хүлээн авсан</span><span class="kpi-value">${moneyShort(e.received)}</span><span class="kpi-sub">Бүртгэсэн бүх мөнгө</span></div>
+      <div class="card kpi"><span class="kpi-label">${icon('zap', 15)} Хүлээгдэж буй</span><span class="kpi-value">${moneyShort(e.plannedPay)}</span><span class="kpi-sub">Үлдсэн ээлжүүдээс</span></div>
+    </div>
+    <div class="work-split">
+      <section class="card">
+        <div class="card-head"><h2 class="card-title">${icon('briefcase', 18)} Ажлын газраар</h2></div>
+        <div class="card-body">${wps.length ? `<ul class="wp-pay">${wps.map((w) => {
+    const we = earnings(from, to, { workplaceId: w.id });
+    const expected = expectedMonthlyPay(w, ym);
+    const main = w.pay_type === 'hourly' ? we.shiftPay : w.pay_type === 'fixed' ? we.salaryPaid + we.shiftPay : we.extras;
+    return `<li style="--subj:${esc(w.color)}"><span class="subj-swatch"></span>
+          <span class="wpp-info"><b>${esc(w.name)}</b><span class="small muted">${hoursLabel(we.minutes)}${w.pay_type === 'hourly' && w.hourly_rate ? ` × ${money(w.hourly_rate)}` : ''}${expected ? ` · сарын тооцоо ${money(expected)}` : ''}</span></span>
+          <b class="wpp-amount">${money(main)}</b></li>`;
+  }).join('')}</ul>` : emptyState({ compact: true, icon: 'briefcase', title: 'Ажлын газар алга', actions: `<button type="button" class="btn btn-sm" data-action="new-workplace">${icon('plus', 14)} Нэмэх</button>` })}
+        ${breakdown}
+      </div></section>
+      <section class="card">
+        <div class="card-head"><h2 class="card-title">${icon('calendar', 18)} Цалингийн өдөр</h2></div>
+        <div class="card-body">${paydays.length ? `<ul class="payday-list">${paydays.map(({ w, pd }) => `<li class="${pd.days <= 1 ? 'is-soon' : ''}" style="--subj:${esc(w.color)}">
+            <span class="pd-day"><b>${fromKey(pd.date).getDate()}</b><span>${fromKey(pd.date).getMonth() + 1}-р сар</span></span>
+            <span class="wpp-info"><b>${esc(w.name)}</b><span class="small muted">${pd.days === 0 ? 'Өнөөдөр!' : pd.days === 1 ? 'Маргааш' : `${pd.days} хоногийн дараа`}</span></span>
+          </li>`).join('')}</ul>` : '<p class="small muted">Ажлын газрын тохиргоонд цалингийн өдрөө оруулбал энд тоолж харуулна.</p>'}
+      </div></section>
+    </div>
+    <h2 class="section-title">Орлогын бүртгэл<span class="count">${entries.length}</span></h2>
+    ${entries.length ? `<div class="card card-list"><ul class="income-list">${entries.map((x) => {
+    const w = workplaceById(x.workplace_id);
+    return `<li><button type="button" class="income-row" data-action="edit-income" data-id="${x.id}">
+        <span class="ir-date">${esc(relDay(x.received_date))}</span>
+        <span class="ir-main"><b>${esc(incomeKindLabel(x.kind))}</b><span class="small muted">${esc(w?.name || 'Бусад эх үүсвэр')}${x.note ? ` · ${esc(x.note)}` : ''}</span></span>
+        <b class="ir-amount">${money(x.amount, { sign: true })}</b></button></li>`;
+  }).join('')}</ul></div>` : `<div class="card">${emptyState({ compact: true, icon: 'wallet', title: 'Энэ сард бүртгэсэн орлого алга', text: 'Цалин, урамшуулал, tips зэрэг хүлээн авсан мөнгөө тэмдэглээрэй.' })}</div>`}
+    <p class="small muted work-note">${icon('info', 14)} Цагийн хөлстэй ажлын цалинг ээлжээс тооцдог тул тэр ажлаас авсан «Цалин»-гийн бүртгэл орлогод давхар нэмэгдэхгүй. Тогтмол цалин, урамшуулал, tips, хүргэсэн захиалга шууд орлогод орно.</p>`;
+}
+
+/* ── Захиалга ─────────────────────────────────────────────────────────── */
+function orderCard(o) {
+  const late = isOrderLate(o);
+  const left = orderBalance(o);
+  const next = ORDER_NEXT[o.status];
+  const due = o.due_date ? `${relDay(o.due_date)}${o.due_time ? ` ${fmtTime(o.due_time)}` : ''}` : 'Огноогүй';
+  const soon = !late && o.due_date && orderDueMoment(o) - Date.now() < 86400000;
+  return `<li class="order ${late ? 'is-overdue' : ''} st-${o.status}" data-id="${o.id}">
+    <button type="button" class="order-main" data-action="edit-order">
+      <span class="order-top"><b class="order-cust">${esc(o.customer_name)}</b><span class="order-due ${late ? 'is-late' : soon ? 'is-soon' : ''}">${icon('truck', 13)}${esc(late ? `Хоцорсон · ${due}` : due)}</span></span>
+      <span class="order-items">${esc(o.items)}${o.quantity > 1 ? ` <span class="faint">× ${o.quantity}</span>` : ''}</span>
+      <span class="order-meta">${o.price ? `<span class="order-price">${money(o.price)}</span>` : ''}${left > 0 && o.status !== 'cancelled' ? `<span class="order-debt">Үлдэгдэл ${money(left)}</span>` : o.price ? '<span class="order-paid">Төлөгдсөн</span>' : ''}${o.delivery ? `<span>${icon('pin', 12)}${esc(o.delivery)}</span>` : ''}${o.customer_contact ? `<span>${icon('phone', 12)}${esc(o.customer_contact)}</span>` : ''}</span>
+    </button>
+    <div class="order-actions">
+      ${next ? `<button type="button" class="btn btn-sm ${o.status === 'ready' ? 'btn-primary' : ''}" data-action="order-next">${esc(next.label)} ${icon('arrowRight', 13)}</button>` : `<span class="hw-status st-${o.status === 'delivered' ? 'done' : 'todo'}">${esc(orderStatusLabel(o.status))}</span>`}
+      <button type="button" class="icon-btn icon-btn-sm" data-action="order-menu" aria-label="Бусад үйлдэл" title="Бусад">${icon('more', 16)}</button>
+    </div>
+  </li>`;
+}
+
+function ordersTab() {
+  const all = ordersService.all();
+  if (!all.length) {
+    return `<div class="card">${emptyState({
+      icon: 'bag', title: 'Захиалга алга',
+      text: 'Дэлгүүр, онлайн бизнесийн захиалга бүрийг захиалагч, үнэ, хүргэх өдөртэй нь тэмдэглэвэл төлөв, үлдэгдэл төлбөр, хүргэлтийн сануулга энд гарна.',
+      actions: `<button type="button" class="btn btn-primary" data-action="new-order">${icon('plus', 16)} Захиалга нэмэх</button>`,
+    })}</div>`;
+  }
+  const open = ordersService.open();
+  const late = open.filter((o) => isOrderLate(o)).length;
+  const dueSoon = ordersService.dueWithin(1).length;
+  const debt = all.filter((o) => o.status !== 'cancelled').reduce((s, o) => s + orderBalance(o), 0);
+  const { from, to } = monthRange();
+  const monthSales = all.filter((o) => o.status === 'delivered' && orderDeliveredKey(o) >= from && orderDeliveredKey(o) <= to).reduce((s, o) => s + o.price, 0);
+  const delivered = ordersService.delivered();
+  const cancelled = all.filter((o) => o.status === 'cancelled');
+
+  const filter = `<div class="toolbar"><div class="tabs" role="tablist" aria-label="Захиалга шүүх">
+      ${[['open', 'Идэвхтэй', open.length], ['delivered', 'Хүргэсэн', delivered.length], ['cancelled', 'Цуцалсан', cancelled.length]].map(([v, l, n]) => `<button type="button" class="tab ${orderFilter === v ? 'is-active' : ''}" data-action="order-filter" data-value="${v}" role="tab" aria-selected="${orderFilter === v}">${l}<span class="count">${n}</span></button>`).join('')}
+    </div><button type="button" class="btn btn-primary btn-sm" data-action="new-order">${icon('plus', 15)} Захиалга</button></div>`;
+
+  let body;
+  if (orderFilter === 'open') {
+    body = open.length ? `<div class="order-board">${['new', 'preparing', 'ready'].map((st) => {
+      const list = open.filter((o) => o.status === st);
+      return `<section class="card order-col"><h3 class="order-col-title">${esc(orderStatusLabel(st))}<span class="count">${list.length}</span></h3>
+        ${list.length ? `<ul class="order-list">${list.map(orderCard).join('')}</ul>` : '<p class="small faint day-empty">Хоосон</p>'}</section>`;
+    }).join('')}</div>` : `<div class="card">${emptyState({ compact: true, icon: 'check', title: 'Бүх захиалга хүргэгдсэн', text: 'Шинэ захиалга ирвэл нэмээрэй.' })}</div>`;
+  } else {
+    const list = orderFilter === 'delivered' ? delivered : cancelled;
+    body = list.length ? `<div class="card card-list"><ul class="order-list is-flat">${list.map(orderCard).join('')}</ul></div>` : `<div class="card">${emptyState({ compact: true, icon: 'bag', title: 'Энд захиалга алга' })}</div>`;
+  }
+  return `<div class="work-stats">
+      ${stat('Хүлээгдэж буй', String(open.length))}
+      ${stat('Өнөөдөр/маргааш', String(dueSoon), { tone: late ? 'is-alert' : '', sub: late ? `${late} хоцорсон` : '' })}
+      ${stat('Төлөгдөөгүй', money(debt), { tone: debt ? 'is-debt' : '' })}
+      ${stat('Энэ сарын борлуулалт', money(monthSales))}
+    </div>${filter}${body}`;
+}
+
+/* ── Төсөл, уулзалт ───────────────────────────────────────────────────── */
+function projectsTab() {
+  const today = todayKey();
+  const work = tasksService.all().filter(isWorkTask);
+  const open = sortTasks(work.filter((t) => t.status !== 'done'));
+  const doneWeek = work.filter((t) => t.status === 'done' && t.completed_at && diffDays(String(t.completed_at).slice(0, 10), today) <= 7).length;
+  const limit = addDaysKey(today, 30);
+  const meetings = eventsService.all()
+    .filter((e) => e.category === 'work' && e.event_date >= today && e.event_date <= limit)
+    .sort((a, b) => `${a.event_date}${a.start_time || ''}`.localeCompare(`${b.event_date}${b.start_time || ''}`));
+  const contacts = [...contactsService.all()].sort((a, b) => a.name.localeCompare(b.name, 'mn'));
+
+  return `<div class="work-split">
+    <section class="card">
+      <div class="card-head"><h2 class="card-title">${icon('tasks', 18)} Ажлын даалгавар</h2><a class="card-link" href="#/tasks">Хийх зүйлс</a></div>
+      <div class="card-body flush">
+      <form class="inline-add" id="workTaskAdd" autocomplete="off">
+        ${icon('plus', 16)}<input class="inline-add-input" id="workTaskInput" placeholder="Даалгавар нэмэх — “Баасан 15 цагт тайлан илгээх чухал”" aria-label="Ажлын даалгавар нэмэх" maxlength="200">
+      </form>
+      ${open.length ? taskListHTML(open) : '<p class="small muted day-empty">Хийх ажлын даалгавар алга.</p>'}
+      <p class="small faint work-note">«${WORK_CATEGORY}» ангилалтай хийх зүйлс энд харагдана${doneWeek ? ` · сүүлийн 7 хоногт ${doneWeek} дуусгасан` : ''}.</p>
+    </div></section>
+    <div class="dash-col">
+      <section class="card">
+        <div class="card-head"><h2 class="card-title">${icon('calendar', 18)} Уулзалт</h2><button type="button" class="btn btn-sm" data-action="new-meeting">${icon('plus', 14)} Уулзалт</button></div>
+        <div class="card-body flush">${meetings.length ? meetings.map((e) => `<button type="button" class="agenda-row" data-action="edit-meeting" data-id="${e.id}">
+            <span class="agenda-time">${e.all_day || !e.start_time ? 'Өдөржин' : fmtTime(e.start_time)}</span>
+            <span class="agenda-bar" style="--c:${eventColor(e.category)}"></span>
+            <span class="agenda-text"><span class="agenda-name">${esc(e.title)}</span>
+              <span class="agenda-sub">${esc(relDay(e.event_date))}${e.location ? ` · ${esc(e.location)}` : ''}</span></span>
+          </button>`).join('') : '<p class="small muted day-empty">Ирэх 30 хоногт ажлын уулзалт алга. Календарийн «Ажил» ангилалтай үйл явдлууд энд гарна.</p>'}
+      </div></section>
+      <section class="card">
+        <div class="card-head"><h2 class="card-title">${icon('users', 18)} Хамт ажиллагсад</h2><button type="button" class="btn btn-sm" data-action="new-contact">${icon('plus', 14)} Нэмэх</button></div>
+        <div class="card-body">${contacts.length ? `<ul class="contact-list">${contacts.map((c) => {
+    const w = workplaceById(c.workplace_id);
+    return `<li><button type="button" class="contact-row" data-action="edit-contact" data-id="${c.id}" style="--subj:${esc(w?.color || 'var(--lilac)')}">
+            <span class="contact-avatar" aria-hidden="true">${esc((c.name.trim()[0] || '?').toUpperCase())}</span>
+            <span class="contact-info"><b>${esc(c.name)}</b><span class="small muted">${[c.role, w?.name].filter(Boolean).map(esc).join(' · ') || 'Хамт ажиллагч'}</span>
+              ${c.notes ? `<span class="contact-note">${esc(c.notes)}</span>` : ''}</span>
+            ${c.contact ? `<span class="small muted contact-handle">${esc(c.contact)}</span>` : ''}
+          </button></li>`;
+  }).join('')}</ul>` : '<p class="small muted day-empty">Менежер, хамт олныхоо холбоо барих мэдээлэл, ярилцсан зүйлсээ тэмдэглэ.</p>'}
+      </div></section>
+    </div>
+  </div>`;
+}
+
+/* ── Ойрын зорилго ────────────────────────────────────────────────────── */
+const GOAL_IDEAS = [
+  { title: 'Энэ 7 хоногт 20 цаг ажиллах', metric: 'hours', target: 20, period: 'week' },
+  { title: 'Энэ сард 1,000,000₮ олох', metric: 'income', target: 1000000, period: 'month' },
+  { title: 'Энэ сард 10 захиалга хүргэх', metric: 'orders', target: 10, period: 'month' },
+  { title: 'Портфолиод 3 шинэ ажил нэмэх', metric: 'custom', target: 3, unit: 'ажил', period: 'month' },
+];
+
+function goalCard(g) {
+  const p = workGoalProgress(g);
+  const urgent = (p.pace === 'behind' && p.daysLeft <= 2) || p.pace === 'missed';
+  const daysText = g.status === 'done' ? 'Дууссан' : p.daysLeft < 0 ? `${-p.daysLeft} хоногийн өмнө дууссан` : p.daysLeft === 0 ? 'Өнөөдөр дуусна' : `${p.daysLeft} хоног үлдсэн`;
+  const wp = workplaceById(g.workplace_id);
+  return `<li class="card wgoal pace-${p.pace} ${urgent ? 'is-urgent' : ''}" data-id="${g.id}">
+    <div class="wg-top">
+      <span class="wg-metric">${icon(g.metric === 'hours' ? 'clock' : g.metric === 'income' ? 'wallet' : g.metric === 'orders' ? 'bag' : 'target', 14)}${esc(metricInfo(g.metric).label)}${wp ? ` · ${esc(wp.name)}` : ''}</span>
+      <span class="wg-pace">${esc(PACE_LABEL[p.pace])}</span>
+    </div>
+    <button type="button" class="wg-title" data-action="edit-goal">${esc(g.title)}</button>
+    <div class="wg-numbers"><b>${esc(metricValue(g, p.value))}</b><span>/ ${esc(metricValue(g, g.target))}</span><span class="wg-pct">${p.pct}%</span></div>
+    <div class="wg-bar">${progressBar(p.pct)}<span class="wg-time" style="left:${p.timePct}%" title="Хугацааны ${p.timePct}% өнгөрсөн" aria-hidden="true"></span></div>
+    <div class="wg-foot">
+      <span class="small muted">${esc(daysText)}${!p.reached && p.daysLeft >= 0 && g.status !== 'done' ? ` · ${esc(metricValue(g, p.left))} дутуу` : ''}</span>
+      <span class="wg-actions">
+        ${g.metric === 'custom' && g.status === 'active' ? `<button type="button" class="icon-btn icon-btn-sm" data-action="goal-dec" aria-label="Явц хасах">${icon('minus', 15)}</button><button type="button" class="icon-btn icon-btn-sm wg-plus" data-action="goal-inc" aria-label="Явц нэмэх">${icon('plus', 15)}</button>` : ''}
+        <button type="button" class="icon-btn icon-btn-sm" data-action="goal-menu" aria-label="Бусад үйлдэл">${icon('more', 16)}</button>
+      </span>
+    </div>
+  </li>`;
+}
+
+function goalsTab() {
+  const active = activeWorkGoals();
+  const past = pastWorkGoals();
+  const ideas = `<div class="goal-ideas"><span class="small muted">Санаа:</span>${GOAL_IDEAS.map((x, i) => `<button type="button" class="chip-btn" data-action="goal-idea" data-i="${i}">${icon('sparkle', 13)}${esc(x.title)}</button>`).join('')}</div>`;
+  return `<div class="toolbar"><p class="small muted">Цаг, орлого, захиалгын зорилго таны ээлж, бүртгэлээс автоматаар тоологдоно. Босоо зураас нь хугацааны хэр хэсэг өнгөрснийг заана.</p>
+      <button type="button" class="btn btn-primary btn-sm" data-action="new-goal">${icon('plus', 15)} Зорилго</button></div>
+    ${active.length ? `<ul class="wgoal-grid">${active.map(goalCard).join('')}</ul>` : `<div class="card">${emptyState({ icon: 'target', title: 'Ойрын зорилго тавья', text: 'Энэ долоо хоног эсвэл сард хүрэх жижиг, хэмжигдэхүйц зорилго — явцыг нь апп өөрөө тоолно.' })}</div>`}
+    ${ideas}
+    ${past.length ? `<h2 class="section-title">Өмнөх зорилго<span class="count">${past.length}</span></h2><ul class="wgoal-grid is-past">${past.slice(0, 8).map(goalCard).join('')}</ul>` : ''}`;
+}
+
+/* ── Хуудас ───────────────────────────────────────────────────────────── */
+const __default = {
+  title: 'Ажил',
+  render(root, route = parseRoute()) {
+    const tab = TABS.some((t) => t.id === route.query?.tab) ? route.query.tab : 'shifts';
+    const week = weekRange();
+    const we = earnings(week.from, week.to);
+    const openOrders = ordersService.open();
+    const late = openOrders.filter((o) => isOrderLate(o)).length;
+    const counts = { orders: openOrders.length, goals: activeWorkGoals().length, projects: tasksService.all().filter((t) => isWorkTask(t) && t.status !== 'done').length };
+    const eyebrow = [
+      `Энэ 7 хоногт ${hoursLabel(we.minutes + we.plannedMinutes)}`,
+      openOrders.length ? `${openOrders.length} захиалга` : '',
+      late ? `${late} хоцорсон` : '',
+    ].filter(Boolean).join(' · ');
+    const body = { shifts: shiftsTab, pay: payTab, orders: ordersTab, projects: projectsTab, goals: goalsTab }[tab](route);
+
+    root.innerHTML = `
+      ${pageHead({
+    eyebrow,
+    title: 'Ажил',
+    actions: `<button type="button" class="btn" data-action="new-shift">${icon('clock', 16)} Ээлж</button>
+          <button type="button" class="btn btn-primary" data-action="add-menu" aria-haspopup="menu">${icon('plus', 16)} Нэмэх</button>`,
+  })}
+      ${tab === 'shifts' ? nextShiftCard() : ''}
+      <nav class="tabs page-tabs" aria-label="Ажлын хэсэг">
+        ${TABS.map((t) => `<a class="tab ${tab === t.id ? 'is-active' : ''}" href="#/work?tab=${t.id}" ${tab === t.id ? 'aria-current="page"' : ''}>${icon(t.icon, 15)} ${t.label}${counts[t.id] ? `<span class="count">${counts[t.id]}</span>` : ''}</a>`).join('')}
+      </nav>
+      <div id="workBody">${body}</div>`;
+
+    // Утсан дээр табууд хажуу тийш гүйдэг — идэвхтэйг нь харагдахаар гүйлгэнэ.
+    const tabsNav = root.querySelector('.page-tabs');
+    const activeTab = tabsNav?.querySelector('.is-active');
+    if (tabsNav && activeTab && tabsNav.scrollWidth > tabsNav.clientWidth) {
+      tabsNav.scrollLeft = Math.max(0, activeTab.offsetLeft - tabsNav.offsetLeft - 16);
+    }
+
+    root.onsubmit = async (e) => {
+      if (e.target.id !== 'workTaskAdd') return;
+      e.preventDefault();
+      const input = document.getElementById('workTaskInput');
+      const p = parseTaskInput(input.value);
+      if (!p.title) { input.focus(); return; }
+      try {
+        await tasksService.create({
+          title: p.title, due_date: p.due_date, due_time: p.due_time,
+          priority: p.priority || prefs.get().defaultPriority, category: WORK_CATEGORY,
+          estimated_minutes: p.estimated_minutes || Number(prefs.get().defaultDuration) || null,
+        });
+        toast(`“${p.title}” ажлын даалгаварт нэмэгдлээ`);
+        requestAnimationFrame(() => document.getElementById('workTaskInput')?.focus());
+      } catch (err) { toast(err.message, { tone: 'danger' }); }
+    };
+
+    root.onclick = async (e) => {
+      if (handleTaskAction(e)) return;
+      const el = e.target.closest('[data-action]');
+      if (!el) return;
+      const orderId = el.closest('.order')?.dataset.id;
+      const order = orderId && ordersService.get(orderId);
+      const goalId = el.closest('.wgoal')?.dataset.id;
+      const goal = goalId && workGoalsService.get(goalId);
+      try {
+        switch (el.dataset.action) {
+          case 'add-menu':
+            openMenu(el, [
+              { label: 'Ээлж', icon: 'clock', onSelect: () => openShiftForm() },
+              { label: 'Орлого', icon: 'wallet', onSelect: () => openIncomeForm() },
+              { label: 'Захиалга', icon: 'bag', onSelect: () => openOrderForm() },
+              'sep',
+              { label: 'Уулзалт', icon: 'calendar', onSelect: () => openEventForm(null, { category: 'work' }) },
+              { label: 'Хамт ажиллагч', icon: 'users', onSelect: () => openContactForm() },
+              { label: 'Ойрын зорилго', icon: 'target', onSelect: () => openWorkGoalForm() },
+              'sep',
+              { label: 'Ажлын газар', icon: 'briefcase', onSelect: () => openWorkplaceForm() },
+            ]);
+            break;
+          case 'new-workplace': openWorkplaceForm(); break;
+          case 'edit-workplace': openWorkplaceForm(workplacesService.get(el.dataset.id)); break;
+          case 'new-shift': openShiftForm(null, el.dataset.date ? { shift_date: el.dataset.date } : {}); break;
+          case 'edit-shift': openShiftForm(shiftsService.get(el.dataset.id)); break;
+          case 'new-income': openIncomeForm(); break;
+          case 'edit-income': openIncomeForm(incomeService.get(el.dataset.id)); break;
+          case 'new-order': openOrderForm(); break;
+          case 'edit-order': openOrderForm(order); break;
+          case 'order-filter': orderFilter = el.dataset.value; this.render(root, route); break;
+          case 'order-next': {
+            const next = ORDER_NEXT[order.status];
+            await ordersService.setStatus(order, next.status);
+            toast(`${order.customer_name}: ${orderStatusLabel(next.status)}`, { action: () => ordersService.setStatus(ordersService.get(order.id), order.status) });
+            break;
+          }
+          case 'order-menu':
+            openMenu(el, [
+              ...ORDER_STATUSES.map((s) => ({
+                label: s.label, icon: s.value === order.status ? 'check' : undefined,
+                onSelect: () => ordersService.setStatus(order, s.value).catch((err) => toast(err.message, { tone: 'danger' })),
+              })),
+              'sep',
+              ...(orderBalance(order) > 0 ? [{ label: `Бүрэн төлсөн (${money(order.price)})`, icon: 'wallet', onSelect: () => ordersService.markPaid(order).then(() => toast('Төлбөр бүрэн төлөгдлөө')).catch((err) => toast(err.message, { tone: 'danger' })) }] : []),
+              { label: 'Засах', icon: 'edit', onSelect: () => openOrderForm(order) },
+            ]);
+            break;
+          case 'new-meeting': openEventForm(null, { category: 'work' }); break;
+          case 'edit-meeting': openEventForm(eventsService.get(el.dataset.id)); break;
+          case 'new-contact': openContactForm(); break;
+          case 'edit-contact': openContactForm(contactsService.get(el.dataset.id)); break;
+          case 'new-goal': openWorkGoalForm(); break;
+          case 'goal-idea': openWorkGoalForm(null, { ...GOAL_IDEAS[Number(el.dataset.i)] }); break;
+          case 'edit-goal': openWorkGoalForm(goal); break;
+          case 'goal-inc':
+          case 'goal-dec': {
+            const step = el.dataset.action === 'goal-inc' ? 1 : -1;
+            const value = Math.max(0, (goal.manual_progress || 0) + step);
+            await workGoalsService.update(goal.id, { manual_progress: value });
+            if (step > 0 && value >= goal.target && (goal.manual_progress || 0) < goal.target) toast(`🎉 “${goal.title}” биеллээ!`);
+            break;
+          }
+          case 'goal-menu':
+            openMenu(el, [
+              goal.status === 'active'
+                ? { label: 'Дууссан гэж тэмдэглэх', icon: 'check', onSelect: () => workGoalsService.update(goal.id, { status: 'done', completed_at: new Date().toISOString() }).catch((err) => toast(err.message, { tone: 'danger' })) }
+                : { label: 'Дахин идэвхжүүлэх', icon: 'refresh', onSelect: () => workGoalsService.update(goal.id, { status: 'active', completed_at: null }).catch((err) => toast(err.message, { tone: 'danger' })) },
+              { label: 'Засах', icon: 'edit', onSelect: () => openWorkGoalForm(goal) },
+            ]);
+            break;
+          default:
+        }
+      } catch (err) { toast(err.message, { tone: 'danger' }); }
+    };
+  },
+};
+
+/* ── Нүүр хуудасны «Ажил» карт ─────────────────────────────────────────── */
+function workDashboardCard() {
+  const hasData = workplacesService.all().length || ordersService.all().length || workGoalsService.all().length;
+  if (!hasData) return '';
+  const s = nextShift();
+  const week = weekRange();
+  const we = earnings(week.from, week.to);
+  const orders = ordersService.dueWithin(2).slice(0, 3);
+  const goals = activeWorkGoals().slice(0, 2);
+  const shiftLine = s ? (() => {
+    const wp = workplaceById(s.workplace_id);
+    const when = shiftWhen(s);
+    return `<a class="dash-next-class" href="#/work" style="--subj:${esc(wp?.color || 'var(--accent)')}">
+      <span class="dnc-when ${when.live ? 'is-live' : ''}">${esc(when.text)}</span>
+      <span class="dnc-name">${esc(wp?.name || 'Ээлж')}</span>
+      <span class="dnc-meta">${shiftTime(s)} · ${hoursLabel(shiftMinutes(s))}</span>
+    </a>`;
+  })() : '';
+  return `<section class="card">
+    <div class="card-head"><h2 class="card-title">${icon('briefcase', 18)} Ажил</h2><a class="card-link" href="#/work">Бүгд</a></div>
+    <div class="card-body">${shiftLine}
+    <p class="dash-work-week"><span>Энэ 7 хоног</span><b>${hoursLabel(we.minutes + we.plannedMinutes)}</b><b>≈ ${money(we.shiftPay + we.plannedPay)}</b></p>
+    ${orders.length ? `<ul class="dash-hw">${orders.map((o) => {
+    const late = isOrderLate(o);
+    return `<li><a href="#/work?tab=orders" class="dash-hw-item">
+        <span class="dh-dot" style="--subj:${late ? 'var(--raspberry)' : 'var(--mint)'}"></span>
+        <span class="dh-title">${esc(o.customer_name)}<span class="small muted">${esc(o.items)}</span></span>
+        <span class="dh-count ${late ? 'is-overdue' : ''}">${esc(late ? 'Хоцорсон' : relDay(o.due_date))}</span></a></li>`;
+  }).join('')}</ul>` : ''}
+    ${goals.map((g) => {
+    const p = workGoalProgress(g);
+    return `<a class="goal-mini" href="#/work?tab=goals"><span class="goal-mini-top"><span class="goal-mini-title">${esc(g.title)}</span><span class="goal-mini-pct">${p.pct}%</span></span>${progressBar(p.pct)}</a>`;
+  }).join('')}
+  </div></section>`;
+}
 
 });
 
@@ -6328,7 +8008,9 @@ const { todayKey, addDaysKey, fmt, relDay, fmtTime, fmtDuration, greeting, fromK
 const { prefs } = __req("js/state/prefs.js");
 const { PRIORITIES } = __req("js/services/tasksService.js");
 const { schoolDashboardCard } = __req("js/pages/school.js");
-const { homeworkService } = __req("js/services/schoolService.js");
+const { homeworkService, subjectsService } = __req("js/services/schoolService.js");
+const { workDashboardCard } = __req("js/pages/work.js");
+const { ordersService, isOrderLate, workplacesService } = __req("js/services/workService.js");
 
 /* ── Нүүрний том бичих талбар ───────────────────────────────────────────────
    Бичих явцад өгүүлбэрийг задлаад (огноо, цаг, ач холбогдол…) урьдчилан
@@ -6363,7 +8045,7 @@ function composerPreview(text) {
     return `<span class="cp-hint">Жишээ:</span>${EXAMPLES.slice(0, 3).map((ex) => `<button type="button" class="cp-example" data-action="example" data-text="${esc(ex)}">${esc(ex)}</button>`).join('')}`;
   }
   const p = parseComposer(text);
-  const chips = [`<span class="cp-kind is-${p.kind}">${icon(p.kind === 'event' ? 'calendar' : 'tasks', 13)}${p.kind === 'event' ? 'Үйл явдал' : 'Ажил'}</span>`];
+  const chips = [`<span class="cp-kind is-${p.kind}">${icon(p.kind === 'event' ? 'calendar' : 'tasks', 13)}${p.kind === 'event' ? 'Үйл явдал' : 'Хийх зүйл'}</span>`];
   chips.push(`<span class="cp-title">${esc(p.title || '…')}</span>`);
   chips.push(`<span class="parse-chip">${icon('calendar', 13)}${esc(relDay(p.date))}</span>`);
   if (p.time) chips.push(`<span class="parse-chip">${icon('clock', 13)}${fmtTime(p.time)}${p.endTime ? `–${fmtTime(p.endTime)}` : ''}</span>`);
@@ -6382,15 +8064,17 @@ function heroGreeting(name) {
 function attentionChip() {
   const tasks = tasksService.overdue().length;
   const hw = homeworkService.overdue().length;
-  if (!tasks && !hw) return '';
-  const parts = [tasks ? `${tasks} ажил` : '', hw ? `${hw} даалгавар` : ''].filter(Boolean).join(', ');
-  return `<a class="attn-chip" href="${tasks ? '#/tasks?due=overdue' : '#/school'}">${icon('alert', 14)} ${parts} хугацаа хэтэрсэн</a>`;
+  const orders = ordersService.open().filter((o) => isOrderLate(o)).length;
+  if (!tasks && !hw && !orders) return '';
+  const parts = [tasks ? `${tasks} хийх зүйл` : '', hw ? `${hw} даалгавар` : '', orders ? `${orders} захиалга` : ''].filter(Boolean).join(', ');
+  const href = tasks ? '#/tasks?due=overdue' : hw ? '#/school' : '#/work?tab=orders';
+  return `<a class="attn-chip" href="${href}">${icon('alert', 14)} ${parts} хугацаа хэтэрсэн</a>`;
 }
 
 function composerHTML() {
   return `<form class="composer" id="dashQuickAdd" autocomplete="off">
       <span class="composer-icon" aria-hidden="true">${icon('sparkle', 20)}</span>
-      <input id="dashQuickInput" class="composer-input" placeholder="${esc(EXAMPLES[0])}" aria-label="Юу хийх вэ? Ажил эсвэл үйл явдлаа бичнэ үү" aria-describedby="dashPreview" maxlength="200" enterkeyhint="done">
+      <input id="dashQuickInput" class="composer-input" placeholder="${esc(EXAMPLES[0])}" aria-label="Юу хийх вэ? Хийх зүйл эсвэл үйл явдлаа бичнэ үү" aria-describedby="dashPreview" maxlength="200" enterkeyhint="done">
       <button type="submit" class="composer-send" aria-label="Нэмэх">${icon('arrowRight', 20)}</button>
     </form>
     <div class="composer-preview" id="dashPreview" aria-live="polite">${composerPreview('')}</div>`;
@@ -6410,7 +8094,9 @@ function startPlaceholderCycle() {
 
 function isEverythingEmpty() {
   return !tasksService.all().length && !eventsService.all().length && !goalsService.all().length
-    && !journalService.all().length && !birthdaysService.all().length;
+    && !journalService.all().length && !birthdaysService.all().length
+    && !homeworkService.all().length && !subjectsService.all().length
+    && !workplacesService.all().length && !ordersService.all().length;
 }
 
 function welcome() {
@@ -6442,10 +8128,10 @@ function kpis({ todays, todayDone, plannedMin, overdue, avgGoal, activeGoals }) 
       <span class="kpi-label">${icon('tasks', 15)} Өнөөдөр</span>
       <span class="kpi-value">${todayDone}<small>/ ${todays.length}</small></span>
       ${progressBar(pct)}
-      <span class="kpi-sub">${todays.length ? `${pct}% дууссан` : 'Өнөөдөр дуусах ажил алга'}</span>
+      <span class="kpi-sub">${todays.length ? `${pct}% дууссан` : 'Өнөөдөр дуусах зүйл алга'}</span>
     </a>
     <a class="card kpi" href="#/assistant?prompt=${encodeURIComponent('Өдрөө төлөвлө')}&send=1">
-      <span class="kpi-label">${icon('clock', 15)} Төлөвлөсөн ажил</span>
+      <span class="kpi-label">${icon('clock', 15)} Төлөвлөсөн хугацаа</span>
       <span class="kpi-value">${plannedMin ? fmtDuration(plannedMin) : '—'}</span>
       <span class="kpi-sub">Өнөөдөр үлдсэн тооцоот хугацаа</span>
     </a>
@@ -6468,11 +8154,11 @@ function todayCard(todays, overdueTasks) {
   let body;
   if (list.length) body = taskListHTML(list, { showDate: false });
   else if (overdueTasks.length) {
-    body = emptyState({ compact: true, icon: 'alert', title: 'Өнөөдөр дуусах ажил алга', text: `Гэхдээ ${overdueTasks.length} ажлын хугацаа хэтэрсэн байна.`, actions: '<a class="btn btn-sm" href="#/tasks?due=overdue">Хоцорсныг харах</a>' });
-  } else body = emptyState({ compact: true, icon: 'tasks', title: 'Өнөөдөр дуусах ажил алга', text: 'Дээрх талбарт бичээд Enter дарахад энд гарна.' });
+    body = emptyState({ compact: true, icon: 'alert', title: 'Өнөөдөр дуусах зүйл алга', text: `Гэхдээ ${overdueTasks.length} зүйлийн хугацаа хэтэрсэн байна.`, actions: '<a class="btn btn-sm" href="#/tasks?due=overdue">Хоцорсныг харах</a>' });
+  } else body = emptyState({ compact: true, icon: 'tasks', title: 'Өнөөдөр дуусах зүйл алга', text: 'Дээрх талбарт бичээд Enter дарахад энд гарна.' });
 
   return `<section class="card">
-    <div class="card-head"><h2 class="card-title">${icon('tasks')} Өнөөдрийн ажлууд</h2><a class="card-link" href="#/tasks?due=today">Бүх ажил ${icon('chevronRight', 14)}</a></div>
+    <div class="card-head"><h2 class="card-title">${icon('tasks')} Өнөөдөр хийх зүйлс</h2><a class="card-link" href="#/tasks?due=today">Бүгд ${icon('chevronRight', 14)}</a></div>
     <div class="card-body flush">${body}</div>
   </section>`;
 }
@@ -6481,10 +8167,10 @@ function prioritiesCard() {
   const weekEnd = addDaysKey(todayKey(), 6);
   const list = sortTasks(tasksService.open().filter((t) => t.priority === 'high' && (!t.due_date || t.due_date <= weekEnd))).slice(0, 5);
   return `<section class="card">
-    <div class="card-head"><h2 class="card-title">${icon('flag')} Тэргүүлэх ажлууд</h2><a class="card-link" href="#/tasks?priority=high">Бүгдийг харах ${icon('chevronRight', 14)}</a></div>
+    <div class="card-head"><h2 class="card-title">${icon('flag')} Тэргүүлэх зүйлс</h2><a class="card-link" href="#/tasks?priority=high">Бүгдийг харах ${icon('chevronRight', 14)}</a></div>
     <div class="card-body flush">${list.length
     ? taskListHTML(list)
-    : emptyState({ compact: true, icon: 'flag', title: 'Энэ долоо хоногт өндөр ач холбогдолтой ажил алга', text: 'Ажлыг “Өндөр” ач холбогдолтой болговол энд харагдана.' })}</div>
+    : emptyState({ compact: true, icon: 'flag', title: 'Энэ долоо хоногт өндөр ач холбогдолтой зүйл алга', text: 'Ажлыг “Өндөр” ач холбогдолтой болговол энд харагдана.' })}</div>
   </section>`;
 }
 
@@ -6557,13 +8243,13 @@ function weekCard() {
     <div class="card-head"><h2 class="card-title">${icon('analytics')} Сүүлийн 7 хоног</h2><a class="card-link" href="#/analytics">Шинжилгээ ${icon('chevronRight', 14)}</a></div>
     <div class="card-body">
       <div class="mini-bars" role="img" aria-label="Сүүлийн 7 хоногт өдөр бүр дуусгасан ажил">${stats.perDay.map((d) => `
-        <div class="mini-bar ${d.date === todayKey() ? 'is-today' : ''}" title="${fmt.medium(d.date)}: ${d.count} ажил">
+        <div class="mini-bar ${d.date === todayKey() ? 'is-today' : ''}" title="${fmt.medium(d.date)}: ${d.count} зүйл">
           <span class="mini-bar-val">${d.count || ''}</span>
           <span class="mini-bar-fill" style="height:${Math.max(4, Math.round((d.count / max) * 64))}px"></span>
           <span class="mini-bar-label">${fmt.weekdayNarrow(fromKey(d.date))}</span>
         </div>`).join('')}
       </div>
-      <p class="small muted">${stats.completedCount} ажил дууссан · ${fmtDuration(stats.focusMinutes)} тооцоот ажил</p>
+      <p class="small muted">${stats.completedCount} зүйл дуусгасан · ${fmtDuration(stats.focusMinutes)} тооцоот хугацаа</p>
     </div>
   </section>`;
 }
@@ -6584,8 +8270,8 @@ const __default = {
     const left = todays.length - todayDone;
     const pct = todays.length ? Math.round((todayDone / todays.length) * 100) : 0;
     const summary = isEverythingEmpty() ? 'Өдрөө цэгцлэхэд бэлэн үү?'
-      : left || eventsToday ? `Өнөөдөр ${left} ажил, ${eventsToday} үйл явдал хүлээж байна.`
-        : 'Өнөөдрийн бүх ажил дууссан. Амраарай.';
+      : left || eventsToday ? `Өнөөдөр ${left} хийх зүйл, ${eventsToday} үйл явдал хүлээж байна.`
+        : 'Өнөөдрийн бүх зүйл дууссан. Амраарай.';
 
     root.innerHTML = `
       <header class="hero">
@@ -6602,7 +8288,7 @@ const __default = {
             <button type="button" class="btn btn-sm btn-glass" data-action="new-event">${icon('calendar', 15)} Үйл явдал</button>
           </div>
         </div>
-        ${todays.length ? `<a class="hero-ring" href="#/tasks?due=today" aria-label="Өнөөдөр ${todays.length}-аас ${todayDone} ажил дууссан">
+        ${todays.length ? `<a class="hero-ring" href="#/tasks?due=today" aria-label="Өнөөдөр ${todays.length}-аас ${todayDone} зүйл дууссан">
           <svg viewBox="0 0 120 120" aria-hidden="true">
             <circle class="ring-track" cx="60" cy="60" r="50" />
             ${pct ? `<circle class="ring-fill" cx="60" cy="60" r="50" pathLength="100" stroke-dasharray="${pct} 100" />` : ''}
@@ -6614,7 +8300,7 @@ const __default = {
         ${kpis({ todays, todayDone, plannedMin, overdue: overdueTasks.length, avgGoal, activeGoals: activeGoals.length })}
         <div class="dash-grid">
           <div class="dash-col">${todayCard(todays, overdueTasks)}${prioritiesCard()}${weekCard()}</div>
-          <div class="dash-col">${schoolDashboardCard()}${upcomingCard()}${moodCard()}${goalsCard()}</div>
+          <div class="dash-col">${schoolDashboardCard()}${workDashboardCard()}${upcomingCard()}${moodCard()}${goalsCard()}</div>
         </div>`}`;
 
     startPlaceholderCycle();
@@ -6676,7 +8362,7 @@ const __default = {
         }
         lastAddedId = created?.id || null;
         const when = `${relDay(p.date)}${p.time ? ` ${fmtTime(p.time)}` : ''}`;
-        toast(`${p.kind === 'event' ? 'Үйл явдал' : 'Ажил'} нэмэгдлээ: “${p.title}” · ${when}`);
+        toast(`${p.kind === 'event' ? 'Үйл явдал' : 'Хийх зүйл'} нэмэгдлээ: “${p.title}” · ${when}`);
         justAdded = { label: `“${p.title}” нэмэгдлээ`, when };
         clearTimeout(justAddedTimer);
         justAddedTimer = setTimeout(() => {
@@ -6710,6 +8396,8 @@ const { tasksService, sortTasks } = __req("js/services/tasksService.js");
 const { birthdaysService, ageAt } = __req("js/services/birthdaysService.js");
 const { taskListHTML, handleTaskAction } = __req("js/components/taskItem.js");
 const { openEventForm, openTaskForm, openBirthdayForm } = __req("js/components/forms.js");
+const { shiftsService, shiftsOn, workplaceById, shiftMinutes, isOvernight, shiftSpan, hoursLabel, ordersService, isOrderLate } = __req("js/services/workService.js");
+const { openShiftForm, openOrderForm } = __req("js/components/workForms.js");
 const { emptyState } = __req("js/lib/ui.js");
 const { esc, plural } = __req("js/lib/dom.js");
 const { icon } = __req("js/lib/icons.js");
@@ -6733,7 +8421,30 @@ function setState(patch, focusDate) {
 }
 
 function itemsOn(key) {
-  return { events: eventsService.on(key), tasks: sortTasks(tasksService.dueOn(key)), birthdays: birthdaysService.onDate(key) };
+  return {
+    events: eventsService.on(key), tasks: sortTasks(tasksService.dueOn(key)), birthdays: birthdaysService.onDate(key),
+    shifts: shiftsOn(key), orders: ordersService.open().filter((o) => o.due_date === key),
+  };
+}
+
+const shiftColor = (s) => workplaceById(s.workplace_id)?.color || 'var(--ev-work)';
+const shiftLabel = (s) => `${fmtTime(s.start_time)}–${fmtTime(s.end_time)}${isOvernight(s) ? ' (+1)' : ''}`;
+function shiftRow(s) {
+  const wp = workplaceById(s.workplace_id);
+  return `<button type="button" class="agenda-row" data-action="edit-shift" data-id="${s.id}">
+    <span class="agenda-time">${fmtTime(s.start_time)}</span>
+    <span class="agenda-bar" style="--c:${shiftColor(s)}"></span>
+    <span class="agenda-text"><span class="agenda-name">${icon('briefcase', 12)} Ээлж: ${esc(wp?.name || 'Ажил')}</span>
+      <span class="agenda-sub">${shiftLabel(s)} · ${hoursLabel(shiftMinutes(s))}</span></span>
+  </button>`;
+}
+function orderRow(o) {
+  return `<button type="button" class="agenda-row" data-action="edit-order" data-id="${o.id}">
+    <span class="agenda-time">${o.due_time ? fmtTime(o.due_time) : icon('bag', 14)}</span>
+    <span class="agenda-bar" style="--c:${isOrderLate(o) ? 'var(--raspberry)' : 'var(--mint)'}"></span>
+    <span class="agenda-text"><span class="agenda-name">Захиалга: ${esc(o.customer_name)}</span>
+      <span class="agenda-sub">${esc(o.items)}</span></span>
+  </button>`;
 }
 
 function title() {
@@ -6774,15 +8485,17 @@ function monthView() {
   const html = Array.from({ length: cells }, (_, i) => {
     const d = addDays(gridStart, i);
     const k = toKey(d);
-    const { events, tasks, birthdays } = itemsOn(k);
+    const { events, tasks, birthdays, shifts, orders } = itemsOn(k);
     const chips = [
       ...birthdays.map((b) => chip(`${icon('gift', 11)} ${esc(b.name)}`, 'var(--ev-birthday)', 'is-bday')),
+      ...shifts.map((s) => chip(`<b>${fmtTime(s.start_time)}</b> ${esc(workplaceById(s.workplace_id)?.name || 'Ээлж')}`, shiftColor(s), 'is-shift')),
+      ...orders.map((o) => chip(`${icon('bag', 11)} ${esc(o.customer_name)}`, isOrderLate(o) ? 'var(--raspberry)' : 'var(--mint)', 'is-order')),
       ...events.map((e) => chip(`${e.all_day || !e.start_time ? '' : `<b>${fmtTime(e.start_time)}</b> `}${esc(e.title)}`, eventColor(e.category))),
       ...tasks.map((t) => chip(esc(t.title), 'var(--ev-task)', `is-task ${t.status === 'done' ? 'is-done' : ''}`)),
     ];
     const total = chips.length;
     const dots = [
-      ...birthdays.map(() => 'var(--ev-birthday)'), ...events.map((e) => eventColor(e.category)), ...tasks.filter((t) => t.status !== 'done').map(() => 'var(--ev-task)'),
+      ...birthdays.map(() => 'var(--ev-birthday)'), ...shifts.map(shiftColor), ...events.map((e) => eventColor(e.category)), ...tasks.filter((t) => t.status !== 'done').map(() => 'var(--ev-task)'),
     ].slice(0, 4);
     const cls = [
       'cal-cell',
@@ -6819,23 +8532,25 @@ function eventRow(e) {
 }
 
 function agendaPanel(key, { showOpenDay = false } = {}) {
-  const { events, tasks, birthdays } = itemsOn(key);
-  const empty = !events.length && !tasks.length && !birthdays.length;
+  const { events, tasks, birthdays, shifts, orders } = itemsOn(key);
+  const empty = !events.length && !tasks.length && !birthdays.length && !shifts.length && !orders.length;
   return `<aside class="card cal-agenda" aria-label="Хуваарь: ${fmt.long(key)}">
     <div class="agenda-head">
       <p class="eyebrow">${relDay(key)}</p>
       <h2 class="agenda-title">${fmt.long(key)}</h2>
       <div class="agenda-actions">
         <button type="button" class="btn btn-sm" data-action="new-event" data-date="${key}">${icon('plus', 14)} Үйл явдал</button>
-        <button type="button" class="btn btn-sm" data-action="new-task" data-date="${key}">${icon('plus', 14)} Ажил</button>
+        <button type="button" class="btn btn-sm" data-action="new-task" data-date="${key}">${icon('plus', 14)} Хийх зүйл</button>
         ${showOpenDay ? `<button type="button" class="btn btn-sm btn-ghost" data-action="goto-day" data-date="${key}">Өдрөөр харах ${icon('arrowRight', 14)}</button>` : ''}
       </div>
     </div>
     ${birthdays.length ? `<div class="agenda-section"><p class="agenda-label">Төрсөн өдөр</p>${birthdays.map((b) => `
       <button type="button" class="agenda-row" data-action="edit-birthday" data-id="${b.id}"><span class="agenda-time">${icon('gift', 14)}</span><span class="agenda-bar" style="--c:var(--ev-birthday)"></span>
       <span class="agenda-text"><span class="agenda-name">Төрсөн өдөр: ${esc(b.name)}</span><span class="agenda-sub">${ageAt(b, key) ? `${ageAt(b, key)} нас хүрнэ` : esc(b.relationship)}</span></span></button>`).join('')}</div>` : ''}
+    ${shifts.length ? `<div class="agenda-section"><p class="agenda-label">Ажлын ээлж</p>${shifts.map(shiftRow).join('')}</div>` : ''}
     ${events.length ? `<div class="agenda-section"><p class="agenda-label">Үйл явдал</p>${events.map(eventRow).join('')}</div>` : ''}
-    ${tasks.length ? `<div class="agenda-section"><p class="agenda-label">Дуусах ажлууд</p>${taskListHTML(tasks, { showDate: false })}</div>` : ''}
+    ${orders.length ? `<div class="agenda-section"><p class="agenda-label">Хүргэх захиалга</p>${orders.map(orderRow).join('')}</div>` : ''}
+    ${tasks.length ? `<div class="agenda-section"><p class="agenda-label">Хийх зүйлс</p>${taskListHTML(tasks, { showDate: false })}</div>` : ''}
     ${empty ? emptyState({ compact: true, icon: 'calendar', title: 'Төлөвлөсөн зүйл алга', text: 'Энэ өдөрт үйл явдал эсвэл ажил нэмээрэй.' }) : ''}
   </aside>`;
 }
@@ -6885,10 +8600,21 @@ function timeGrid(keys) {
       if (end <= s) end = s + 30;
       return { ev: e, s, e: end };
     });
+    // Ажлын ээлж — шөнө дундаас хойш үргэлжилбэл тухайн өдрийн төгсгөл хүртэл зурна.
+    shiftsOn(k).forEach((sh) => {
+      const s = timeToMin(sh.start_time);
+      items.push({ shift: sh, s, e: Math.min(24 * 60, s + shiftSpan(sh)) });
+    });
     const html = layoutEvents(items).map((x) => {
       const top = (x.s / 60) * HOUR;
       const height = Math.max(((x.e - x.s) / 60) * HOUR - 2, 22);
       const width = 100 / x.cols;
+      if (x.shift) {
+        const wp = workplaceById(x.shift.workplace_id);
+        return `<button type="button" class="tg-event tg-shift ${height < 40 ? 'is-short' : ''}" data-action="edit-shift" data-id="${x.shift.id}"
+        style="top:${top}px;height:${height}px;left:calc(${x.col * width}% + 2px);width:calc(${width}% - 4px);--c:${shiftColor(x.shift)}">
+        <span class="tg-ev-title">${icon('briefcase', 11)} ${esc(wp?.name || 'Ээлж')}</span><span class="tg-ev-time">${shiftLabel(x.shift)}</span></button>`;
+      }
       return `<button type="button" class="tg-event ${height < 40 ? 'is-short' : ''}" data-action="edit-event" data-id="${x.ev.id}"
         style="top:${top}px;height:${height}px;left:calc(${x.col * width}% + 2px);width:calc(${width}% - 4px);--c:${eventColor(x.ev.category)}">
         <span class="tg-ev-title">${esc(x.ev.title)}</span><span class="tg-ev-time">${fmtTime(x.ev.start_time)}${x.ev.end_time ? ` – ${fmtTime(x.ev.end_time)}` : ''}</span></button>`;
@@ -6920,9 +8646,9 @@ function weekView() {
     // Phones: a readable agenda list instead of 7 narrow columns.
     const today = todayKey();
     return `<div class="week-list">${keys.map((k) => {
-      const { events, tasks, birthdays } = itemsOn(k);
+      const { events, tasks, birthdays, shifts, orders } = itemsOn(k);
       const d = fromKey(k);
-      const count = events.length + tasks.length + birthdays.length;
+      const count = events.length + tasks.length + birthdays.length + shifts.length + orders.length;
       return `<section class="card wl-day ${k === today ? 'is-today' : ''}">
         <div class="wl-head">
           <button type="button" class="wl-date" data-action="goto-day" data-date="${k}"><span>${fmt.weekdayShort(d)}</span><b>${d.getDate()}</b></button>
@@ -6931,7 +8657,9 @@ function weekView() {
           <button type="button" class="icon-btn icon-btn-sm" data-action="new-event" data-date="${k}" aria-label="Үйл явдал нэмэх: ${fmt.long(k)}">${icon('plus', 16)}</button>
         </div>
         ${birthdays.map((b) => `<button type="button" class="agenda-row" data-action="edit-birthday" data-id="${b.id}"><span class="agenda-time">${icon('gift', 14)}</span><span class="agenda-bar" style="--c:var(--ev-birthday)"></span><span class="agenda-text"><span class="agenda-name">Төрсөн өдөр: ${esc(b.name)}</span></span></button>`).join('')}
+        ${shifts.map(shiftRow).join('')}
         ${events.map(eventRow).join('')}
+        ${orders.map(orderRow).join('')}
         ${tasks.length ? taskListHTML(tasks, { showDate: false }) : ''}
       </section>`;
     }).join('')}</div>`;
@@ -6996,6 +8724,8 @@ const __default = {
         case 'edit-event': openEventForm(eventsService.get(el.dataset.id)); break;
         case 'edit-task': openTaskForm(tasksService.get(el.dataset.id)); break;
         case 'edit-birthday': openBirthdayForm(birthdaysService.get(el.dataset.id)); break;
+        case 'edit-shift': openShiftForm(shiftsService.get(el.dataset.id)); break;
+        case 'edit-order': openOrderForm(ordersService.get(el.dataset.id)); break;
         case 'slot': {
           const rect = el.getBoundingClientRect();
           const minutes = Math.max(0, Math.min(23 * 60 + 30, Math.floor(((e.clientY - rect.top) / HOUR) * 2) * 30));
@@ -7094,7 +8824,7 @@ function resultsHTML() {
   const all = tasksService.all();
   if (!all.length) {
     return `<div class="card">${emptyState({
-      icon: 'tasks', title: 'Ажил алга байна',
+      icon: 'tasks', title: 'Хийх зүйл алга байна',
       text: 'Бодолд байгаа бүхнээ бичээрэй. Дээрх талбарт энгийнээр бичихэд огноо, цаг, ач холбогдол, #ангиллыг автоматаар таньна.',
       actions: `<button type="button" class="btn btn-primary" data-action="new-task">${icon('plus', 16)} Шинэ ажил</button>`,
     })}</div>`;
@@ -7153,7 +8883,7 @@ function updateResults() {
 }
 
 const __default = {
-  title: 'Ажлууд',
+  title: 'Хийх зүйлс',
   render(root, route) {
     if (route.key !== lastRouteKey) {
       lastRouteKey = route.key;
@@ -7168,20 +8898,20 @@ const __default = {
     root.innerHTML = `
       ${pageHead({
     eyebrow: `${open.length} дуусаагүй ажил${overdue ? ` · ${overdue} хэтэрсэн` : ''}${todayMin ? ` · өнөөдөр ${fmtDuration(todayMin)}` : ''}`,
-    title: 'Ажлууд',
+    title: 'Хийх зүйлс',
     actions: `<button type="button" class="btn btn-primary" data-action="new-task">${icon('plus', 16)} Шинэ ажил</button>`,
   })}
       <form class="card quick-add" id="taskQuickAdd" autocomplete="off">
         <div class="quick-add-row">
           ${icon('plus', 18)}
-          <input id="quickTaskInput" class="quick-add-input" placeholder="Ажил нэмэх — огноо, цаг, ач холбогдол, #ангилал, хугацаа бичиж болно" aria-label="Хурдан ажил нэмэх" aria-describedby="quickPreview" maxlength="200">
+          <input id="quickTaskInput" class="quick-add-input" placeholder="Хийх зүйл нэмэх — огноо, цаг, ач холбогдол, #ангилал, хугацаа бичиж болно" aria-label="Хурдан нэмэх" aria-describedby="quickPreview" maxlength="200">
           <button type="submit" class="btn btn-primary btn-sm">Нэмэх</button>
         </div>
         <div class="quick-preview" id="quickPreview" aria-live="polite">${previewHTML('')}</div>
       </form>
 
       <div class="toolbar" role="search">
-        <label class="search-field">${icon('search', 16)}<input id="taskSearch" type="search" class="input" placeholder="Ажил хайх" value="${esc(f.q)}" aria-label="Ажил хайх"></label>
+        <label class="search-field">${icon('search', 16)}<input id="taskSearch" type="search" class="input" placeholder="Хайх" value="${esc(f.q)}" aria-label="Хийх зүйлсээс хайх"></label>
         <select class="select" data-filter="status" aria-label="Төлөв">${options([{ value: 'open', label: 'Дуусаагүй' }, { value: 'done', label: 'Дууссан' }, { value: 'all', label: 'Бүх төлөв' }], f.status)}</select>
         <select class="select" data-filter="due" aria-label="Хугацаа">${options([{ value: 'all', label: 'Бүх хугацаа' }, { value: 'overdue', label: 'Хугацаа хэтэрсэн' }, { value: 'today', label: 'Өнөөдөр дуусах' }, { value: 'week', label: 'Ирэх 7 хоног' }, { value: 'nodate', label: 'Огноогүй' }], f.due)}</select>
         <select class="select" data-filter="priority" aria-label="Ач холбогдол">${options([{ value: 'all', label: 'Ач холбогдол' }, { value: 'high', label: 'Өндөр' }, { value: 'medium', label: 'Дунд' }, { value: 'low', label: 'Бага' }], f.priority)}</select>
@@ -7559,7 +9289,7 @@ function taskCard(m, a, i) {
       <div><dt>Хугацаа</dt><dd>${d.estimated_minutes ? fmtDuration(d.estimated_minutes) : '—'}</dd></div>
     </dl>
     ${a.status === 'pending' ? `<div class="ac-actions">${btn(`${icon('plus', 14)} Ажил нэмэх`, 'ac-apply', m.id, i, 'btn-primary')}${btn('Засаад нэмэх', 'ac-edit', m.id, i)}${btn('Татгалзах', 'ac-dismiss', m.id, i, 'btn-ghost')}</div>`
-    : `${statusLine(a, 'Ажлуудад нэмэгдлээ')}${a.status === 'applied' && tasksService.get(a.result_id) ? `<div class="ac-actions">${btn('Ажлыг нээх', 'ac-open-task', m.id, i, 'btn-ghost')}</div>` : ''}`}
+    : `${statusLine(a, 'Хийх зүйлст нэмэгдлээ')}${a.status === 'applied' && tasksService.get(a.result_id) ? `<div class="ac-actions">${btn('Нээх', 'ac-open-task', m.id, i, 'btn-ghost')}</div>` : ''}`}
   </div>`;
 }
 
@@ -7670,7 +9400,7 @@ function breakdownCard(m, a, i) {
         <button type="button" class="icon-btn icon-btn-sm" data-action="ac-step-remove" data-msg="${m.id}" data-i="${i}" data-step="${j}" aria-label="Хасах: алхам ${j + 1}">${icon('x', 15)}</button></li>`).join('')}
     </ol>
     <button type="button" class="link-btn ac-add-step" data-action="ac-step-add" data-msg="${m.id}" data-i="${i}">${icon('plus', 14)} Алхам нэмэх</button>
-    <div class="field ac-target"><label for="target-${m.id}-${i}">Ажлуудыг аль төсөлд үүсгэх вэ</label>
+    <div class="field ac-target"><label for="target-${m.id}-${i}">Хийх зүйлсийг аль төсөлд үүсгэх вэ</label>
       <select class="select select-sm" id="target-${m.id}-${i}" data-target data-msg="${m.id}" data-i="${i}">
         <option value="new" ${draft.target === 'new' ? 'selected' : ''}>Шинэ төсөл: “${esc(a.data.title)}”</option>
         ${projects.map((p) => `<option value="${p.id}" ${draft.target === p.id ? 'selected' : ''}>${esc(p.title)}${goalsService.get(p.goal_id) ? ` — ${esc(goalsService.get(p.goal_id).title)}` : ''}</option>`).join('')}
@@ -8324,6 +10054,8 @@ const { birthdaysService } = __req("js/services/birthdaysService.js");
 const { openTaskForm, openEventForm, openBirthdayForm } = __req("js/components/forms.js");
 const { openHomeworkForm } = __req("js/components/schoolForms.js");
 const { homeworkService } = __req("js/services/schoolService.js");
+const { shiftsService, ordersService, workGoalsService } = __req("js/services/workService.js");
+const { openShiftForm, openOrderForm, openWorkGoalForm } = __req("js/components/workForms.js");
 const { toggleTask } = __req("js/components/taskItem.js");
 const { emptyState, pageHead, toast } = __req("js/lib/ui.js");
 const { esc } = __req("js/lib/dom.js");
@@ -8343,6 +10075,10 @@ function openRef(n) {
   }
   if (kind === 'birthday') openBirthdayForm(birthdaysService.get(id));
   if (kind === 'homework') openHomeworkForm(homeworkService.get(id));
+  if (kind === 'shift') openShiftForm(shiftsService.get(id));
+  if (kind === 'order') openOrderForm(ordersService.get(id));
+  if (kind === 'workGoal') openWorkGoalForm(workGoalsService.get(id));
+  if (kind === 'payday') navigate('work?tab=pay');
   if (kind === 'goal') navigate(`goals/${id}`);
   if (kind === 'project') navigate(`goals/${goalId || 'none'}`);
 }
@@ -8708,7 +10444,7 @@ const __default = {
       ${!hasData ? `<div class="card">${emptyState({
     icon: 'analytics', title: 'Хэмжих зүйл алга байна',
     text: 'Хэдэн ажил дуусгаж, тэмдэглэлдээ сэтгэл санаагаа бичээрэй — график, тайлан энд автоматаар гарна.',
-    actions: `<a class="btn btn-primary" href="#/tasks">${icon('tasks', 16)} Ажлууд руу</a><a class="btn" href="#/journal">Тэмдэглэл нээх</a>`,
+    actions: `<a class="btn btn-primary" href="#/tasks">${icon('tasks', 16)} Хийх зүйлс рүү</a><a class="btn" href="#/journal">Тэмдэглэл нээх</a>`,
   })}</div>` : `
       <div class="kpis">
         ${tile(`${icon('check', 15)} Дууссан`, s.completedCount, delta(s.completedCount, prev.completedCount))}
@@ -8804,7 +10540,7 @@ const SECTIONS = [
   ['account', 'Бүртгэл', 'user'],
   ['appearance', 'Харагдах байдал', 'sun'],
   ['time', 'Календарь ба цаг', 'calendar'],
-  ['tasks', 'Ажлууд', 'tasks'],
+  ['tasks', 'Хийх зүйлс', 'tasks'],
   ['notifications', 'Мэдэгдэл', 'bell'],
   ['connection', 'Өгөгдөл ба холболт', 'database'],
   ['about', 'Товчлол ба тухай', 'info'],
@@ -8889,7 +10625,7 @@ function render(root) {
         </section>
 
         <section class="card settings-section" id="tasks">
-          <h2 class="settings-title">${icon('tasks')} Ажлууд</h2>
+          <h2 class="settings-title">${icon('tasks')} Хийх зүйлс</h2>
           ${row('Анхдагч хугацаа', 'Шинэ ажилд урьдчилан бөглөгдөнө.', `<select class="select select-sm" data-pref="defaultDuration" data-type="number" aria-label="Анхдагч хугацаа">${options(durationOpts, p.defaultDuration)}</select>`)}
           ${row('Анхдагч ач холбогдол', '', segmented('defaultPriority', PRIORITIES, p.defaultPriority, { attrs: 'data-pref="defaultPriority"' }))}
         </section>
@@ -9028,8 +10764,9 @@ const notifications = __req("js/pages/notifications.js").default;
 const analytics = __req("js/pages/analytics.js").default;
 const settings = __req("js/pages/settings.js").default;
 const school = __req("js/pages/school.js").default;
+const work = __req("js/pages/work.js").default;
 
-const ROUTES = { dashboard, calendar, tasks, goals, school, assistant, journal, birthdays, notifications, analytics, settings };
+const ROUTES = { dashboard, calendar, tasks, goals, school, work, assistant, journal, birthdays, notifications, analytics, settings };
 
 let lastPageKey = null;
 let frame = 0;

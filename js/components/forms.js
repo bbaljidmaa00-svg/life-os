@@ -53,8 +53,8 @@ export function openTaskForm(task = null, defaults = {}, { onSaved } = {}) {
   const id = { title: fid('title'), date: fid('date'), time: fid('time'), cat: fid('cat'), est: fid('est'), proj: fid('proj'), notes: fid('notes'), list: fid('cats') };
 
   return openFormModal({
-    title: task ? 'Ажил засах' : 'Шинэ ажил',
-    submitLabel: task ? 'Хадгалах' : 'Ажил нэмэх',
+    title: task ? 'Хийх зүйл засах' : 'Хийх зүйл нэмэх',
+    submitLabel: task ? 'Хадгалах' : 'Нэмэх',
     fields: `
       <div class="field"><label for="${id.title}">Гарчиг</label>
         <input id="${id.title}" name="title" class="input" required maxlength="200" value="${esc(t.title)}" placeholder="Юу хийх вэ?" ${task ? '' : 'autofocus'}></div>
@@ -91,10 +91,10 @@ export function openTaskForm(task = null, defaults = {}, { onSaved } = {}) {
           payload.completed_at = data.done ? new Date().toISOString() : null;
         }
         saved = await tasksService.update(task.id, payload);
-        toast('Ажил шинэчлэгдлээ');
+        toast('Шинэчлэгдлээ');
       } else {
         saved = await tasksService.create(payload);
-        toast('Ажил нэмэгдлээ');
+        toast('Хийх зүйлст нэмэгдлээ');
       }
       onSaved?.(saved);
     },
@@ -311,7 +311,7 @@ export function openBirthdayForm(person = null, { onSaved } = {}) {
 /* ───────────── "New" menu (top bar) ───────────── */
 export function openNewMenu(anchor, { extra = [] } = {}) {
   openMenu(anchor, [
-    { label: 'Ажил', icon: 'tasks', onSelect: () => openTaskForm() },
+    { label: 'Хийх зүйл', icon: 'tasks', onSelect: () => openTaskForm() },
     ...extra,
     { label: 'Үйл явдал', icon: 'calendar', onSelect: () => openEventForm() },
     'sep',

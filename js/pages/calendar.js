@@ -9,6 +9,8 @@ import { tasksService, sortTasks } from '../services/tasksService.js';
 import { birthdaysService, ageAt } from '../services/birthdaysService.js';
 import { taskListHTML, handleTaskAction } from '../components/taskItem.js';
 import { openEventForm, openTaskForm, openBirthdayForm } from '../components/forms.js';
+import { shiftsService, shiftsOn, workplaceById, shiftMinutes, isOvernight, shiftSpan, hoursLabel, ordersService, isOrderLate } from '../services/workService.js';
+import { openShiftForm, openOrderForm } from '../components/workForms.js';
 import { emptyState } from '../lib/ui.js';
 import { esc, plural } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
@@ -35,7 +37,30 @@ function setState(patch, focusDate) {
 }
 
 function itemsOn(key) {
-  return { events: eventsService.on(key), tasks: sortTasks(tasksService.dueOn(key)), birthdays: birthdaysService.onDate(key) };
+  return {
+    events: eventsService.on(key), tasks: sortTasks(tasksService.dueOn(key)), birthdays: birthdaysService.onDate(key),
+    shifts: shiftsOn(key), orders: ordersService.open().filter((o) => o.due_date === key),
+  };
+}
+
+const shiftColor = (s) => workplaceById(s.workplace_id)?.color || 'var(--ev-work)';
+const shiftLabel = (s) => `${fmtTime(s.start_time)}–${fmtTime(s.end_time)}${isOvernight(s) ? ' (+1)' : ''}`;
+function shiftRow(s) {
+  const wp = workplaceById(s.workplace_id);
+  return `<button type="button" class="agenda-row" data-action="edit-shift" data-id="${s.id}">
+    <span class="agenda-time">${fmtTime(s.start_time)}</span>
+    <span class="agenda-bar" style="--c:${shiftColor(s)}"></span>
+    <span class="agenda-text"><span class="agenda-name">${icon('briefcase', 12)} Ээлж: ${esc(wp?.name || 'Ажил')}</span>
+      <span class="agenda-sub">${shiftLabel(s)} · ${hoursLabel(shiftMinutes(s))}</span></span>
+  </button>`;
+}
+function orderRow(o) {
+  return `<button type="button" class="agenda-row" data-action="edit-order" data-id="${o.id}">
+    <span class="agenda-time">${o.due_time ? fmtTime(o.due_time) : icon('bag', 14)}</span>
+    <span class="agenda-bar" style="--c:${isOrderLate(o) ? 'var(--raspberry)' : 'var(--mint)'}"></span>
+    <span class="agenda-text"><span class="agenda-name">Захиалга: ${esc(o.customer_name)}</span>
+      <span class="agenda-sub">${esc(o.items)}</span></span>
+  </button>`;
 }
 
 function title() {
@@ -76,15 +101,17 @@ function monthView() {
   const html = Array.from({ length: cells }, (_, i) => {
     const d = addDays(gridStart, i);
     const k = toKey(d);
-    const { events, tasks, birthdays } = itemsOn(k);
+    const { events, tasks, birthdays, shifts, orders } = itemsOn(k);
     const chips = [
       ...birthdays.map((b) => chip(`${icon('gift', 11)} ${esc(b.name)}`, 'var(--ev-birthday)', 'is-bday')),
+      ...shifts.map((s) => chip(`<b>${fmtTime(s.start_time)}</b> ${esc(workplaceById(s.workplace_id)?.name || 'Ээлж')}`, shiftColor(s), 'is-shift')),
+      ...orders.map((o) => chip(`${icon('bag', 11)} ${esc(o.customer_name)}`, isOrderLate(o) ? 'var(--raspberry)' : 'var(--mint)', 'is-order')),
       ...events.map((e) => chip(`${e.all_day || !e.start_time ? '' : `<b>${fmtTime(e.start_time)}</b> `}${esc(e.title)}`, eventColor(e.category))),
       ...tasks.map((t) => chip(esc(t.title), 'var(--ev-task)', `is-task ${t.status === 'done' ? 'is-done' : ''}`)),
     ];
     const total = chips.length;
     const dots = [
-      ...birthdays.map(() => 'var(--ev-birthday)'), ...events.map((e) => eventColor(e.category)), ...tasks.filter((t) => t.status !== 'done').map(() => 'var(--ev-task)'),
+      ...birthdays.map(() => 'var(--ev-birthday)'), ...shifts.map(shiftColor), ...events.map((e) => eventColor(e.category)), ...tasks.filter((t) => t.status !== 'done').map(() => 'var(--ev-task)'),
     ].slice(0, 4);
     const cls = [
       'cal-cell',
@@ -121,23 +148,25 @@ function eventRow(e) {
 }
 
 function agendaPanel(key, { showOpenDay = false } = {}) {
-  const { events, tasks, birthdays } = itemsOn(key);
-  const empty = !events.length && !tasks.length && !birthdays.length;
+  const { events, tasks, birthdays, shifts, orders } = itemsOn(key);
+  const empty = !events.length && !tasks.length && !birthdays.length && !shifts.length && !orders.length;
   return `<aside class="card cal-agenda" aria-label="Хуваарь: ${fmt.long(key)}">
     <div class="agenda-head">
       <p class="eyebrow">${relDay(key)}</p>
       <h2 class="agenda-title">${fmt.long(key)}</h2>
       <div class="agenda-actions">
         <button type="button" class="btn btn-sm" data-action="new-event" data-date="${key}">${icon('plus', 14)} Үйл явдал</button>
-        <button type="button" class="btn btn-sm" data-action="new-task" data-date="${key}">${icon('plus', 14)} Ажил</button>
+        <button type="button" class="btn btn-sm" data-action="new-task" data-date="${key}">${icon('plus', 14)} Хийх зүйл</button>
         ${showOpenDay ? `<button type="button" class="btn btn-sm btn-ghost" data-action="goto-day" data-date="${key}">Өдрөөр харах ${icon('arrowRight', 14)}</button>` : ''}
       </div>
     </div>
     ${birthdays.length ? `<div class="agenda-section"><p class="agenda-label">Төрсөн өдөр</p>${birthdays.map((b) => `
       <button type="button" class="agenda-row" data-action="edit-birthday" data-id="${b.id}"><span class="agenda-time">${icon('gift', 14)}</span><span class="agenda-bar" style="--c:var(--ev-birthday)"></span>
       <span class="agenda-text"><span class="agenda-name">Төрсөн өдөр: ${esc(b.name)}</span><span class="agenda-sub">${ageAt(b, key) ? `${ageAt(b, key)} нас хүрнэ` : esc(b.relationship)}</span></span></button>`).join('')}</div>` : ''}
+    ${shifts.length ? `<div class="agenda-section"><p class="agenda-label">Ажлын ээлж</p>${shifts.map(shiftRow).join('')}</div>` : ''}
     ${events.length ? `<div class="agenda-section"><p class="agenda-label">Үйл явдал</p>${events.map(eventRow).join('')}</div>` : ''}
-    ${tasks.length ? `<div class="agenda-section"><p class="agenda-label">Дуусах ажлууд</p>${taskListHTML(tasks, { showDate: false })}</div>` : ''}
+    ${orders.length ? `<div class="agenda-section"><p class="agenda-label">Хүргэх захиалга</p>${orders.map(orderRow).join('')}</div>` : ''}
+    ${tasks.length ? `<div class="agenda-section"><p class="agenda-label">Хийх зүйлс</p>${taskListHTML(tasks, { showDate: false })}</div>` : ''}
     ${empty ? emptyState({ compact: true, icon: 'calendar', title: 'Төлөвлөсөн зүйл алга', text: 'Энэ өдөрт үйл явдал эсвэл ажил нэмээрэй.' }) : ''}
   </aside>`;
 }
@@ -187,10 +216,21 @@ function timeGrid(keys) {
       if (end <= s) end = s + 30;
       return { ev: e, s, e: end };
     });
+    // Ажлын ээлж — шөнө дундаас хойш үргэлжилбэл тухайн өдрийн төгсгөл хүртэл зурна.
+    shiftsOn(k).forEach((sh) => {
+      const s = timeToMin(sh.start_time);
+      items.push({ shift: sh, s, e: Math.min(24 * 60, s + shiftSpan(sh)) });
+    });
     const html = layoutEvents(items).map((x) => {
       const top = (x.s / 60) * HOUR;
       const height = Math.max(((x.e - x.s) / 60) * HOUR - 2, 22);
       const width = 100 / x.cols;
+      if (x.shift) {
+        const wp = workplaceById(x.shift.workplace_id);
+        return `<button type="button" class="tg-event tg-shift ${height < 40 ? 'is-short' : ''}" data-action="edit-shift" data-id="${x.shift.id}"
+        style="top:${top}px;height:${height}px;left:calc(${x.col * width}% + 2px);width:calc(${width}% - 4px);--c:${shiftColor(x.shift)}">
+        <span class="tg-ev-title">${icon('briefcase', 11)} ${esc(wp?.name || 'Ээлж')}</span><span class="tg-ev-time">${shiftLabel(x.shift)}</span></button>`;
+      }
       return `<button type="button" class="tg-event ${height < 40 ? 'is-short' : ''}" data-action="edit-event" data-id="${x.ev.id}"
         style="top:${top}px;height:${height}px;left:calc(${x.col * width}% + 2px);width:calc(${width}% - 4px);--c:${eventColor(x.ev.category)}">
         <span class="tg-ev-title">${esc(x.ev.title)}</span><span class="tg-ev-time">${fmtTime(x.ev.start_time)}${x.ev.end_time ? ` – ${fmtTime(x.ev.end_time)}` : ''}</span></button>`;
@@ -222,9 +262,9 @@ function weekView() {
     // Phones: a readable agenda list instead of 7 narrow columns.
     const today = todayKey();
     return `<div class="week-list">${keys.map((k) => {
-      const { events, tasks, birthdays } = itemsOn(k);
+      const { events, tasks, birthdays, shifts, orders } = itemsOn(k);
       const d = fromKey(k);
-      const count = events.length + tasks.length + birthdays.length;
+      const count = events.length + tasks.length + birthdays.length + shifts.length + orders.length;
       return `<section class="card wl-day ${k === today ? 'is-today' : ''}">
         <div class="wl-head">
           <button type="button" class="wl-date" data-action="goto-day" data-date="${k}"><span>${fmt.weekdayShort(d)}</span><b>${d.getDate()}</b></button>
@@ -233,7 +273,9 @@ function weekView() {
           <button type="button" class="icon-btn icon-btn-sm" data-action="new-event" data-date="${k}" aria-label="Үйл явдал нэмэх: ${fmt.long(k)}">${icon('plus', 16)}</button>
         </div>
         ${birthdays.map((b) => `<button type="button" class="agenda-row" data-action="edit-birthday" data-id="${b.id}"><span class="agenda-time">${icon('gift', 14)}</span><span class="agenda-bar" style="--c:var(--ev-birthday)"></span><span class="agenda-text"><span class="agenda-name">Төрсөн өдөр: ${esc(b.name)}</span></span></button>`).join('')}
+        ${shifts.map(shiftRow).join('')}
         ${events.map(eventRow).join('')}
+        ${orders.map(orderRow).join('')}
         ${tasks.length ? taskListHTML(tasks, { showDate: false }) : ''}
       </section>`;
     }).join('')}</div>`;
@@ -298,6 +340,8 @@ export default {
         case 'edit-event': openEventForm(eventsService.get(el.dataset.id)); break;
         case 'edit-task': openTaskForm(tasksService.get(el.dataset.id)); break;
         case 'edit-birthday': openBirthdayForm(birthdaysService.get(el.dataset.id)); break;
+        case 'edit-shift': openShiftForm(shiftsService.get(el.dataset.id)); break;
+        case 'edit-order': openOrderForm(ordersService.get(el.dataset.id)); break;
         case 'slot': {
           const rect = el.getBoundingClientRect();
           const minutes = Math.max(0, Math.min(23 * 60 + 30, Math.floor(((e.clientY - rect.top) / HOUR) * 2) * 30));

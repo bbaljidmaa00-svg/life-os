@@ -11,6 +11,7 @@
 import { prefs } from '../state/prefs.js';
 import { tasksService, PRIORITY_RANK } from '../services/tasksService.js';
 import { eventsService } from '../services/eventsService.js';
+import { shiftsOn, shiftSpan, workplaceById } from '../services/workService.js';
 import { todayKey, addDaysKey, timeToMin, minToTime, nowMinutes } from './dates.js';
 
 export const DEFAULT_ESTIMATE = 30;
@@ -36,6 +37,11 @@ function eventIntervals(dateKey) {
       if (end <= s) end = s + 30;
       return { s, e: end, title: e.title, id: e.id };
     })
+    // Ажлын ээлж ч завгүй цаг — төлөвлөгч түүний дээр юм тавихгүй.
+    .concat(shiftsOn(dateKey).map((sh) => {
+      const s = timeToMin(sh.start_time);
+      return { s, e: Math.min(24 * 60, s + shiftSpan(sh)), title: `Ээлж: ${workplaceById(sh.workplace_id)?.name || 'Ажил'}`, id: sh.id, shift: true };
+    }))
     .sort((a, b) => a.s - b.s);
 }
 

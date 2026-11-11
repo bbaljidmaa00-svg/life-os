@@ -130,7 +130,7 @@ export default {
       ${!hasData ? `<div class="card">${emptyState({
     icon: 'analytics', title: 'Хэмжих зүйл алга байна',
     text: 'Хэдэн ажил дуусгаж, тэмдэглэлдээ сэтгэл санаагаа бичээрэй — график, тайлан энд автоматаар гарна.',
-    actions: `<a class="btn btn-primary" href="#/tasks">${icon('tasks', 16)} Ажлууд руу</a><a class="btn" href="#/journal">Тэмдэглэл нээх</a>`,
+    actions: `<a class="btn btn-primary" href="#/tasks">${icon('tasks', 16)} Хийх зүйлс рүү</a><a class="btn" href="#/journal">Тэмдэглэл нээх</a>`,
   })}</div>` : `
       <div class="kpis">
         ${tile(`${icon('check', 15)} Дууссан`, s.completedCount, delta(s.completedCount, prev.completedCount))}

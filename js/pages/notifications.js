@@ -9,6 +9,8 @@ import { birthdaysService } from '../services/birthdaysService.js';
 import { openTaskForm, openEventForm, openBirthdayForm } from '../components/forms.js';
 import { openHomeworkForm } from '../components/schoolForms.js';
 import { homeworkService } from '../services/schoolService.js';
+import { shiftsService, ordersService, workGoalsService } from '../services/workService.js';
+import { openShiftForm, openOrderForm, openWorkGoalForm } from '../components/workForms.js';
 import { toggleTask } from '../components/taskItem.js';
 import { emptyState, pageHead, toast } from '../lib/ui.js';
 import { esc } from '../lib/dom.js';
@@ -28,6 +30,10 @@ function openRef(n) {
   }
   if (kind === 'birthday') openBirthdayForm(birthdaysService.get(id));
   if (kind === 'homework') openHomeworkForm(homeworkService.get(id));
+  if (kind === 'shift') openShiftForm(shiftsService.get(id));
+  if (kind === 'order') openOrderForm(ordersService.get(id));
+  if (kind === 'workGoal') openWorkGoalForm(workGoalsService.get(id));
+  if (kind === 'payday') navigate('work?tab=pay');
   if (kind === 'goal') navigate(`goals/${id}`);
   if (kind === 'project') navigate(`goals/${goalId || 'none'}`);
 }

@@ -229,7 +229,7 @@ export function schoolDashboardCard() {
   })() : '';
   return `<section class="card">
     <div class="card-head"><h2 class="card-title">${icon('school', 18)} Сургууль</h2><a class="card-link" href="#/school">Бүгд</a></div>
-    ${nextLine}
+    <div class="card-body">${nextLine}
     ${soon.length ? `<ul class="dash-hw">${soon.map((h) => {
     const subject = subjectById(h.subject_id);
     const overdue = dueMoment(h) < Date.now();
@@ -238,6 +238,6 @@ export function schoolDashboardCard() {
         <span class="dh-title">${esc(h.title)}<span class="small muted">${esc(subject?.name || '')}</span></span>
         <span class="dh-count ${overdue ? 'is-overdue' : ''}">${esc(dueCountdown(h))}</span></a></li>`;
   }).join('')}</ul>` : '<p class="small muted dash-hw-empty">Ойрын 3 хоногт дуусах гэрийн даалгавар алга.</p>'}
-  </section>`;
+  </div></section>`;
 }
 

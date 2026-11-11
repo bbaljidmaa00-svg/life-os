@@ -1,0 +1,163 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Design tokens — бүх өнгө, фонт, радиус, сүүдэр энд байна.
+   Загвар: «Өнгөлөг» — цагаан дэвсгэр дээр тод ягаан, ногоон цэнхэр (teal),
+   шар, цэнхэр өнгөтэй хавтгай (flat) блокууд.
+   Гэгээлэг горим анхдагч; харанхуй горим системээр эсвэл Тохиргооноос.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --font-sans: 'Nunito', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Oswald', 'Roboto Condensed', 'Arial Narrow', 'Nunito', sans-serif; /* кирилл (ө, ү) дэмждэг */
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Surfaces */
+  --bg: #F3F5F8;
+  --bg-elev: #F8F9FB;
+  --surface: #FFFFFF;
+  --surface-2: #F1F3F7;
+  --surface-3: #E7EBF1;
+  --border: #E3E7EE;
+  --border-strong: #CDD4DF;
+
+  /* Text — хар хөх */
+  --text: #1D2433;
+  --text-2: #556073;
+  --text-3: #8790A1;
+
+  /* Accent — тод ягаан */
+  --accent: #DB2E72;
+  --accent-hover: #C42563;
+  --accent-soft: #FDE4EE;
+  --accent-contrast: #FFFFFF;
+  --accent-fill: #DB2E72;
+  --accent-fill-hover: #C42563;
+  --accent-fill-text: #FFFFFF;
+  --focus: #DB2E72;
+
+  /* Өнгөлөг палитр (чимэглэл, дүрс, хавтан) */
+  --pink: #DB2E72;
+  --pink-bright: #F45B93;
+  --teal: #14A09C;
+  --teal-deep: #0E8381;
+  --yellow: #F6B935;
+  --blue: #1F6FB5;
+  --violet: #7357D9;
+  --orange: #F07C3E;
+  --slate: #5A6270;
+  --on-yellow: #1D2433;
+
+  /* Хавтангийн өнгө — хоёр горимд ижил (цагаан текст уншигдахуйц) */
+  --tile-pink: #DB2E72;
+  --tile-teal: #0E8784;
+  --tile-yellow: #F6B935;
+  --tile-blue: #1F6FB5;
+
+  /* Нүүрний туузан hero */
+  --hero-from: #0E8381;
+  --hero-to: #19ADA8;
+  --hero-ink: #FFFFFF;
+  --ring-track: rgba(255, 255, 255, .3);
+
+  /* Дэвсгэрийн бүдэг гэрлэн толбо (bokeh) */
+  --bokeh-1: rgba(244, 91, 147, .13);
+  --bokeh-2: rgba(246, 185, 53, .14);
+  --bokeh-3: rgba(20, 160, 156, .11);
+
+  /* Status */
+  --danger: #C8322B;   --danger-soft: #FDE6E4;
+  --warning: #A86A0C;  --warning-soft: #FFF3D9;
+  --success: #1E8A5A;  --success-soft: #E1F5EB;
+  --info: #1F6FB5;     --info-soft: #E3EEF9;
+
+  /* Priorities */
+  --p-high: #C8322B;
+  --p-medium: #D99A1A;
+  --p-low: #A7B0BF;
+
+  /* Event categories */
+  --ev-work: #1F6FB5;
+  --ev-personal: #DB2E72;
+  --ev-health: #14A09C;
+  --ev-social: #F0A21E;
+  --ev-focus: #7357D9;
+  --ev-other: #8A93A3;
+  --ev-birthday: #F07C3E;
+  --ev-task: #556073;
+
+  /* Mood scale 1 → 5 */
+  --mood-1: #E5484D;
+  --mood-2: #F07C3E;
+  --mood-3: #F6B935;
+  --mood-4: #5CC28E;
+  --mood-5: #14A09C;
+
+  /* Shape & depth — хавтгай, бага сүүдэртэй */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow-xs: 0 1px 0 rgba(29, 36, 51, .04);
+  --shadow-sm: 0 1px 2px rgba(29, 36, 51, .06);
+  --shadow: 0 1px 2px rgba(29, 36, 51, .05), 0 10px 24px -16px rgba(29, 36, 51, .22);
+  --shadow-lg: 0 2px 6px rgba(29, 36, 51, .07), 0 28px 56px -22px rgba(29, 36, 51, .32);
+  --backdrop: rgba(17, 22, 33, .45);
+
+  /* Motion */
+  --ease: cubic-bezier(.2, .75, .25, 1);
+  --dur: .18s;
+
+  /* Layout */
+  --sidebar-w: 260px;
+  --rail-w: 72px;
+  --topbar-h: 64px;
+  --bottom-h: 64px;
+
+  color-scheme: light;
+}
+
+/* Харанхуй горим — Тохиргооноос сонгосон үед… */
+:root[data-theme="dark"] {
+  --bg: #10151E; --bg-elev: #141A24; --surface: #19212D; --surface-2: #202937; --surface-3: #283243;
+  --border: #263041; --border-strong: #364256;
+  --text: #EEF2F8; --text-2: #A9B3C4; --text-3: #75809A;
+  --accent: #FF6FA3; --accent-hover: #FF8DB7; --accent-soft: #3A1D2B; --accent-contrast: #2A0716; --focus: #FF6FA3;
+  --accent-fill: #FF6FA3; --accent-fill-hover: #FF8DB7; --accent-fill-text: #2A0716;
+  --pink: #FF6FA3; --pink-bright: #FF8DB7; --teal: #3CC9C3; --teal-deep: #0E8784; --yellow: #F4C04E; --blue: #6FB0F0; --violet: #A893F5; --orange: #FF9A63; --slate: #8A93A3;
+  --hero-from: #0A5F5E; --hero-to: #0F807C; --ring-track: rgba(255, 255, 255, .22);
+  --bokeh-1: rgba(255, 111, 163, .09); --bokeh-2: rgba(244, 192, 78, .06); --bokeh-3: rgba(60, 201, 195, .07);
+  --danger: #FF7A72; --danger-soft: #3B1C1F; --warning: #F4C04E; --warning-soft: #3A2E14;
+  --success: #5FD39A; --success-soft: #15301F; --info: #6FB0F0; --info-soft: #172638;
+  --p-high: #FF7A72; --p-medium: #F4C04E; --p-low: #4C566A;
+  --ev-work: #6FB0F0; --ev-personal: #FF6FA3; --ev-health: #3CC9C3; --ev-social: #F4C04E; --ev-focus: #A893F5; --ev-other: #8A93A3; --ev-birthday: #FF9A63; --ev-task: #A9B3C4;
+  --mood-1: #FF7A72; --mood-2: #FF9A63; --mood-3: #F4C04E; --mood-4: #6FD6A0; --mood-5: #3CC9C3;
+  --shadow-xs: 0 1px 0 rgba(0, 0, 0, .2);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 28px -18px rgba(0, 0, 0, .7);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 32px 64px -24px rgba(0, 0, 0, .8);
+  --backdrop: rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+
+/* … эсвэл Тохиргоо «Систем» үед үйлдлийн системээр. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10151E; --bg-elev: #141A24; --surface: #19212D; --surface-2: #202937; --surface-3: #283243;
+    --border: #263041; --border-strong: #364256;
+    --text: #EEF2F8; --text-2: #A9B3C4; --text-3: #75809A;
+    --accent: #FF6FA3; --accent-hover: #FF8DB7; --accent-soft: #3A1D2B; --accent-contrast: #2A0716; --focus: #FF6FA3;
+    --accent-fill: #FF6FA3; --accent-fill-hover: #FF8DB7; --accent-fill-text: #2A0716;
+    --pink: #FF6FA3; --pink-bright: #FF8DB7; --teal: #3CC9C3; --teal-deep: #0E8784; --yellow: #F4C04E; --blue: #6FB0F0; --violet: #A893F5; --orange: #FF9A63; --slate: #8A93A3;
+    --hero-from: #0A5F5E; --hero-to: #0F807C; --ring-track: rgba(255, 255, 255, .22);
+    --bokeh-1: rgba(255, 111, 163, .09); --bokeh-2: rgba(244, 192, 78, .06); --bokeh-3: rgba(60, 201, 195, .07);
+    --danger: #FF7A72; --danger-soft: #3B1C1F; --warning: #F4C04E; --warning-soft: #3A2E14;
+    --success: #5FD39A; --success-soft: #15301F; --info: #6FB0F0; --info-soft: #172638;
+    --p-high: #FF7A72; --p-medium: #F4C04E; --p-low: #4C566A;
+    --ev-work: #6FB0F0; --ev-personal: #FF6FA3; --ev-health: #3CC9C3; --ev-social: #F4C04E; --ev-focus: #A893F5; --ev-other: #8A93A3; --ev-birthday: #FF9A63; --ev-task: #A9B3C4;
+    --mood-1: #FF7A72; --mood-2: #FF9A63; --mood-3: #F4C04E; --mood-4: #6FD6A0; --mood-5: #3CC9C3;
+    --shadow-xs: 0 1px 0 rgba(0, 0, 0, .2);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 28px -18px rgba(0, 0, 0, .7);
+    --shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 32px 64px -24px rgba(0, 0, 0, .8);
+    --backdrop: rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}

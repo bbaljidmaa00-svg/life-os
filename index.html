@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F3F5F8" />
+  <meta name="description" content="Life OS — ажил, календарь, зорилго, тэмдэглэл, төрсөн өдрийг нэг дор." />
+  <title>Life OS</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23DB2E72'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%23FFFFFF' stroke-width='2.6'/%3E%3Ccircle cx='16' cy='16' r='2.2' fill='%23FFFFFF'/%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@400..800&family=Oswald:wght@300..700&display=swap" rel="stylesheet" />
+
+  <!-- Загвар: токенууд → үндсэн бүтэц → дахин ашиглах компонент → хуудас тус бүр -->
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+  <link rel="stylesheet" href="css/decor.css" />
+
+  <!-- Хадгалсан өнгөний горимыг эхний зурагдалтаас өмнө хэрэглэнэ (зөвхөн харагдах тохиргоо). -->
+  <script>
+    (function () {
+      try {
+        var p = JSON.parse(localStorage.getItem('lifeos.prefs') || '{}');
+        if (p.theme === 'light' || p.theme === 'dark') document.documentElement.setAttribute('data-theme', p.theme);
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Апп бүхэлдээ #app дотор зурагдана (js/main.js). -->
+  <div id="app">
+    <div class="boot">
+      <div class="boot-mark">Life OS</div>
+      <p id="boot-msg" class="muted">Ачаалж байна…</p>
+    </div>
+  </div>
+  <div id="modal-root"></div>
+  <div id="toast-root" aria-live="polite"></div>
+
+  <script>
+    // Хөтөч file:// хаягаар ES модуль ачаалдаггүй тул хоосон хуудасны оронд тайлбар харуулна.
+    if (location.protocol === 'file:') {
+      document.getElementById('boot-msg').innerHTML =
+        'Энэ хавтсыг index.html-г давхар дарж биш, локал вэб сервероор нээнэ үү.<br>' +
+        'Төслийн хавтас дотор терминалд <code>npx serve .</code> эсвэл <code>python3 -m http.server 5173</code> гэж ажиллуулаад,<br>' +
+        'гарч ирсэн хаягийг (жишээ нь http://localhost:5173) нээнэ. VS Code-ийн “Live Server” ч болно.';
+    }
+  </script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

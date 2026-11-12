@@ -79,8 +79,8 @@ export function goalProgress(goalId) {
 
 /* ── Төслийн төрөл ба «Юу сурсан бэ?» тэмдэглэл ─────────────────────────── */
 export const PROJECT_KINDS = [
-  { value: 'quick', label: 'Хурдан', emoji: '⚡', hint: 'Цөөн алхамтай, хурдан дуусна', example: 'Цүнх авах, Burberry авах' },
-  { value: 'long', label: 'Урт хугацааны', emoji: '🌱', hint: 'Олон, давтагдах үйлдэлтэй', example: 'Турах, эрт унтдаг болох' },
+  { value: 'quick', label: 'Жижиг', emoji: '⚡', hint: 'Цөөн алхамтай, хурдан дуусна', example: 'Цүнх авах, Burberry авах' },
+  { value: 'long', label: 'Том', emoji: '🌱', hint: 'Олон, давтагдах үйлдэлтэй, урт хугацааны', example: 'Турах, эрт унтдаг болох' },
 ];
 export const projectKind = (v) => PROJECT_KINDS.find((k) => k.value === v) || PROJECT_KINDS[0];
 

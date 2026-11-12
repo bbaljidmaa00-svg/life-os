@@ -1709,6 +1709,82 @@ section.card .goal-mini { margin-top: 10px; text-decoration: none; color: var(--
   .reflections { margin: 10px 4px 2px; }
 }
 
+/* ═══ Төслүүд: Жижиг / Том ══════════════════════════════════════════════ */
+.text-warning { color: var(--warning); font-weight: 800; }
+.proj-board { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.proj-col { display: grid; gap: 12px; padding: 14px; border-radius: var(--radius-xl); background: var(--glass); border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); --kc: var(--butter); }
+.proj-col.kind-long { --kc: var(--mint); }
+.proj-col-head { display: flex; align-items: center; gap: 10px; }
+.proj-col-head > div { flex: 1; min-width: 0; }
+.proj-col-head p { margin: 2px 0 0; }
+.proj-col-emoji { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-size: 22px; background: radial-gradient(circle at 32% 28%, #fff 0 12%, color-mix(in srgb, var(--kc) 55%, #fff) 50%, var(--kc)); box-shadow: inset 0 -3px 6px rgba(0, 0, 0, .08), 0 6px 14px -6px var(--kc); }
+.proj-col-title { margin: 0; font-family: var(--font-display); font-size: 19px; font-weight: 1000; }
+.proj-col-title .count { font-size: 13px; color: var(--text-3); margin-left: 4px; }
+.proj-tiles { display: grid; gap: 10px; }
+.proj-empty { margin: 0; padding: 6px 4px; }
+.proj-tile { display: grid; gap: 8px; padding: 14px 14px 12px; border-left: 4px solid var(--kc); }
+.proj-tile.kind-long { --kc: var(--mint); }
+.proj-tile.kind-quick { --kc: var(--butter); }
+.pt-main { display: grid; gap: 3px; text-decoration: none; color: var(--text); }
+.pt-title { font-size: 15.5px; font-weight: 900; overflow-wrap: anywhere; }
+.pt-main:hover .pt-title { color: var(--accent); }
+.pt-goal { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--text-2); min-width: 0; }
+.pt-progress { display: flex; align-items: center; gap: 10px; }
+.pt-progress .progress { flex: 1; }
+.pt-pct { font-size: 12.5px; font-weight: 900; color: var(--text-2); }
+.pt-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; color: var(--text-2); }
+.pt-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.pt-next { display: grid; gap: 2px; padding: 6px 8px 2px; border-radius: 14px; background: var(--surface-2); }
+.pt-next-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; color: var(--text-3); padding: 0 4px; }
+.pt-next .task-list { margin: 0; }
+.pt-done { margin: 0; color: var(--success); font-weight: 800; }
+.pt-add { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); font-weight: 800; text-decoration: none; }
+.proj-done summary { cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 900; color: var(--text-2); list-style: none; }
+.proj-done summary::-webkit-details-marker { display: none; }
+.proj-done ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.proj-done li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; border-radius: 10px; background: var(--surface-2); }
+.proj-done li a { color: var(--text); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-3) 60%, transparent); }
+.project-card.is-focus { box-shadow: 0 0 0 3px var(--accent-fill), var(--shadow); transition: box-shadow .4s; }
+@media (max-width: 900px) { .proj-board { grid-template-columns: minmax(0, 1fr); } }
+
+/* ═══ ✨ AI шинжилгээ ════════════════════════════════════════════════════ */
+.ai-card { margin-bottom: 18px; overflow: hidden; position: relative; }
+.ai-card::before { content: ''; position: absolute; inset: 0 0 auto; height: 120px; background: linear-gradient(120deg, color-mix(in srgb, var(--lilac) 22%, transparent), color-mix(in srgb, var(--pink) 18%, transparent) 55%, transparent); pointer-events: none; }
+.ai-head { position: relative; flex-wrap: wrap; gap: 10px; }
+.ai-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ai-card .card-body { position: relative; display: grid; gap: 14px; }
+.ai-intro p { margin: 0 0 8px; line-height: 1.55; }
+.ai-thin { margin: 0; }
+.ai-busy { display: flex; align-items: center; gap: 12px; padding: 18px; border-radius: 18px; background: var(--surface-2); font-weight: 700; }
+.ai-spinner { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 3px solid var(--accent-soft); border-top-color: var(--accent); animation: ai-spin .8s linear infinite; }
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+.ai-error { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 16px; background: var(--raspberry-soft); color: var(--text); }
+.ai-error .icon { flex: none; color: var(--raspberry); margin-top: 2px; }
+.ai-local { padding: 12px 14px; border-radius: 16px; background: var(--surface-2); border: 1px dashed var(--border-strong); }
+.ai-local-label { margin: 0 0 6px; font-size: 12.5px; font-weight: 900; color: var(--text-2); }
+.ai-local ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13.5px; }
+.ai-report { display: grid; gap: 12px; }
+.ai-headline { margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 1000; line-height: 1.3; }
+.ai-summary { margin: 0; line-height: 1.6; color: var(--text-2); }
+.ai-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.ai-block { padding: 12px 14px; border-radius: 16px; background: var(--surface-2); --bc: var(--sky); border-top: 3px solid var(--bc); }
+.ai-block.is-wins { --bc: var(--mint); }
+.ai-block.is-patterns { --bc: var(--lilac); }
+.ai-block.is-watch { --bc: var(--raspberry); background: color-mix(in srgb, var(--raspberry-soft) 60%, var(--surface)); }
+.ai-block.is-sugg { --bc: var(--butter); }
+.ai-block h3 { margin: 0 0 6px; font-size: 13.5px; font-weight: 900; }
+.ai-block ul, .ai-block ol { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 13.5px; line-height: 1.5; }
+.ai-block.is-sugg li { display: grid; gap: 2px; }
+.ai-block.is-sugg li span { color: var(--text-2); font-size: 13px; }
+.ai-block.is-sugg .link-btn { justify-self: start; display: inline-flex; align-items: center; gap: 3px; font-size: 12.5px; font-weight: 800; }
+.ai-question { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 12px 14px; border-radius: 18px; background: var(--accent-soft); font-weight: 800; }
+.ai-meta { margin: 0; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.ai-history { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.chip-btn.is-active { border-style: solid; border-color: var(--accent-fill); background: var(--accent-soft); }
+@media (max-width: 900px) { .ai-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .ai-spinner { animation-duration: 2s; } }
+.ai-controls .select { width: auto; min-width: 150px; }
+
 /* ── css/decor.css ── */
 /* ═══════════════════════════════════════════════════════════════════════════
    Тэнгэрийн бөмбөлөг — чимэглэлийн давхарга (хамгийн сүүлд ачаална).
@@ -2243,6 +2319,7 @@ const state = {
   workGoals: [],
   wishes: [],
   projectReflections: [],
+  reports: [],
 };
 
 const meta = {
@@ -2349,6 +2426,7 @@ const TABLES = {
   workGoals: 'work_goals',
   wishes: 'wishes',
   projectReflections: 'project_reflections',
+  reports: 'monthly_reports',
 };
 
 /**
@@ -3366,8 +3444,8 @@ function goalProgress(goalId) {
 
 /* ── Төслийн төрөл ба «Юу сурсан бэ?» тэмдэглэл ─────────────────────────── */
 const PROJECT_KINDS = [
-  { value: 'quick', label: 'Хурдан', emoji: '⚡', hint: 'Цөөн алхамтай, хурдан дуусна', example: 'Цүнх авах, Burberry авах' },
-  { value: 'long', label: 'Урт хугацааны', emoji: '🌱', hint: 'Олон, давтагдах үйлдэлтэй', example: 'Турах, эрт унтдаг болох' },
+  { value: 'quick', label: 'Жижиг', emoji: '⚡', hint: 'Цөөн алхамтай, хурдан дуусна', example: 'Цүнх авах, Burberry авах' },
+  { value: 'long', label: 'Том', emoji: '🌱', hint: 'Олон, давтагдах үйлдэлтэй, урт хугацааны', example: 'Турах, эрт унтдаг болох' },
 ];
 const projectKind = (v) => PROJECT_KINDS.find((k) => k.value === v) || PROJECT_KINDS[0];
 
@@ -3514,386 +3592,157 @@ const journalService = {
 
 });
 
-__def("js/services/birthdaysService.js", function (__e) {
+__def("js/services/schoolService.js", function (__e) {
 'use strict';
-Object.defineProperty(__e, "occurrenceIn", { enumerable: true, get: () => occurrenceIn });
-Object.defineProperty(__e, "nextOccurrence", { enumerable: true, get: () => nextOccurrence });
-Object.defineProperty(__e, "RELATIONSHIPS", { enumerable: true, get: () => RELATIONSHIPS });
-Object.defineProperty(__e, "REMINDER_OPTIONS", { enumerable: true, get: () => REMINDER_OPTIONS });
-Object.defineProperty(__e, "reminderLabel", { enumerable: true, get: () => reminderLabel });
-Object.defineProperty(__e, "daysUntil", { enumerable: true, get: () => daysUntil });
-Object.defineProperty(__e, "ageAt", { enumerable: true, get: () => ageAt });
-Object.defineProperty(__e, "birthdaysService", { enumerable: true, get: () => birthdaysService });
+Object.defineProperty(__e, "dueMoment", { enumerable: true, get: () => dueMoment });
+Object.defineProperty(__e, "dueCountdown", { enumerable: true, get: () => dueCountdown });
+Object.defineProperty(__e, "classesOn", { enumerable: true, get: () => classesOn });
+Object.defineProperty(__e, "nextClass", { enumerable: true, get: () => nextClass });
+Object.defineProperty(__e, "SUBJECT_COLORS", { enumerable: true, get: () => SUBJECT_COLORS });
+Object.defineProperty(__e, "CLASS_KINDS", { enumerable: true, get: () => CLASS_KINDS });
+Object.defineProperty(__e, "kindLabel", { enumerable: true, get: () => kindLabel });
+Object.defineProperty(__e, "HOMEWORK_STATUSES", { enumerable: true, get: () => HOMEWORK_STATUSES });
+Object.defineProperty(__e, "statusLabel", { enumerable: true, get: () => statusLabel });
+Object.defineProperty(__e, "isFinished", { enumerable: true, get: () => isFinished });
+Object.defineProperty(__e, "subjectsService", { enumerable: true, get: () => subjectsService });
+Object.defineProperty(__e, "classSessionsService", { enumerable: true, get: () => classSessionsService });
+Object.defineProperty(__e, "homeworkService", { enumerable: true, get: () => homeworkService });
+Object.defineProperty(__e, "subjectById", { enumerable: true, get: () => subjectById });
 /**
- * Birthdays service — table: TABLES.birthdays
- * Month and day are stored separately so the birth year can be optional.
+ * Сургууль — хичээл, хичээлийн хуваарь, гэрийн даалгавар.
+ * Хүснэгтүүд: TABLES.subjects, TABLES.classSessions, TABLES.homework
  */
 const { TABLES } = __req("js/config.js");
 const { createService } = __req("js/services/createService.js");
-const { birthdaysMap } = __req("js/services/dbMapping.js");
-const { todayKey, toKey, fromKey, diffDays } = __req("js/lib/dates.js");
+const { todayKey, addDaysKey, diffDays, fromKey, timeToMin, nowMinutes } = __req("js/lib/dates.js");
 
-const RELATIONSHIPS = ['Гэр бүл', 'Найз', 'Хань', 'Хамт ажиллагч', 'Бусад'];
-const REMINDER_OPTIONS = [
-  { value: 0, label: 'Тухайн өдөр' },
-  { value: 1, label: '1 өдрийн өмнө' },
-  { value: 3, label: '3 өдрийн өмнө' },
-  { value: 7, label: '1 долоо хоногийн өмнө' },
-  { value: 14, label: '2 долоо хоногийн өмнө' },
+/** Хичээлийн өнгө — сонгох боломжтой 8 өнгө (CSS дээр токен биш, хэрэглэгчийн сонголт). */
+const SUBJECT_COLORS = ['#DB2E72', '#14A09C', '#F0A21E', '#1F6FB5', '#7357D9', '#F07C3E', '#2E9E5B', '#8A93A3'];
+
+const CLASS_KINDS = [
+  { value: 'lecture', label: 'Лекц' },
+  { value: 'seminar', label: 'Семинар' },
+  { value: 'lab', label: 'Лаборатори' },
+  { value: 'workshop', label: 'Workshop' },
+  { value: 'other', label: 'Бусад' },
 ];
-const reminderLabel = (days) => REMINDER_OPTIONS.find((o) => o.value === Number(days))?.label || `${days} өдрийн өмнө`;
+const kindLabel = (k) => CLASS_KINDS.find((x) => x.value === k)?.label || 'Хичээл';
 
-const base = createService({
-  key: 'birthdays',
-  tableName: TABLES.birthdays,
-  columns: ['id', 'name', 'birth_month', 'birth_day', 'birth_year', 'relationship', 'reminder_enabled', 'reminder_days', 'notes', 'created_at'],
-  mapping: birthdaysMap,
+const HOMEWORK_STATUSES = [
+  { value: 'todo', label: 'Эхлээгүй' },
+  { value: 'in_progress', label: 'Хийж байна' },
+  { value: 'done', label: 'Дууссан' },
+  { value: 'submitted', label: 'Илгээсэн' },
+];
+const statusLabel = (s) => HOMEWORK_STATUSES.find((x) => x.value === s)?.label || 'Эхлээгүй';
+const isFinished = (h) => h.status === 'done' || h.status === 'submitted';
+
+const hhmm = (t) => (t ? String(t).slice(0, 5) : null);
+
+const subjectsService = createService({
+  key: 'subjects',
+  tableName: TABLES.subjects,
+  columns: ['id', 'name', 'teacher', 'color', 'created_at'],
+  normalize: (row) => ({ ...row, name: row.name || '', teacher: row.teacher || '', color: row.color || SUBJECT_COLORS[0] }),
+});
+
+const classSessionsService = createService({
+  key: 'classSessions',
+  tableName: TABLES.classSessions,
+  columns: ['id', 'subject_id', 'weekday', 'start_time', 'end_time', 'room', 'kind', 'created_at'],
   normalize: (row) => ({
     ...row,
-    name: row.name || '',
-    birth_month: Number(row.birth_month) || 1,
-    birth_day: Number(row.birth_day) || 1,
-    birth_year: row.birth_year ? Number(row.birth_year) : null,
-    relationship: row.relationship || 'Бусад',
-    reminder_enabled: row.reminder_enabled !== false,
-    reminder_days: row.reminder_days === null || row.reminder_days === undefined ? 1 : Number(row.reminder_days),
-    notes: row.notes || '',
+    weekday: Number(row.weekday) || 0,
+    start_time: hhmm(row.start_time),
+    end_time: hhmm(row.end_time),
+    room: row.room || '',
+    kind: row.kind || 'lecture',
   }),
 });
 
-const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+const homeworkBase = createService({
+  key: 'homework',
+  tableName: TABLES.homework,
+  columns: ['id', 'subject_id', 'title', 'description', 'assigned_date', 'start_date', 'start_time', 'due_date', 'due_time', 'estimated_minutes', 'status', 'completed_at', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    title: row.title || '',
+    description: row.description || '',
+    start_time: hhmm(row.start_time),
+    due_time: hhmm(row.due_time),
+    estimated_minutes: row.estimated_minutes ? Number(row.estimated_minutes) : null,
+    status: row.status || 'todo',
+  }),
+});
 
-/** Date key of this person's birthday in a given year (Feb 29 → Feb 28 in common years). */
-function occurrenceIn(b, year) {
-  let day = b.birth_day;
-  if (b.birth_month === 2 && day === 29 && !isLeap(year)) day = 28;
-  return toKey(new Date(year, b.birth_month - 1, day));
+/** Дуусах агшин (ms) — цаггүй бол тухайн өдрийн төгсгөл. Хугацаагүй бол Infinity. */
+function dueMoment(h) {
+  if (!h.due_date) return Infinity;
+  const d = fromKey(h.due_date);
+  const [hh, mm] = (h.due_time || '23:59').split(':').map(Number);
+  d.setHours(hh, mm, 0, 0);
+  return d.getTime();
 }
 
-function nextOccurrence(b, from = todayKey()) {
-  const year = fromKey(from).getFullYear();
-  const thisYear = occurrenceIn(b, year);
-  return thisYear >= from ? thisYear : occurrenceIn(b, year + 1);
+/** «2 өдөр 4 цаг», «3 цаг», «Хугацаа хэтэрсэн» гэх мэт. */
+function dueCountdown(h, now = Date.now()) {
+  const ms = dueMoment(h) - now;
+  if (!Number.isFinite(ms)) return 'Хугацаагүй';
+  if (ms < 0) {
+    const days = diffDays(h.due_date, todayKey());
+    return days > 0 ? `${days} хоног хэтэрсэн` : 'Хугацаа хэтэрсэн';
+  }
+  const mins = Math.floor(ms / 60000);
+  const d = Math.floor(mins / 1440);
+  const hrs = Math.floor((mins % 1440) / 60);
+  if (d > 0) return hrs ? `${d} өдөр ${hrs} цаг үлдсэн` : `${d} өдөр үлдсэн`;
+  if (hrs > 0) return `${hrs} цаг ${mins % 60} мин үлдсэн`;
+  return `${mins} мин үлдсэн`;
 }
 
-const daysUntil = (b) => diffDays(todayKey(), nextOccurrence(b));
-const ageAt = (b, key) => (b.birth_year ? fromKey(key).getFullYear() - b.birth_year : null);
-
-const birthdaysService = {
-  ...base,
-  onDate(key) {
-    const year = fromKey(key).getFullYear();
-    return base.all().filter((b) => occurrenceIn(b, year) === key);
+const homeworkService = {
+  ...homeworkBase,
+  open: () => homeworkBase.all().filter((h) => !isFinished(h)).sort((a, b) => dueMoment(a) - dueMoment(b)),
+  finished: () => homeworkBase.all().filter(isFinished).sort((a, b) => String(b.completed_at || '').localeCompare(String(a.completed_at || ''))),
+  overdue: () => homeworkService.open().filter((h) => dueMoment(h) < Date.now()),
+  /** `days` хоногийн дотор дуусах (хэтэрснийг оруулна). */
+  dueWithin: (days) => {
+    const limit = addDaysKey(todayKey(), days);
+    return homeworkService.open().filter((h) => h.due_date && h.due_date <= limit);
   },
-  /** Sorted by next occurrence, limited to the next `days` days. */
-  upcoming(days = 365) {
-    return base.all()
-      .map((b) => ({ ...b, next: nextOccurrence(b), days: daysUntil(b) }))
-      .filter((b) => b.days <= days)
-      .sort((a, b) => a.days - b.days || a.name.localeCompare(b.name, 'mn'));
+  async setStatus(h, status) {
+    const done = status === 'done' || status === 'submitted';
+    return homeworkBase.update(h.id, { status, completed_at: done ? (h.completed_at || new Date().toISOString()) : null });
   },
 };
 
-});
+const subjectById = (id) => (id ? subjectsService.get(id) : null);
 
-__def("js/lib/nlp.js", function (__e) {
-'use strict';
-Object.defineProperty(__e, "parseNatural", { enumerable: true, get: () => parseNatural });
-Object.defineProperty(__e, "cleanTaskTitle", { enumerable: true, get: () => cleanTaskTitle });
-Object.defineProperty(__e, "cleanEventTitle", { enumerable: true, get: () => cleanEventTitle });
-Object.defineProperty(__e, "parseTaskInput", { enumerable: true, get: () => parseTaskInput });
-/**
- * Энгийн дүрмээр (AI-гүй) байгалийн хэлийг задлах.
- *
- * Монгол болон англи өгүүлбэрээс огноо, цаг, үргэлжлэх хугацаа, ач холбогдол,
- * #ангиллыг ялгаж авна. Жишээ нь:
- *   "Баасан гарагт 15 цагт тайлан илгээх чухал #ажил 1 цаг"
- *   "Маргааш 12:30-13:30 Маятай үдийн хоол"
- *   "Submit report Friday 3pm high priority #work 45m"
- * Хурдан нэмэх талбарууд болон Туслахын дүрмүүд үүнийг ашиглана.
- *
- * Тэмдэглэл: JavaScript-ийн \b зөвхөн латин үсгийг таньдаг тул кирилл
- * үгсийн хилийг L / R гэсэн lookaround-оор тодорхойлсон.
- */
-const { toKey, addDays, startOfWeek } = __req("js/lib/dates.js");
-
-const pad = (n) => String(n).padStart(2, '0');
-const L = '(?<![\\p{L}\\p{N}])'; // үгийн эхлэл
-const R = '(?![\\p{L}\\p{N}])';  // үгийн төгсгөл
-const mn = (src) => new RegExp(src, 'iu');
-
-/* ---------- англи ---------- */
-const MONTH_NAMES = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-const DAY_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
-const MONTH_RE = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
-const WEEKDAY_FULL = '(monday|tuesday|wednesday|thursday|friday|saturday|sunday)';
-const WEEKDAY_ABBR = '(mon|tues?|wed|thu(?:rs?)?|fri|sat|sun)';
-const PREP = '(?:\\b(?:due\\s+(?:on\\s+|by\\s+)?|on\\s+|by\\s+|before\\s+|until\\s+))?';
-const NUM_WORDS = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, ten: 10 };
-const monthIndex = (word) => MONTH_NAMES.indexOf(word.slice(0, 3).toLowerCase());
-const weekdayIndex = (word) => DAY_NAMES.indexOf(word.slice(0, 3).toLowerCase());
-
-/* ---------- монгол ---------- */
-const MN_WEEKDAYS = { ням: 0, даваа: 1, мягмар: 2, лхагва: 3, пүрэв: 4, баасан: 5, бямба: 6 };
-const MN_WEEKDAY_RE = '(даваа|мягмар|лхагва|пүрэв|баасан|бямба|ням)';
-const MN_PERIOD = '(өглөө|үдээс\\s+өмнө|үдээс\\s+хойш|өдөр|үдэш|орой|шөнө)';
-
-/** Өнгөрсөн огноо бол дараа жилийнх гэж үзнэ ("3-р сарын 3"-ыг 12-р сард бичвэл). */
-function futureDate(today, month, day, year) {
-  const d = new Date(year ?? today.getFullYear(), month, day);
-  if (d.getMonth() !== month) return null; // 2-р сарын 31 гэх мэт
-  if (year == null && d < today) return new Date(today.getFullYear() + 1, month, day);
-  return d;
-}
-
-function to24(h, min, suffix) {
-  let hour = Number(h);
-  const m = Number(min || 0);
-  if (hour > 23 || m > 59) return null;
-  if (suffix) {
-    if (hour > 12 || hour === 0) return null;
-    hour = (hour % 12) + (/p/i.test(suffix) ? 12 : 0);
-  }
-  return `${pad(hour)}:${pad(m)}`;
-}
-
-/** Монгол цагийн үе (өглөө, орой…) + цаг → 24 цагийн формат. */
-function mnHour(period, h, min) {
-  let hour = Number(h);
-  if (hour > 23 || Number(min || 0) > 59) return null;
-  const p = (period || '').replace(/\s+/g, ' ').toLowerCase();
-  if (/хойш|үдэш|орой/.test(p) && hour < 12) hour += 12;
-  else if (p === 'шөнө' && hour >= 8 && hour < 12) hour += 12;
-  else if (/өглөө|өмнө/.test(p) && hour === 12) hour = 0;
-  else if (!p && hour >= 1 && hour <= 7) hour += 12; // "3 цагт" ихэвчлэн 15:00
-  return `${pad(hour)}:${pad(min || 0)}`;
+/** Тухайн өдрийн хичээлүүд (гарагаар), эхлэх цагаар эрэмбэлсэн. */
+function classesOn(dateKey) {
+  const weekday = fromKey(dateKey).getDay();
+  return classSessionsService.all()
+    .filter((s) => s.weekday === weekday)
+    .sort((a, b) => (timeToMin(a.start_time) ?? 0) - (timeToMin(b.start_time) ?? 0));
 }
 
 /**
- * { rest, date, time, endTime, priority, category, minutes } буцаана.
- * `rest` нь танигдсан хэсгүүдийг хассан үлдэгдэл текст.
+ * Дараагийн хичээл — өнөөдөр одоо явагдаж буй эсвэл эхлээгүй хичээл, байхгүй бол
+ * ирэх 7 хоногийн эхнийх. → { session, subject, date, minutesUntil, ongoing } | null
  */
-function parseNatural(input, { now = new Date() } = {}) {
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const out = { rest: '', date: null, time: null, endTime: null, priority: null, category: null, minutes: null };
-  let s = ` ${String(input || '')} `;
-
-  // Хэв таарч, боловсруулагч зөвшөөрвөл тухайн хэсгийг текстээс хасна.
-  const take = (re, handler) => {
-    const m = s.match(re);
-    if (!m || handler(m) === false) return false;
-    s = `${s.slice(0, m.index)} ${s.slice(m.index + m[0].length)}`;
-    return true;
-  };
-  const setDate = (d) => { out.date = toKey(d); };
-
-  // ── #ангилал
-  take(/(?:^|\s)#([\p{L}\p{N}_-]+)/u, (m) => { out.category = m[1].charAt(0).toUpperCase() + m[1].slice(1); });
-
-  // ── ач холбогдол
-  take(/\bpriority\s*[:=]?\s*(high|medium|med|low)\b/i, (m) => { out.priority = /^med/i.test(m[1]) ? 'medium' : m[1].toLowerCase(); })
-    || take(mn(`${L}(?:!өндөр|!чухал)${R}|${L}(?:чухал|яаралтай|нэн\\s+тэргүүнд)${R}|${L}өндөр\\s+ач\\s+холбогдол\\p{L}*`), () => { out.priority = 'high'; })
-    || take(mn(`${L}!бага${R}|${L}бага\\s+ач\\s+холбогдол\\p{L}*`), () => { out.priority = 'low'; })
-    || take(mn(`${L}!дунд${R}|${L}дунд\\s+ач\\s+холбогдол\\p{L}*`), () => { out.priority = 'medium'; })
-    || take(/\s(?:!high|!h|!!+|p1)(?=\s)|\b(?:high[- ]priority|urgent|asap|important)\b/i, () => { out.priority = 'high'; })
-    || take(/\s(?:!low|!l|p3)(?=\s)|\blow[- ]priority\b/i, () => { out.priority = 'low'; })
-    || take(/\s(?:!medium|!med|!m|p2)(?=\s)|\b(?:medium|normal)[- ]priority\b/i, () => { out.priority = 'medium'; });
-
-  // ── үргэлжлэх хугацаа ("45 мин", "2 цаг", "1 цаг 30 мин", "хагас цаг", "45m", "for 2 hours")
-  take(mn(`${L}хагас\\s+цаг(?:ийн)?${R}`), () => { out.minutes = 30; })
-    || take(mn(`${L}(\\d+(?:[.,]\\d+)?)\\s*цаг(?!т|аас)(?:ийн)?(?:\\s*(\\d+)\\s*мин\\p{L}*)?${R}`), (m) => {
-      out.minutes = Math.round(parseFloat(m[1].replace(',', '.')) * 60 + (m[2] ? Number(m[2]) : 0));
-    })
-    || take(mn(`${L}(\\d+)\\s*мин(?:ут)?\\p{L}*`), (m) => { out.minutes = Number(m[1]); })
-    || take(mn(`${L}нэг\\s+цаг(?:ийн)?${R}`), () => { out.minutes = 60; })
-    || take(/\b(?:for\s+|takes?\s+|about\s+)?half\s+an\s+hour\b/i, () => { out.minutes = 30; })
-    || take(/\b(?:for\s+|takes?\s+|about\s+|~\s*)?(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hours?)\b(?:\s*(?:and\s+)?(\d+)\s*(?:m|min|mins|minutes?)\b)?/i, (m) => {
-      out.minutes = Math.round(parseFloat(m[1]) * 60 + (m[2] ? Number(m[2]) : 0));
-    })
-    || take(/\b(?:for\s+|takes?\s+|about\s+|~\s*)?(\d+)\s*(?:m|min|mins|minutes?)\b/i, (m) => { out.minutes = Number(m[1]); })
-    || take(/\b(?:for\s+|takes?\s+)?(?:an?|one)\s+hour\b/i, () => { out.minutes = 60; });
-
-  // ── цагийн муж ("12:30-13:30", "14-16 цагт", "2-4pm")
-  take(new RegExp(`(?:\\bfrom\\s+)?\\b([01]?\\d|2[0-3]):([0-5]\\d)\\s*(?:-|–|to|until|till)\\s*([01]?\\d|2[0-3]):([0-5]\\d)(?:\\s*(?:цаг(?:т|ийн\\s+хооронд)|-?\\s*н?д)${R})?`, 'iu'), (m) => {
-    out.time = `${pad(m[1])}:${m[2]}`;
-    out.endTime = `${pad(m[3])}:${m[4]}`;
-  })
-    || take(mn(`${L}(\\d{1,2})\\s*[-–]\\s*(\\d{1,2})\\s*цаг(?:т|ийн\\s+хооронд)?${R}`), (m) => {
-      let a = Number(m[1]);
-      let b = Number(m[2]);
-      if (a > 23 || b > 23) return false;
-      if (b <= 7) { b += 12; if (a <= b - 12) a += 12; }
-      out.time = `${pad(a)}:00`;
-      out.endTime = `${pad(b)}:00`;
-    })
-    || take(/\b(?:from\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)?\s*(?:-|–|to|until|till)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)(?![a-z])/i, (m) => {
-      const end = to24(m[4], m[5], m[6]);
-      let start = to24(m[1], m[2], m[3] || m[6]);
-      if (!start || !end) return false;
-      if (!m[3] && start > end) start = to24(m[1], m[2], /p/i.test(m[6]) ? 'am' : 'pm');
-      out.time = start;
-      out.endTime = end;
-    });
-
-  // ── нэг цаг ("15 цагт", "орой 7 цагт", "15:00-д", "3pm", "noon")
-  if (!out.time) {
-    take(mn(`(?:${L}${MN_PERIOD}\\s+)?${L}(\\d{1,2})(?::(\\d{2}))?\\s*цаг(?:т|аас)${R}`), (m) => {
-      const t = mnHour(m[1], m[2], m[3]);
-      if (!t) return false;
-      out.time = t;
-    })
-      || take(mn(`${L}${MN_PERIOD}\\s+(\\d{1,2}):(\\d{2})(?:\\s*-?\\s*н?д${R}|\\s*цаг(?:т|аас)${R})?`), (m) => {
-        const t = mnHour(m[1], m[2], m[3]);
-        if (!t) return false;
-        out.time = t;
-      })
-      || take(new RegExp(`(?:\\b(?:at|by|from)\\s*|@\\s*)?\\b([01]?\\d|2[0-3]):([0-5]\\d)(?:\\s*-?\\s*н?д${R}|\\s*цаг(?:т|аас)${R})?`, 'iu'), (m) => { out.time = `${pad(m[1])}:${m[2]}`; })
-      || take(/(?:\b(?:at|by|from)\s*|@\s*)?\b(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)(?![a-z])/i, (m) => {
-        const t = to24(m[1], m[2], m[3]);
-        if (!t) return false;
-        out.time = t;
-      })
-      || take(mn(`${L}үд(?:ийн\\s+цагаар|\\s+дунд)${R}`), () => { out.time = '12:00'; })
-      || take(/\b(?:at\s+)?noon\b/i, () => { out.time = '12:00'; })
-      || take(/\b(?:at\s+)?midnight\b/i, () => { out.time = '00:00'; })
-      || take(/(?:\bat|@)\s*(\d{1,2})\b(?!\s*(?:days?|weeks?|months?|hours?|mins?|minutes?|[%/.-]))/i, (m) => {
-        let h = Number(m[1]);
-        if (h < 1 || h > 23) return false;
-        if (h <= 7) h += 12;
-        out.time = `${pad(h)}:00`;
-      });
+function nextClass() {
+  const now = nowMinutes();
+  for (let i = 0; i < 8; i++) {
+    const date = addDaysKey(todayKey(), i);
+    for (const session of classesOn(date)) {
+      const start = timeToMin(session.start_time) ?? 0;
+      const end = timeToMin(session.end_time) ?? start + 80;
+      if (i === 0 && end <= now) continue;
+      const ongoing = i === 0 && start <= now;
+      return { session, subject: subjectById(session.subject_id), date, ongoing, minutesUntil: i === 0 ? start - now : null };
+    }
   }
-
-  // ── огноо (монгол)
-  const nextWeekStart = () => addDays(startOfWeek(today), 7);
-  take(mn(`${L}нөгөөдөр${R}|${L}нөгөөдр\\p{L}*`), () => setDate(addDays(today, 2)))
-    || take(mn(`${L}өнөөдөр${R}|${L}өнөөдр\\p{L}*|${L}өнөө(?:\\s+(?:орой|өглөө|үдэш|шөнө))?${R}`), () => setDate(today))
-    || take(mn(`${L}маргааш\\p{L}*`), () => setDate(addDays(today, 1)))
-    || take(mn(`${L}(\\d+)\\s*долоо\\s+хоног\\p{L}*\\s+дараа\\p{L}*`), (m) => setDate(addDays(today, Number(m[1]) * 7)))
-    || take(mn(`${L}(\\d+)\\s*(?:хоног|өдөр|өдр)\\p{L}*\\s+дараа\\p{L}*`), (m) => setDate(addDays(today, Number(m[1]))))
-    || take(mn(`${L}(?:ирэх|дараа(?:гийн)?)\\s+долоо\\s+хоног(?:т|од|ийн\\s+эхэнд)?${R}`), () => setDate(nextWeekStart()))
-    || take(mn(`${L}(\\d{1,2})\\s*-?\\s*(?:р|дүгээр|дугаар)?\\s*сар(?:ын)?\\s+(\\d{1,2})(?:\\s*-?\\s*(?:нд|ний|ны|д))?${R}`), (m) => {
-      const d = futureDate(today, Number(m[1]) - 1, Number(m[2]), null);
-      if (!d) return false;
-      setDate(d);
-    })
-    || take(mn(`${L}(?:(ирэх|энэ|дараа\\s+долоо\\s+хоногийн)\\s+)?${MN_WEEKDAY_RE}(?:н?д|т)?(?:\\s+гар[иа]г\\p{L}*)?${R}`), (m) => {
-      const target = MN_WEEKDAYS[m[2].toLowerCase()];
-      if (m[1] && /^дараа/i.test(m[1])) {
-        const start = nextWeekStart();
-        setDate(addDays(start, (target - start.getDay() + 7) % 7));
-        return true;
-      }
-      let diff = (target - today.getDay() + 7) % 7;
-      if (diff === 0 && !(m[1] && /энэ/i.test(m[1]))) diff = 7;
-      setDate(addDays(today, diff));
-      return true;
-    });
-
-  // ── огноо (англи, тоон)
-  if (!out.date) {
-    take(/\b(\d{4})-(\d{2})-(\d{2})\b/, (m) => {
-      const d = new Date(+m[1], +m[2] - 1, +m[3]);
-      if (d.getMonth() !== +m[2] - 1) return false;
-      setDate(d);
-    })
-      || take(new RegExp(`${PREP}\\b(?:the\\s+)?day\\s+after\\s+tomorrow\\b`, 'i'), () => setDate(addDays(today, 2)))
-      || take(new RegExp(`${PREP}\\b(?:today|tonight|this\\s+(?:morning|afternoon|evening))\\b`, 'i'), () => setDate(today))
-      || take(new RegExp(`${PREP}\\b(?:tomorrow|tmrw|tmr)\\b`, 'i'), () => setDate(addDays(today, 1)))
-      || take(/\bin\s+(\d+|an?|one|two|three|four|five|six|seven|ten)\s+(days?|weeks?)\b/i, (m) => {
-        const n = NUM_WORDS[m[1].toLowerCase()] ?? Number(m[1]);
-        setDate(addDays(today, n * (/week/i.test(m[2]) ? 7 : 1)));
-      })
-      || take(new RegExp(`${PREP}\\bnext\\s+week\\b`, 'i'), () => setDate(nextWeekStart()))
-      || take(new RegExp(`${PREP}\\b(?:the\\s+)?end\\s+of\\s+(?:the\\s+|this\\s+)?week\\b`, 'i'), () => setDate(addDays(today, (5 - today.getDay() + 7) % 7)))
-      || take(new RegExp(`${PREP}\\b(?:this\\s+|the\\s+)?weekend\\b`, 'i'), () => setDate(addDays(today, (6 - today.getDay() + 7) % 7)))
-      || take(new RegExp(`${PREP}\\b${MONTH_RE}\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{4}))?\\b`, 'i'), (m) => {
-        const d = futureDate(today, monthIndex(m[1]), +m[2], m[3] ? +m[3] : null);
-        if (!d) return false;
-        setDate(d);
-      })
-      || take(new RegExp(`${PREP}\\b(?:the\\s+)?(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MONTH_RE}\\b(?:,?\\s+(\\d{4}))?`, 'i'), (m) => {
-        const d = futureDate(today, monthIndex(m[2]), +m[1], m[3] ? +m[3] : null);
-        if (!d) return false;
-        setDate(d);
-      })
-      || take(new RegExp(`${PREP}\\b(?:(next|this|coming)\\s+)?${WEEKDAY_FULL}\\b`, 'i'), (m) => weekdayDate(m[1], m[2]))
-      || take(new RegExp(`\\b(on|by|next|this|due)\\s+${WEEKDAY_ABBR}\\b\\.?`, 'i'), (m) => weekdayDate(/next|this/i.test(m[1]) ? m[1] : null, m[2]))
-      || take(new RegExp(`${PREP}\\b(\\d{1,2})\\/(\\d{1,2})(?:\\/(\\d{2,4}))?\\b`), (m) => {
-        const year = m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : null;
-        const d = futureDate(today, Number(m[1]) - 1, Number(m[2]), year);
-        if (!d) return false;
-        setDate(d);
-      });
-  }
-
-  function weekdayDate(modifier, word) {
-    const target = weekdayIndex(word);
-    let diff = (target - today.getDay() + 7) % 7;
-    if (diff === 0 && !(modifier && /this/i.test(modifier))) diff = 7;
-    setDate(addDays(today, diff));
-  }
-
-  out.rest = s.replace(/\s+/g, ' ').trim();
-  return out;
-}
-
-/* ---------- гарчиг цэвэрлэх ---------- */
-
-const TRAILING = /(?:[\s,;:.!\-–]+|\s+(?:on|at|by|for|due|from|in|the|and|to|with|before|until|of|a)|\s+(?:-?н?д|цагт|цагаас|гар[иа]гт|нь|ба|болон|хүртэл))$/i;
-function tidy(text) {
-  let t = ` ${text} `.replace(/\s+/g, ' ').trim();
-  let prev;
-  do {
-    prev = t;
-    t = t.replace(TRAILING, '').trim();
-    t = t.replace(/^(?:[,;:\-–]\s*|to\s+|and\s+|-?н?д\s+)/i, '').trim();
-  } while (t !== prev);
-  return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
-}
-
-function cleanTaskTitle(text) {
-  let t = ` ${text} `;
-  // монгол
-  t = t.replace(/^\s*(?:шинэ\s+)?(?:ажил|даалгавар|сануулга)\s*(?:нэм(?:эх|ээрэй)?)?\s*[:\-–]\s*/iu, ' ');
-  t = t.replace(/^\s*сануул(?:аарай|ах)?\s*[:\-–]?\s*/iu, ' ');
-  t = t.replace(/^\s*(?:эцсийн\s+хугацаа|дедлайн)\s*[:\-–]?\s*/iu, ' ');
-  t = t.replace(/\s*(?:гэсэн\s+|гэж\s+)?(?:ажил|даалгавар)?\s*(?:нэмээрэй|нэмээч|нэмэх|нэм|оруулаарай)\s*[.!]?\s*$/iu, ' ');
-  t = t.replace(/\s*(?:гэж\s+)?сануулаарай\s*[.!]?\s*$/iu, ' ');
-  t = t.replace(/\s+(?:хэрэгтэй|ёстой)\s*[.!]?\s*$/iu, ' ');
-  // англи
-  t = t.replace(/^\s*(?:please\s+)?(?:can you\s+|could you\s+)?(?:add|create|make|new|put)\s+(?:a\s+|an\s+)?(?:new\s+)?(?:task|todo|to-do|reminder)?\s*(?:to\s+(?:my\s+)?(?:list|tasks)\s*)?(?::|-|–)?\s*/i, ' ');
-  t = t.replace(/^\s*(?:task|todo|to-do|reminder)\s*(?::|-|–)\s*/i, ' ');
-  t = t.replace(/^\s*remind\s+me\s+(?:to\s+)?/i, ' ');
-  t = t.replace(/^\s*(?:i\s+)?(?:need|have|must|should|gotta)\s+(?:to\s+)?/i, ' ');
-  t = t.replace(/^\s*deadline\s*(?:for|:|-)?\s*/i, ' ');
-  return tidy(t);
-}
-
-function cleanEventTitle(text) {
-  let t = ` ${text} `;
-  // монгол
-  t = t.replace(/^\s*(?:шинэ\s+)?(?:арга\s+хэмжээ|үйл\s+явдал)\s*(?:нэм(?:эх|ээрэй)?)?\s*[:\-–]\s*/iu, ' ');
-  t = t.replace(/\s*(?:календарь|хуанли)(?:т|д|нд)?\s*(?:нэмээрэй|нэм|оруулаарай)?\s*[.!]?\s*$/iu, ' ');
-  t = t.replace(/\s*(?:товлоорой|товлох|товло|нэмээрэй|нэмэх|нэм)\s*[.!]?\s*$/iu, ' ');
-  // англи
-  t = t.replace(/^\s*(?:please\s+)?(?:can you\s+|could you\s+)?(?:add|create|schedule|book|put|set\s+up|plan)\s+(?:an?\s+)?(?:new\s+)?(?:event\s*(?::|-|–)?\s*)?/i, ' ');
-  t = t.replace(/^\s*event\s*(?::|-|–)\s*/i, ' ');
-  t = t.replace(/\s+(?:to|in|on)\s+(?:my\s+)?calendar\b/i, ' ');
-  return tidy(t);
-}
-
-/** Хурдан нэмэх талбарт: ажлын талбаруудыг буцаана (дурдаагүй бол null). */
-function parseTaskInput(text, options) {
-  const p = parseNatural(text, options);
-  return {
-    title: cleanTaskTitle(p.rest),
-    due_date: p.date,
-    due_time: p.time,
-    priority: p.priority,
-    category: p.category,
-    estimated_minutes: p.minutes,
-  };
+  return null;
 }
 
 });
@@ -4327,6 +4176,610 @@ function pastWorkGoals(today = todayKey()) {
 /* ── Ажлын даалгавар (Хийх зүйлс, ангилал «Ажил») ───────────────────────── */
 const WORK_CATEGORY = 'Ажил';
 const isWorkTask = (t) => String(t.category || '').trim().toLowerCase() === WORK_CATEGORY.toLowerCase();
+
+});
+
+__def("js/services/analysisService.js", function (__e) {
+'use strict';
+Object.defineProperty(__e, "periodRange", { enumerable: true, get: () => periodRange });
+Object.defineProperty(__e, "buildDigest", { enumerable: true, get: () => buildDigest });
+Object.defineProperty(__e, "digestSize", { enumerable: true, get: () => digestSize });
+Object.defineProperty(__e, "localSummary", { enumerable: true, get: () => localSummary });
+Object.defineProperty(__e, "analyzeWithAI", { enumerable: true, get: () => analyzeWithAI });
+Object.defineProperty(__e, "saveReport", { enumerable: true, get: () => saveReport });
+Object.defineProperty(__e, "PERIODS", { enumerable: true, get: () => PERIODS });
+Object.defineProperty(__e, "reportsService", { enumerable: true, get: () => reportsService });
+Object.defineProperty(__e, "latestReports", { enumerable: true, get: () => latestReports });
+/**
+ * AI шинжилгээ — хэрэглэгчийн ӨӨРИЙН өгөгдлийг (санах ойд ачаалсан, RLS-ээр зөвхөн түүнийх)
+ * товчлоод Edge Function руу mode: 'analyze'-аар илгээнэ. Тайланг monthly_reports-д хадгална.
+ *
+ * AI холбогдоогүй үед хуурамч «AI» хариу гаргахгүй — зөвхөн тодорхой шошготой энгийн тооцоо харуулна.
+ */
+const { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY, isAiConfigured } = __req("js/config.js");
+const { createService } = __req("js/services/createService.js");
+const { authService } = __req("js/services/authService.js");
+const { tasksService } = __req("js/services/tasksService.js");
+const { eventsService } = __req("js/services/eventsService.js");
+const { journalService } = __req("js/services/journalService.js");
+const { goalsService, projectsService, wishesService, reflectionsService, goalProgress, projectProgress, wishCategory, projectKind } = __req("js/services/goalsService.js");
+const { homeworkService, subjectById, isFinished } = __req("js/services/schoolService.js");
+const { earnings, ordersService, workGoalsService, workGoalProgress, isOrderLate } = __req("js/services/workService.js");
+const { todayKey, addDaysKey, keyOfTimestamp, fromKey, WEEKDAYS } = __req("js/lib/dates.js");
+
+const PERIODS = [
+  { value: '7', label: 'Сүүлийн 7 хоног', days: 7 },
+  { value: '30', label: 'Сүүлийн 30 хоног', days: 30 },
+  { value: '90', label: 'Сүүлийн 3 сар', days: 90 },
+];
+
+function periodRange(value) {
+  const p = PERIODS.find((x) => x.value === String(value)) || PERIODS[1];
+  const to = todayKey();
+  return { ...p, from: addDaysKey(to, -(p.days - 1)), to };
+}
+
+const reportsService = createService({
+  key: 'reports',
+  tableName: TABLES.reports,
+  columns: ['id', 'period_start', 'period_end', 'report_data', 'generated_at', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    period_start: String(row.period_start || '').slice(0, 10),
+    period_end: String(row.period_end || '').slice(0, 10),
+    report_data: row.report_data && typeof row.report_data === 'object' ? row.report_data : {},
+  }),
+});
+
+const latestReports = () => [...reportsService.all()]
+  .sort((a, b) => String(b.generated_at || b.created_at).localeCompare(String(a.generated_at || a.created_at)));
+
+const clip = (s, n = 220) => {
+  const t = String(s || '').replace(/\s+/g, ' ').trim();
+  return t.length > n ? `${t.slice(0, n - 1)}…` : t;
+};
+const inRange = (key, from, to) => Boolean(key) && key >= from && key <= to;
+const countBy = (list, fn) => list.reduce((acc, x) => { const k = fn(x) || '—'; acc[k] = (acc[k] || 0) + 1; return acc; }, {});
+const round1 = (n) => Math.round(n * 10) / 10;
+
+/** Тухайн хугацааны өгөгдлийн товчлол — AI-д илгээх, мөн энгийн тооцоонд ашиглана. */
+function buildDigest(from, to) {
+  const tasks = tasksService.all();
+  const doneInRange = tasks.filter((t) => t.status === 'done' && inRange(keyOfTimestamp(t.completed_at) || t.due_date, from, to));
+  const dueInRange = tasks.filter((t) => inRange(t.due_date, from, to));
+  const today = todayKey();
+  const overdue = tasks.filter((t) => t.status !== 'done' && t.due_date && t.due_date < today);
+  const weekday = Array(7).fill(0);
+  const hours = {};
+  doneInRange.forEach((t) => {
+    if (!t.completed_at) return;
+    const d = new Date(t.completed_at);
+    weekday[d.getDay()] += 1;
+    const h = d.getHours();
+    const slot = h < 12 ? 'өглөө' : h < 17 ? 'өдөр' : h < 21 ? 'орой' : 'шөнө';
+    hours[slot] = (hours[slot] || 0) + 1;
+  });
+
+  const journal = journalService.all().filter((j) => inRange(j.entry_date, from, to))
+    .sort((a, b) => a.entry_date.localeCompare(b.entry_date));
+  const moods = journal.filter((j) => j.mood).map((j) => ({ date: j.entry_date, mood: Number(j.mood) }));
+  const doneByDay = countBy(doneInRange, (t) => keyOfTimestamp(t.completed_at) || t.due_date);
+
+  const reflections = reflectionsService.all()
+    .filter((r) => inRange(keyOfTimestamp(r.created_at), from, to))
+    .map((r) => ({
+      date: keyOfTimestamp(r.created_at),
+      project: projectsService.get(r.project_id)?.title || '',
+      step: clip(r.task_title, 80),
+      mood: r.mood,
+      learned: clip(r.learned, 240),
+      feeling: clip(r.feeling, 240),
+    })).slice(-40);
+
+  const projects = projectsService.all().map((p) => {
+    const pr = projectProgress(p.id);
+    return { title: p.title, kind: projectKind(p.kind).label, status: p.status, goal: goalsService.get(p.goal_id)?.title || null, steps_done: pr.done, steps_total: pr.total, pct: pr.pct };
+  });
+  const goals = goalsService.all().map((g) => ({
+    title: g.title, status: g.status, target_date: g.target_date, pct: goalProgress(g.id).pct,
+    wish: wishesService.get(g.wish_id)?.title || null,
+  }));
+  const wishes = wishesService.all().map((w) => ({
+    title: w.title, category: wishCategory(w.category).label, achieved: Boolean(w.achieved_at),
+    linked_goals: goalsService.all().filter((g) => g.wish_id === w.id).length,
+  }));
+
+  const homework = homeworkService.all();
+  const hwRange = homework.filter((h) => inRange(h.due_date, from, to));
+  const work = earnings(from, to);
+  const orders = ordersService.all();
+
+  return {
+    period: { from, to, days: Math.round((fromKey(to) - fromKey(from)) / 86400000) + 1 },
+    tasks: {
+      completed: doneInRange.length,
+      due_in_period: dueInRange.length,
+      completed_on_time_pct: dueInRange.length ? Math.round((dueInRange.filter((t) => t.status === 'done').length / dueInRange.length) * 100) : null,
+      overdue_now: overdue.length,
+      open_now: tasks.filter((t) => t.status !== 'done').length,
+      completed_by_category: countBy(doneInRange, (t) => t.category),
+      completed_by_weekday: Object.fromEntries(WEEKDAYS.map((w, i) => [w, weekday[i]])),
+      completed_by_time_of_day: hours,
+      completed_examples: doneInRange.slice(-25).map((t) => clip(t.title, 80)),
+      overdue_examples: overdue.slice(0, 12).map((t) => ({ title: clip(t.title, 80), due: t.due_date, priority: t.priority })),
+    },
+    journal: {
+      entries: journal.length,
+      avg_mood_1_to_5: moods.length ? round1(moods.reduce((s, m) => s + m.mood, 0) / moods.length) : null,
+      mood_and_tasks_by_day: moods.map((m) => ({ ...m, tasks_done: doneByDay[m.date] || 0 })),
+      notes: journal.slice(-12).map((j) => ({ date: j.entry_date, mood: j.mood || null, text: clip(j.reflection, 260), gratitude: clip(j.gratitude, 160) })),
+    },
+    reflections,
+    wishes,
+    goals,
+    projects,
+    events: { count: eventsService.between(from, to).length, by_category: countBy(eventsService.between(from, to), (e) => e.category) },
+    school: {
+      homework_due: hwRange.length,
+      homework_finished: hwRange.filter(isFinished).length,
+      homework_overdue_now: homeworkService.overdue().length,
+      subjects: [...new Set(hwRange.map((h) => subjectById(h.subject_id)?.name).filter(Boolean))],
+    },
+    work: {
+      hours_worked: round1(work.minutes / 60),
+      earned_mnt: Math.round(work.total),
+      received_mnt: Math.round(work.received),
+      orders_delivered: orders.filter((o) => o.status === 'delivered' && inRange(keyOfTimestamp(o.delivered_at) || o.due_date, from, to)).length,
+      orders_open: ordersService.open().length,
+      orders_late: orders.filter((o) => isOrderLate(o)).length,
+      near_term_goals: workGoalsService.all().filter((g) => g.end_date >= from).map((g) => ({ title: g.title, pct: workGoalProgress(g).pct })),
+    },
+  };
+}
+
+/** Өгөгдөл хэр их байна — хэт цөөн бол AI-д илгээх нь утгагүй. */
+function digestSize(d) {
+  return d.tasks.completed + d.tasks.due_in_period + d.journal.entries + d.reflections.length + d.events.count + d.school.homework_due;
+}
+
+/** AI-гүй, зөвхөн тоон дээр тулгуурласан энгийн тойм (шошготойгоор харуулна). */
+function localSummary(d) {
+  const lines = [];
+  lines.push(`${d.period.days} хоногт ${d.tasks.completed} зүйл дуусгасан${d.tasks.completed_on_time_pct !== null ? `, хугацаандаа гүйцэтгэсэн нь ${d.tasks.completed_on_time_pct}%` : ''}.`);
+  const bestDay = Object.entries(d.tasks.completed_by_weekday).sort((a, b) => b[1] - a[1])[0];
+  if (bestDay && bestDay[1] > 0) lines.push(`Хамгийн бүтээмжтэй гараг: ${bestDay[0]} (${bestDay[1]} зүйл).`);
+  const bestSlot = Object.entries(d.tasks.completed_by_time_of_day).sort((a, b) => b[1] - a[1])[0];
+  if (bestSlot) lines.push(`Ихэвчлэн ${bestSlot[0]} ажил дуусгадаг.`);
+  const topCat = Object.entries(d.tasks.completed_by_category).sort((a, b) => b[1] - a[1])[0];
+  if (topCat && topCat[0] !== '—') lines.push(`Хамгийн их цаг зарцуулсан ангилал: ${topCat[0]} (${topCat[1]}).`);
+  if (d.journal.avg_mood_1_to_5) lines.push(`Тэмдэглэлийн дундаж сэтгэл санаа ${d.journal.avg_mood_1_to_5}/5 (${d.journal.entries} тэмдэглэл).`);
+  if (d.reflections.length) lines.push(`Төслүүддээ ${d.reflections.length} удаа «юу сурснаа» бичсэн.`);
+  if (d.tasks.overdue_now) lines.push(`Одоо ${d.tasks.overdue_now} зүйлийн хугацаа хэтэрсэн байна.`);
+  if (d.work.hours_worked) lines.push(`${d.work.hours_worked} цаг ажиллаж, ${d.work.earned_mnt.toLocaleString('en-US')}₮ олсон.`);
+  return lines;
+}
+
+/** Edge Function-ээр Claude-д шинжлүүлнэ → { report, model } */
+async function analyzeWithAI(period) {
+  if (!isAiConfigured()) throw new Error('AI холбогдоогүй байна — Supabase-тэй холбогдож нэвтэрсэн үед ажиллана.');
+  const digest = buildDigest(period.from, period.to);
+  const headers = { 'Content-Type': 'application/json' };
+  const token = await authService.accessToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (SUPABASE_ANON_KEY) headers.apikey = SUPABASE_ANON_KEY;
+  let response;
+  try {
+    response = await fetch(AI_ENDPOINT, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ mode: 'analyze', digest, period: { from: period.from, to: period.to, label: period.label } }),
+    });
+  } catch {
+    throw new Error('Интернэт холболт тасарсан байж магадгүй.');
+  }
+  if (!response.ok) {
+    let reason = `${response.status}`;
+    try { reason = (await response.json()).error || reason; } catch { /* JSON биш */ }
+    throw new Error(reason);
+  }
+  const json = await response.json();
+  if (!json.report) throw new Error('Тайлан ирсэнгүй.');
+  return { report: json.report, model: json.model || '' };
+}
+
+/** Тайланг хадгална — ижил хугацааных байвал шинэчилнэ (period_start+period_end давтагдахгүй). */
+async function saveReport(period, result) {
+  const report_data = { source: 'ai', model: result.model, label: period.label, report: result.report };
+  const generated_at = new Date().toISOString();
+  const existing = reportsService.all().find((r) => r.period_start === period.from && r.period_end === period.to);
+  return existing
+    ? reportsService.update(existing.id, { report_data, generated_at })
+    : reportsService.create({ period_start: period.from, period_end: period.to, report_data, generated_at });
+}
+
+});
+
+__def("js/services/birthdaysService.js", function (__e) {
+'use strict';
+Object.defineProperty(__e, "occurrenceIn", { enumerable: true, get: () => occurrenceIn });
+Object.defineProperty(__e, "nextOccurrence", { enumerable: true, get: () => nextOccurrence });
+Object.defineProperty(__e, "RELATIONSHIPS", { enumerable: true, get: () => RELATIONSHIPS });
+Object.defineProperty(__e, "REMINDER_OPTIONS", { enumerable: true, get: () => REMINDER_OPTIONS });
+Object.defineProperty(__e, "reminderLabel", { enumerable: true, get: () => reminderLabel });
+Object.defineProperty(__e, "daysUntil", { enumerable: true, get: () => daysUntil });
+Object.defineProperty(__e, "ageAt", { enumerable: true, get: () => ageAt });
+Object.defineProperty(__e, "birthdaysService", { enumerable: true, get: () => birthdaysService });
+/**
+ * Birthdays service — table: TABLES.birthdays
+ * Month and day are stored separately so the birth year can be optional.
+ */
+const { TABLES } = __req("js/config.js");
+const { createService } = __req("js/services/createService.js");
+const { birthdaysMap } = __req("js/services/dbMapping.js");
+const { todayKey, toKey, fromKey, diffDays } = __req("js/lib/dates.js");
+
+const RELATIONSHIPS = ['Гэр бүл', 'Найз', 'Хань', 'Хамт ажиллагч', 'Бусад'];
+const REMINDER_OPTIONS = [
+  { value: 0, label: 'Тухайн өдөр' },
+  { value: 1, label: '1 өдрийн өмнө' },
+  { value: 3, label: '3 өдрийн өмнө' },
+  { value: 7, label: '1 долоо хоногийн өмнө' },
+  { value: 14, label: '2 долоо хоногийн өмнө' },
+];
+const reminderLabel = (days) => REMINDER_OPTIONS.find((o) => o.value === Number(days))?.label || `${days} өдрийн өмнө`;
+
+const base = createService({
+  key: 'birthdays',
+  tableName: TABLES.birthdays,
+  columns: ['id', 'name', 'birth_month', 'birth_day', 'birth_year', 'relationship', 'reminder_enabled', 'reminder_days', 'notes', 'created_at'],
+  mapping: birthdaysMap,
+  normalize: (row) => ({
+    ...row,
+    name: row.name || '',
+    birth_month: Number(row.birth_month) || 1,
+    birth_day: Number(row.birth_day) || 1,
+    birth_year: row.birth_year ? Number(row.birth_year) : null,
+    relationship: row.relationship || 'Бусад',
+    reminder_enabled: row.reminder_enabled !== false,
+    reminder_days: row.reminder_days === null || row.reminder_days === undefined ? 1 : Number(row.reminder_days),
+    notes: row.notes || '',
+  }),
+});
+
+const isLeap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+
+/** Date key of this person's birthday in a given year (Feb 29 → Feb 28 in common years). */
+function occurrenceIn(b, year) {
+  let day = b.birth_day;
+  if (b.birth_month === 2 && day === 29 && !isLeap(year)) day = 28;
+  return toKey(new Date(year, b.birth_month - 1, day));
+}
+
+function nextOccurrence(b, from = todayKey()) {
+  const year = fromKey(from).getFullYear();
+  const thisYear = occurrenceIn(b, year);
+  return thisYear >= from ? thisYear : occurrenceIn(b, year + 1);
+}
+
+const daysUntil = (b) => diffDays(todayKey(), nextOccurrence(b));
+const ageAt = (b, key) => (b.birth_year ? fromKey(key).getFullYear() - b.birth_year : null);
+
+const birthdaysService = {
+  ...base,
+  onDate(key) {
+    const year = fromKey(key).getFullYear();
+    return base.all().filter((b) => occurrenceIn(b, year) === key);
+  },
+  /** Sorted by next occurrence, limited to the next `days` days. */
+  upcoming(days = 365) {
+    return base.all()
+      .map((b) => ({ ...b, next: nextOccurrence(b), days: daysUntil(b) }))
+      .filter((b) => b.days <= days)
+      .sort((a, b) => a.days - b.days || a.name.localeCompare(b.name, 'mn'));
+  },
+};
+
+});
+
+__def("js/lib/nlp.js", function (__e) {
+'use strict';
+Object.defineProperty(__e, "parseNatural", { enumerable: true, get: () => parseNatural });
+Object.defineProperty(__e, "cleanTaskTitle", { enumerable: true, get: () => cleanTaskTitle });
+Object.defineProperty(__e, "cleanEventTitle", { enumerable: true, get: () => cleanEventTitle });
+Object.defineProperty(__e, "parseTaskInput", { enumerable: true, get: () => parseTaskInput });
+/**
+ * Энгийн дүрмээр (AI-гүй) байгалийн хэлийг задлах.
+ *
+ * Монгол болон англи өгүүлбэрээс огноо, цаг, үргэлжлэх хугацаа, ач холбогдол,
+ * #ангиллыг ялгаж авна. Жишээ нь:
+ *   "Баасан гарагт 15 цагт тайлан илгээх чухал #ажил 1 цаг"
+ *   "Маргааш 12:30-13:30 Маятай үдийн хоол"
+ *   "Submit report Friday 3pm high priority #work 45m"
+ * Хурдан нэмэх талбарууд болон Туслахын дүрмүүд үүнийг ашиглана.
+ *
+ * Тэмдэглэл: JavaScript-ийн \b зөвхөн латин үсгийг таньдаг тул кирилл
+ * үгсийн хилийг L / R гэсэн lookaround-оор тодорхойлсон.
+ */
+const { toKey, addDays, startOfWeek } = __req("js/lib/dates.js");
+
+const pad = (n) => String(n).padStart(2, '0');
+const L = '(?<![\\p{L}\\p{N}])'; // үгийн эхлэл
+const R = '(?![\\p{L}\\p{N}])';  // үгийн төгсгөл
+const mn = (src) => new RegExp(src, 'iu');
+
+/* ---------- англи ---------- */
+const MONTH_NAMES = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+const DAY_NAMES = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+const MONTH_RE = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
+const WEEKDAY_FULL = '(monday|tuesday|wednesday|thursday|friday|saturday|sunday)';
+const WEEKDAY_ABBR = '(mon|tues?|wed|thu(?:rs?)?|fri|sat|sun)';
+const PREP = '(?:\\b(?:due\\s+(?:on\\s+|by\\s+)?|on\\s+|by\\s+|before\\s+|until\\s+))?';
+const NUM_WORDS = { a: 1, an: 1, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, ten: 10 };
+const monthIndex = (word) => MONTH_NAMES.indexOf(word.slice(0, 3).toLowerCase());
+const weekdayIndex = (word) => DAY_NAMES.indexOf(word.slice(0, 3).toLowerCase());
+
+/* ---------- монгол ---------- */
+const MN_WEEKDAYS = { ням: 0, даваа: 1, мягмар: 2, лхагва: 3, пүрэв: 4, баасан: 5, бямба: 6 };
+const MN_WEEKDAY_RE = '(даваа|мягмар|лхагва|пүрэв|баасан|бямба|ням)';
+const MN_PERIOD = '(өглөө|үдээс\\s+өмнө|үдээс\\s+хойш|өдөр|үдэш|орой|шөнө)';
+
+/** Өнгөрсөн огноо бол дараа жилийнх гэж үзнэ ("3-р сарын 3"-ыг 12-р сард бичвэл). */
+function futureDate(today, month, day, year) {
+  const d = new Date(year ?? today.getFullYear(), month, day);
+  if (d.getMonth() !== month) return null; // 2-р сарын 31 гэх мэт
+  if (year == null && d < today) return new Date(today.getFullYear() + 1, month, day);
+  return d;
+}
+
+function to24(h, min, suffix) {
+  let hour = Number(h);
+  const m = Number(min || 0);
+  if (hour > 23 || m > 59) return null;
+  if (suffix) {
+    if (hour > 12 || hour === 0) return null;
+    hour = (hour % 12) + (/p/i.test(suffix) ? 12 : 0);
+  }
+  return `${pad(hour)}:${pad(m)}`;
+}
+
+/** Монгол цагийн үе (өглөө, орой…) + цаг → 24 цагийн формат. */
+function mnHour(period, h, min) {
+  let hour = Number(h);
+  if (hour > 23 || Number(min || 0) > 59) return null;
+  const p = (period || '').replace(/\s+/g, ' ').toLowerCase();
+  if (/хойш|үдэш|орой/.test(p) && hour < 12) hour += 12;
+  else if (p === 'шөнө' && hour >= 8 && hour < 12) hour += 12;
+  else if (/өглөө|өмнө/.test(p) && hour === 12) hour = 0;
+  else if (!p && hour >= 1 && hour <= 7) hour += 12; // "3 цагт" ихэвчлэн 15:00
+  return `${pad(hour)}:${pad(min || 0)}`;
+}
+
+/**
+ * { rest, date, time, endTime, priority, category, minutes } буцаана.
+ * `rest` нь танигдсан хэсгүүдийг хассан үлдэгдэл текст.
+ */
+function parseNatural(input, { now = new Date() } = {}) {
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const out = { rest: '', date: null, time: null, endTime: null, priority: null, category: null, minutes: null };
+  let s = ` ${String(input || '')} `;
+
+  // Хэв таарч, боловсруулагч зөвшөөрвөл тухайн хэсгийг текстээс хасна.
+  const take = (re, handler) => {
+    const m = s.match(re);
+    if (!m || handler(m) === false) return false;
+    s = `${s.slice(0, m.index)} ${s.slice(m.index + m[0].length)}`;
+    return true;
+  };
+  const setDate = (d) => { out.date = toKey(d); };
+
+  // ── #ангилал
+  take(/(?:^|\s)#([\p{L}\p{N}_-]+)/u, (m) => { out.category = m[1].charAt(0).toUpperCase() + m[1].slice(1); });
+
+  // ── ач холбогдол
+  take(/\bpriority\s*[:=]?\s*(high|medium|med|low)\b/i, (m) => { out.priority = /^med/i.test(m[1]) ? 'medium' : m[1].toLowerCase(); })
+    || take(mn(`${L}(?:!өндөр|!чухал)${R}|${L}(?:чухал|яаралтай|нэн\\s+тэргүүнд)${R}|${L}өндөр\\s+ач\\s+холбогдол\\p{L}*`), () => { out.priority = 'high'; })
+    || take(mn(`${L}!бага${R}|${L}бага\\s+ач\\s+холбогдол\\p{L}*`), () => { out.priority = 'low'; })
+    || take(mn(`${L}!дунд${R}|${L}дунд\\s+ач\\s+холбогдол\\p{L}*`), () => { out.priority = 'medium'; })
+    || take(/\s(?:!high|!h|!!+|p1)(?=\s)|\b(?:high[- ]priority|urgent|asap|important)\b/i, () => { out.priority = 'high'; })
+    || take(/\s(?:!low|!l|p3)(?=\s)|\blow[- ]priority\b/i, () => { out.priority = 'low'; })
+    || take(/\s(?:!medium|!med|!m|p2)(?=\s)|\b(?:medium|normal)[- ]priority\b/i, () => { out.priority = 'medium'; });
+
+  // ── үргэлжлэх хугацаа ("45 мин", "2 цаг", "1 цаг 30 мин", "хагас цаг", "45m", "for 2 hours")
+  take(mn(`${L}хагас\\s+цаг(?:ийн)?${R}`), () => { out.minutes = 30; })
+    || take(mn(`${L}(\\d+(?:[.,]\\d+)?)\\s*цаг(?!т|аас)(?:ийн)?(?:\\s*(\\d+)\\s*мин\\p{L}*)?${R}`), (m) => {
+      out.minutes = Math.round(parseFloat(m[1].replace(',', '.')) * 60 + (m[2] ? Number(m[2]) : 0));
+    })
+    || take(mn(`${L}(\\d+)\\s*мин(?:ут)?\\p{L}*`), (m) => { out.minutes = Number(m[1]); })
+    || take(mn(`${L}нэг\\s+цаг(?:ийн)?${R}`), () => { out.minutes = 60; })
+    || take(/\b(?:for\s+|takes?\s+|about\s+)?half\s+an\s+hour\b/i, () => { out.minutes = 30; })
+    || take(/\b(?:for\s+|takes?\s+|about\s+|~\s*)?(\d+(?:\.\d+)?)\s*(?:h|hr|hrs|hours?)\b(?:\s*(?:and\s+)?(\d+)\s*(?:m|min|mins|minutes?)\b)?/i, (m) => {
+      out.minutes = Math.round(parseFloat(m[1]) * 60 + (m[2] ? Number(m[2]) : 0));
+    })
+    || take(/\b(?:for\s+|takes?\s+|about\s+|~\s*)?(\d+)\s*(?:m|min|mins|minutes?)\b/i, (m) => { out.minutes = Number(m[1]); })
+    || take(/\b(?:for\s+|takes?\s+)?(?:an?|one)\s+hour\b/i, () => { out.minutes = 60; });
+
+  // ── цагийн муж ("12:30-13:30", "14-16 цагт", "2-4pm")
+  take(new RegExp(`(?:\\bfrom\\s+)?\\b([01]?\\d|2[0-3]):([0-5]\\d)\\s*(?:-|–|to|until|till)\\s*([01]?\\d|2[0-3]):([0-5]\\d)(?:\\s*(?:цаг(?:т|ийн\\s+хооронд)|-?\\s*н?д)${R})?`, 'iu'), (m) => {
+    out.time = `${pad(m[1])}:${m[2]}`;
+    out.endTime = `${pad(m[3])}:${m[4]}`;
+  })
+    || take(mn(`${L}(\\d{1,2})\\s*[-–]\\s*(\\d{1,2})\\s*цаг(?:т|ийн\\s+хооронд)?${R}`), (m) => {
+      let a = Number(m[1]);
+      let b = Number(m[2]);
+      if (a > 23 || b > 23) return false;
+      if (b <= 7) { b += 12; if (a <= b - 12) a += 12; }
+      out.time = `${pad(a)}:00`;
+      out.endTime = `${pad(b)}:00`;
+    })
+    || take(/\b(?:from\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)?\s*(?:-|–|to|until|till)\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)(?![a-z])/i, (m) => {
+      const end = to24(m[4], m[5], m[6]);
+      let start = to24(m[1], m[2], m[3] || m[6]);
+      if (!start || !end) return false;
+      if (!m[3] && start > end) start = to24(m[1], m[2], /p/i.test(m[6]) ? 'am' : 'pm');
+      out.time = start;
+      out.endTime = end;
+    });
+
+  // ── нэг цаг ("15 цагт", "орой 7 цагт", "15:00-д", "3pm", "noon")
+  if (!out.time) {
+    take(mn(`(?:${L}${MN_PERIOD}\\s+)?${L}(\\d{1,2})(?::(\\d{2}))?\\s*цаг(?:т|аас)${R}`), (m) => {
+      const t = mnHour(m[1], m[2], m[3]);
+      if (!t) return false;
+      out.time = t;
+    })
+      || take(mn(`${L}${MN_PERIOD}\\s+(\\d{1,2}):(\\d{2})(?:\\s*-?\\s*н?д${R}|\\s*цаг(?:т|аас)${R})?`), (m) => {
+        const t = mnHour(m[1], m[2], m[3]);
+        if (!t) return false;
+        out.time = t;
+      })
+      || take(new RegExp(`(?:\\b(?:at|by|from)\\s*|@\\s*)?\\b([01]?\\d|2[0-3]):([0-5]\\d)(?:\\s*-?\\s*н?д${R}|\\s*цаг(?:т|аас)${R})?`, 'iu'), (m) => { out.time = `${pad(m[1])}:${m[2]}`; })
+      || take(/(?:\b(?:at|by|from)\s*|@\s*)?\b(\d{1,2})(?::(\d{2}))?\s*(am|pm|a\.m\.|p\.m\.)(?![a-z])/i, (m) => {
+        const t = to24(m[1], m[2], m[3]);
+        if (!t) return false;
+        out.time = t;
+      })
+      || take(mn(`${L}үд(?:ийн\\s+цагаар|\\s+дунд)${R}`), () => { out.time = '12:00'; })
+      || take(/\b(?:at\s+)?noon\b/i, () => { out.time = '12:00'; })
+      || take(/\b(?:at\s+)?midnight\b/i, () => { out.time = '00:00'; })
+      || take(/(?:\bat|@)\s*(\d{1,2})\b(?!\s*(?:days?|weeks?|months?|hours?|mins?|minutes?|[%/.-]))/i, (m) => {
+        let h = Number(m[1]);
+        if (h < 1 || h > 23) return false;
+        if (h <= 7) h += 12;
+        out.time = `${pad(h)}:00`;
+      });
+  }
+
+  // ── огноо (монгол)
+  const nextWeekStart = () => addDays(startOfWeek(today), 7);
+  take(mn(`${L}нөгөөдөр${R}|${L}нөгөөдр\\p{L}*`), () => setDate(addDays(today, 2)))
+    || take(mn(`${L}өнөөдөр${R}|${L}өнөөдр\\p{L}*|${L}өнөө(?:\\s+(?:орой|өглөө|үдэш|шөнө))?${R}`), () => setDate(today))
+    || take(mn(`${L}маргааш\\p{L}*`), () => setDate(addDays(today, 1)))
+    || take(mn(`${L}(\\d+)\\s*долоо\\s+хоног\\p{L}*\\s+дараа\\p{L}*`), (m) => setDate(addDays(today, Number(m[1]) * 7)))
+    || take(mn(`${L}(\\d+)\\s*(?:хоног|өдөр|өдр)\\p{L}*\\s+дараа\\p{L}*`), (m) => setDate(addDays(today, Number(m[1]))))
+    || take(mn(`${L}(?:ирэх|дараа(?:гийн)?)\\s+долоо\\s+хоног(?:т|од|ийн\\s+эхэнд)?${R}`), () => setDate(nextWeekStart()))
+    || take(mn(`${L}(\\d{1,2})\\s*-?\\s*(?:р|дүгээр|дугаар)?\\s*сар(?:ын)?\\s+(\\d{1,2})(?:\\s*-?\\s*(?:нд|ний|ны|д))?${R}`), (m) => {
+      const d = futureDate(today, Number(m[1]) - 1, Number(m[2]), null);
+      if (!d) return false;
+      setDate(d);
+    })
+    || take(mn(`${L}(?:(ирэх|энэ|дараа\\s+долоо\\s+хоногийн)\\s+)?${MN_WEEKDAY_RE}(?:н?д|т)?(?:\\s+гар[иа]г\\p{L}*)?${R}`), (m) => {
+      const target = MN_WEEKDAYS[m[2].toLowerCase()];
+      if (m[1] && /^дараа/i.test(m[1])) {
+        const start = nextWeekStart();
+        setDate(addDays(start, (target - start.getDay() + 7) % 7));
+        return true;
+      }
+      let diff = (target - today.getDay() + 7) % 7;
+      if (diff === 0 && !(m[1] && /энэ/i.test(m[1]))) diff = 7;
+      setDate(addDays(today, diff));
+      return true;
+    });
+
+  // ── огноо (англи, тоон)
+  if (!out.date) {
+    take(/\b(\d{4})-(\d{2})-(\d{2})\b/, (m) => {
+      const d = new Date(+m[1], +m[2] - 1, +m[3]);
+      if (d.getMonth() !== +m[2] - 1) return false;
+      setDate(d);
+    })
+      || take(new RegExp(`${PREP}\\b(?:the\\s+)?day\\s+after\\s+tomorrow\\b`, 'i'), () => setDate(addDays(today, 2)))
+      || take(new RegExp(`${PREP}\\b(?:today|tonight|this\\s+(?:morning|afternoon|evening))\\b`, 'i'), () => setDate(today))
+      || take(new RegExp(`${PREP}\\b(?:tomorrow|tmrw|tmr)\\b`, 'i'), () => setDate(addDays(today, 1)))
+      || take(/\bin\s+(\d+|an?|one|two|three|four|five|six|seven|ten)\s+(days?|weeks?)\b/i, (m) => {
+        const n = NUM_WORDS[m[1].toLowerCase()] ?? Number(m[1]);
+        setDate(addDays(today, n * (/week/i.test(m[2]) ? 7 : 1)));
+      })
+      || take(new RegExp(`${PREP}\\bnext\\s+week\\b`, 'i'), () => setDate(nextWeekStart()))
+      || take(new RegExp(`${PREP}\\b(?:the\\s+)?end\\s+of\\s+(?:the\\s+|this\\s+)?week\\b`, 'i'), () => setDate(addDays(today, (5 - today.getDay() + 7) % 7)))
+      || take(new RegExp(`${PREP}\\b(?:this\\s+|the\\s+)?weekend\\b`, 'i'), () => setDate(addDays(today, (6 - today.getDay() + 7) % 7)))
+      || take(new RegExp(`${PREP}\\b${MONTH_RE}\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?(?:,?\\s+(\\d{4}))?\\b`, 'i'), (m) => {
+        const d = futureDate(today, monthIndex(m[1]), +m[2], m[3] ? +m[3] : null);
+        if (!d) return false;
+        setDate(d);
+      })
+      || take(new RegExp(`${PREP}\\b(?:the\\s+)?(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?${MONTH_RE}\\b(?:,?\\s+(\\d{4}))?`, 'i'), (m) => {
+        const d = futureDate(today, monthIndex(m[2]), +m[1], m[3] ? +m[3] : null);
+        if (!d) return false;
+        setDate(d);
+      })
+      || take(new RegExp(`${PREP}\\b(?:(next|this|coming)\\s+)?${WEEKDAY_FULL}\\b`, 'i'), (m) => weekdayDate(m[1], m[2]))
+      || take(new RegExp(`\\b(on|by|next|this|due)\\s+${WEEKDAY_ABBR}\\b\\.?`, 'i'), (m) => weekdayDate(/next|this/i.test(m[1]) ? m[1] : null, m[2]))
+      || take(new RegExp(`${PREP}\\b(\\d{1,2})\\/(\\d{1,2})(?:\\/(\\d{2,4}))?\\b`), (m) => {
+        const year = m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : null;
+        const d = futureDate(today, Number(m[1]) - 1, Number(m[2]), year);
+        if (!d) return false;
+        setDate(d);
+      });
+  }
+
+  function weekdayDate(modifier, word) {
+    const target = weekdayIndex(word);
+    let diff = (target - today.getDay() + 7) % 7;
+    if (diff === 0 && !(modifier && /this/i.test(modifier))) diff = 7;
+    setDate(addDays(today, diff));
+  }
+
+  out.rest = s.replace(/\s+/g, ' ').trim();
+  return out;
+}
+
+/* ---------- гарчиг цэвэрлэх ---------- */
+
+const TRAILING = /(?:[\s,;:.!\-–]+|\s+(?:on|at|by|for|due|from|in|the|and|to|with|before|until|of|a)|\s+(?:-?н?д|цагт|цагаас|гар[иа]гт|нь|ба|болон|хүртэл))$/i;
+function tidy(text) {
+  let t = ` ${text} `.replace(/\s+/g, ' ').trim();
+  let prev;
+  do {
+    prev = t;
+    t = t.replace(TRAILING, '').trim();
+    t = t.replace(/^(?:[,;:\-–]\s*|to\s+|and\s+|-?н?д\s+)/i, '').trim();
+  } while (t !== prev);
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+}
+
+function cleanTaskTitle(text) {
+  let t = ` ${text} `;
+  // монгол
+  t = t.replace(/^\s*(?:шинэ\s+)?(?:ажил|даалгавар|сануулга)\s*(?:нэм(?:эх|ээрэй)?)?\s*[:\-–]\s*/iu, ' ');
+  t = t.replace(/^\s*сануул(?:аарай|ах)?\s*[:\-–]?\s*/iu, ' ');
+  t = t.replace(/^\s*(?:эцсийн\s+хугацаа|дедлайн)\s*[:\-–]?\s*/iu, ' ');
+  t = t.replace(/\s*(?:гэсэн\s+|гэж\s+)?(?:ажил|даалгавар)?\s*(?:нэмээрэй|нэмээч|нэмэх|нэм|оруулаарай)\s*[.!]?\s*$/iu, ' ');
+  t = t.replace(/\s*(?:гэж\s+)?сануулаарай\s*[.!]?\s*$/iu, ' ');
+  t = t.replace(/\s+(?:хэрэгтэй|ёстой)\s*[.!]?\s*$/iu, ' ');
+  // англи
+  t = t.replace(/^\s*(?:please\s+)?(?:can you\s+|could you\s+)?(?:add|create|make|new|put)\s+(?:a\s+|an\s+)?(?:new\s+)?(?:task|todo|to-do|reminder)?\s*(?:to\s+(?:my\s+)?(?:list|tasks)\s*)?(?::|-|–)?\s*/i, ' ');
+  t = t.replace(/^\s*(?:task|todo|to-do|reminder)\s*(?::|-|–)\s*/i, ' ');
+  t = t.replace(/^\s*remind\s+me\s+(?:to\s+)?/i, ' ');
+  t = t.replace(/^\s*(?:i\s+)?(?:need|have|must|should|gotta)\s+(?:to\s+)?/i, ' ');
+  t = t.replace(/^\s*deadline\s*(?:for|:|-)?\s*/i, ' ');
+  return tidy(t);
+}
+
+function cleanEventTitle(text) {
+  let t = ` ${text} `;
+  // монгол
+  t = t.replace(/^\s*(?:шинэ\s+)?(?:арга\s+хэмжээ|үйл\s+явдал)\s*(?:нэм(?:эх|ээрэй)?)?\s*[:\-–]\s*/iu, ' ');
+  t = t.replace(/\s*(?:календарь|хуанли)(?:т|д|нд)?\s*(?:нэмээрэй|нэм|оруулаарай)?\s*[.!]?\s*$/iu, ' ');
+  t = t.replace(/\s*(?:товлоорой|товлох|товло|нэмээрэй|нэмэх|нэм)\s*[.!]?\s*$/iu, ' ');
+  // англи
+  t = t.replace(/^\s*(?:please\s+)?(?:can you\s+|could you\s+)?(?:add|create|schedule|book|put|set\s+up|plan)\s+(?:an?\s+)?(?:new\s+)?(?:event\s*(?::|-|–)?\s*)?/i, ' ');
+  t = t.replace(/^\s*event\s*(?::|-|–)\s*/i, ' ');
+  t = t.replace(/\s+(?:to|in|on)\s+(?:my\s+)?calendar\b/i, ' ');
+  return tidy(t);
+}
+
+/** Хурдан нэмэх талбарт: ажлын талбаруудыг буцаана (дурдаагүй бол null). */
+function parseTaskInput(text, options) {
+  const p = parseNatural(text, options);
+  return {
+    title: cleanTaskTitle(p.rest),
+    due_date: p.date,
+    due_time: p.time,
+    priority: p.priority,
+    category: p.category,
+    estimated_minutes: p.minutes,
+  };
+}
 
 });
 
@@ -4979,161 +5432,6 @@ const aiService = {
 
 });
 
-__def("js/services/schoolService.js", function (__e) {
-'use strict';
-Object.defineProperty(__e, "dueMoment", { enumerable: true, get: () => dueMoment });
-Object.defineProperty(__e, "dueCountdown", { enumerable: true, get: () => dueCountdown });
-Object.defineProperty(__e, "classesOn", { enumerable: true, get: () => classesOn });
-Object.defineProperty(__e, "nextClass", { enumerable: true, get: () => nextClass });
-Object.defineProperty(__e, "SUBJECT_COLORS", { enumerable: true, get: () => SUBJECT_COLORS });
-Object.defineProperty(__e, "CLASS_KINDS", { enumerable: true, get: () => CLASS_KINDS });
-Object.defineProperty(__e, "kindLabel", { enumerable: true, get: () => kindLabel });
-Object.defineProperty(__e, "HOMEWORK_STATUSES", { enumerable: true, get: () => HOMEWORK_STATUSES });
-Object.defineProperty(__e, "statusLabel", { enumerable: true, get: () => statusLabel });
-Object.defineProperty(__e, "isFinished", { enumerable: true, get: () => isFinished });
-Object.defineProperty(__e, "subjectsService", { enumerable: true, get: () => subjectsService });
-Object.defineProperty(__e, "classSessionsService", { enumerable: true, get: () => classSessionsService });
-Object.defineProperty(__e, "homeworkService", { enumerable: true, get: () => homeworkService });
-Object.defineProperty(__e, "subjectById", { enumerable: true, get: () => subjectById });
-/**
- * Сургууль — хичээл, хичээлийн хуваарь, гэрийн даалгавар.
- * Хүснэгтүүд: TABLES.subjects, TABLES.classSessions, TABLES.homework
- */
-const { TABLES } = __req("js/config.js");
-const { createService } = __req("js/services/createService.js");
-const { todayKey, addDaysKey, diffDays, fromKey, timeToMin, nowMinutes } = __req("js/lib/dates.js");
-
-/** Хичээлийн өнгө — сонгох боломжтой 8 өнгө (CSS дээр токен биш, хэрэглэгчийн сонголт). */
-const SUBJECT_COLORS = ['#DB2E72', '#14A09C', '#F0A21E', '#1F6FB5', '#7357D9', '#F07C3E', '#2E9E5B', '#8A93A3'];
-
-const CLASS_KINDS = [
-  { value: 'lecture', label: 'Лекц' },
-  { value: 'seminar', label: 'Семинар' },
-  { value: 'lab', label: 'Лаборатори' },
-  { value: 'workshop', label: 'Workshop' },
-  { value: 'other', label: 'Бусад' },
-];
-const kindLabel = (k) => CLASS_KINDS.find((x) => x.value === k)?.label || 'Хичээл';
-
-const HOMEWORK_STATUSES = [
-  { value: 'todo', label: 'Эхлээгүй' },
-  { value: 'in_progress', label: 'Хийж байна' },
-  { value: 'done', label: 'Дууссан' },
-  { value: 'submitted', label: 'Илгээсэн' },
-];
-const statusLabel = (s) => HOMEWORK_STATUSES.find((x) => x.value === s)?.label || 'Эхлээгүй';
-const isFinished = (h) => h.status === 'done' || h.status === 'submitted';
-
-const hhmm = (t) => (t ? String(t).slice(0, 5) : null);
-
-const subjectsService = createService({
-  key: 'subjects',
-  tableName: TABLES.subjects,
-  columns: ['id', 'name', 'teacher', 'color', 'created_at'],
-  normalize: (row) => ({ ...row, name: row.name || '', teacher: row.teacher || '', color: row.color || SUBJECT_COLORS[0] }),
-});
-
-const classSessionsService = createService({
-  key: 'classSessions',
-  tableName: TABLES.classSessions,
-  columns: ['id', 'subject_id', 'weekday', 'start_time', 'end_time', 'room', 'kind', 'created_at'],
-  normalize: (row) => ({
-    ...row,
-    weekday: Number(row.weekday) || 0,
-    start_time: hhmm(row.start_time),
-    end_time: hhmm(row.end_time),
-    room: row.room || '',
-    kind: row.kind || 'lecture',
-  }),
-});
-
-const homeworkBase = createService({
-  key: 'homework',
-  tableName: TABLES.homework,
-  columns: ['id', 'subject_id', 'title', 'description', 'assigned_date', 'start_date', 'start_time', 'due_date', 'due_time', 'estimated_minutes', 'status', 'completed_at', 'created_at'],
-  normalize: (row) => ({
-    ...row,
-    title: row.title || '',
-    description: row.description || '',
-    start_time: hhmm(row.start_time),
-    due_time: hhmm(row.due_time),
-    estimated_minutes: row.estimated_minutes ? Number(row.estimated_minutes) : null,
-    status: row.status || 'todo',
-  }),
-});
-
-/** Дуусах агшин (ms) — цаггүй бол тухайн өдрийн төгсгөл. Хугацаагүй бол Infinity. */
-function dueMoment(h) {
-  if (!h.due_date) return Infinity;
-  const d = fromKey(h.due_date);
-  const [hh, mm] = (h.due_time || '23:59').split(':').map(Number);
-  d.setHours(hh, mm, 0, 0);
-  return d.getTime();
-}
-
-/** «2 өдөр 4 цаг», «3 цаг», «Хугацаа хэтэрсэн» гэх мэт. */
-function dueCountdown(h, now = Date.now()) {
-  const ms = dueMoment(h) - now;
-  if (!Number.isFinite(ms)) return 'Хугацаагүй';
-  if (ms < 0) {
-    const days = diffDays(h.due_date, todayKey());
-    return days > 0 ? `${days} хоног хэтэрсэн` : 'Хугацаа хэтэрсэн';
-  }
-  const mins = Math.floor(ms / 60000);
-  const d = Math.floor(mins / 1440);
-  const hrs = Math.floor((mins % 1440) / 60);
-  if (d > 0) return hrs ? `${d} өдөр ${hrs} цаг үлдсэн` : `${d} өдөр үлдсэн`;
-  if (hrs > 0) return `${hrs} цаг ${mins % 60} мин үлдсэн`;
-  return `${mins} мин үлдсэн`;
-}
-
-const homeworkService = {
-  ...homeworkBase,
-  open: () => homeworkBase.all().filter((h) => !isFinished(h)).sort((a, b) => dueMoment(a) - dueMoment(b)),
-  finished: () => homeworkBase.all().filter(isFinished).sort((a, b) => String(b.completed_at || '').localeCompare(String(a.completed_at || ''))),
-  overdue: () => homeworkService.open().filter((h) => dueMoment(h) < Date.now()),
-  /** `days` хоногийн дотор дуусах (хэтэрснийг оруулна). */
-  dueWithin: (days) => {
-    const limit = addDaysKey(todayKey(), days);
-    return homeworkService.open().filter((h) => h.due_date && h.due_date <= limit);
-  },
-  async setStatus(h, status) {
-    const done = status === 'done' || status === 'submitted';
-    return homeworkBase.update(h.id, { status, completed_at: done ? (h.completed_at || new Date().toISOString()) : null });
-  },
-};
-
-const subjectById = (id) => (id ? subjectsService.get(id) : null);
-
-/** Тухайн өдрийн хичээлүүд (гарагаар), эхлэх цагаар эрэмбэлсэн. */
-function classesOn(dateKey) {
-  const weekday = fromKey(dateKey).getDay();
-  return classSessionsService.all()
-    .filter((s) => s.weekday === weekday)
-    .sort((a, b) => (timeToMin(a.start_time) ?? 0) - (timeToMin(b.start_time) ?? 0));
-}
-
-/**
- * Дараагийн хичээл — өнөөдөр одоо явагдаж буй эсвэл эхлээгүй хичээл, байхгүй бол
- * ирэх 7 хоногийн эхнийх. → { session, subject, date, minutesUntil, ongoing } | null
- */
-function nextClass() {
-  const now = nowMinutes();
-  for (let i = 0; i < 8; i++) {
-    const date = addDaysKey(todayKey(), i);
-    for (const session of classesOn(date)) {
-      const start = timeToMin(session.start_time) ?? 0;
-      const end = timeToMin(session.end_time) ?? start + 80;
-      if (i === 0 && end <= now) continue;
-      const ongoing = i === 0 && start <= now;
-      return { session, subject: subjectById(session.subject_id), date, ongoing, minutesUntil: i === 0 ? start - now : null };
-    }
-  }
-  return null;
-}
-
-});
-
 __def("js/services/index.js", function (__e) {
 'use strict';
 Object.defineProperty(__e, "loadAllData", { enumerable: true, get: () => loadAllData });
@@ -5146,6 +5444,7 @@ const { store } = __req("js/state/store.js");
 const { tasksService } = __req("js/services/tasksService.js");
 const { eventsService } = __req("js/services/eventsService.js");
 const { goalsService, projectsService, wishesService, reflectionsService } = __req("js/services/goalsService.js");
+const { reportsService } = __req("js/services/analysisService.js");
 const { journalService } = __req("js/services/journalService.js");
 const { birthdaysService } = __req("js/services/birthdaysService.js");
 const { aiService } = __req("js/services/aiService.js");
@@ -5158,6 +5457,7 @@ const LOADERS = [
   ['Хүсэл мөрөөдөл', wishesService],
   ['Зорилго', goalsService],
   ['Төслийн тэмдэглэл', reflectionsService],
+  ['AI тайлан', reportsService],
   ['Төсөл', projectsService],
   ['Тэмдэглэл', journalService],
   ['Төрсөн өдөр', birthdaysService],
@@ -9384,8 +9684,10 @@ __def("js/pages/goals.js", function (__e) {
 Object.defineProperty(__e, "default", { enumerable: true, get: () => __default });
 /**
  * Хүсэл, зорилго, төсөл.
+ *   #/goals             → (анхдагч) төслүүд: ⚡ Жижиг ба 🌱 Том гэж хоёр хуваан
  *   #/goals?tab=wishes  → хүсэл мөрөөдөл: 4 ангилал (Болох · Хийх · Эзэмших · Өгөх), хугацаагүй
  *   #/goals?tab=goals   → goal cards with progress, filter + sort, loose projects
+ *   #/goals/<id>?p=<projectId> → тухайн төсөл рүү гүйлгэнэ
  *   #/goals/<id>        → one goal: its wish, its projects, each with its tasks
  *   #/goals/none        → projects that don't belong to a goal
  *
@@ -9525,6 +9827,59 @@ function goalsTab() {
   }).join('')}</div>` : ''}`;
 }
 
+/* ───────────── Төслүүд: Жижиг / Том ───────────── */
+function projectTile(p) {
+  const pr = projectProgress(p.id);
+  const goal = p.goal_id ? goalsService.get(p.goal_id) : null;
+  const href = `#/goals/${goal ? goal.id : 'none'}?p=${p.id}`;
+  const next = sortTasks(tasksService.byProject(p.id).filter((t) => t.status !== 'done'))[0];
+  const notes = reflectionsService.byProject(p.id).length;
+  let when = '';
+  if (p.kind === 'long') when = `<span class="project-day">${projectDay(p)} дэх өдөр</span>`;
+  else if (p.due_date) {
+    const days = diffDays(todayKey(), p.due_date);
+    when = days < 0 ? `<span class="text-danger">${-days} хоног хэтэрсэн</span>` : days === 0 ? '<span class="text-warning">Өнөөдөр дуусна</span>' : `<span>${days} хоног үлдсэн</span>`;
+  }
+  return `<article class="card proj-tile kind-${p.kind}" data-project-id="${p.id}">
+    <a class="pt-main" href="${href}">
+      <span class="pt-title">${esc(p.title)}</span>
+      <span class="pt-goal">${goal ? `${icon('goals', 12)}${esc(goal.title)}` : `${icon('folder', 12)}Зорилгогүй`}</span>
+    </a>
+    <div class="pt-progress">${progressBar(pr.pct)}<span class="pt-pct">${pr.pct}%</span></div>
+    <div class="pt-meta"><span>${pr.done}/${pr.total} алхам</span>${when}${notes ? `<span>${icon('sparkle', 12)}${notes} тэмдэглэл</span>` : ''}</div>
+    ${next ? `<div class="pt-next"><span class="pt-next-label">Дараагийн алхам</span>${taskListHTML([next], { showProject: false })}</div>`
+    : pr.total ? '<p class="pt-done small">Бүх алхам дууссан 🎉 <button type="button" class="link-btn" data-action="complete-project">Төслийг дуусгах</button></p>'
+      : `<a class="pt-add small" href="${href}">${icon('plus', 13)} Алхам нэмэх</a>`}
+  </article>`;
+}
+
+function projectsTab() {
+  const all = projectsService.all();
+  if (!all.length) {
+    return `<div class="card">${emptyState({
+      icon: 'folder', title: 'Эхний төслөө нэмье',
+      text: '⚡ Жижиг төсөл — цөөн алхамтай, хурдан дуусна (цүнх авах). 🌱 Том төсөл — олон, давтагдах үйлдэлтэй (турах, эрт унтдаг болох).',
+      actions: PROJECT_KINDS.map((k) => `<button type="button" class="btn ${k.value === 'quick' ? '' : 'btn-primary'}" data-action="new-project" data-kind="${k.value}">${k.emoji} ${esc(k.label)} төсөл</button>`).join(''),
+    })}</div>`;
+  }
+  return `<div class="proj-board">${PROJECT_KINDS.map((k) => {
+    const list = all.filter((p) => p.kind === k.value);
+    const open = list.filter((p) => p.status !== 'completed')
+      .sort((a, b) => (a.status === 'paused') - (b.status === 'paused') || String(a.due_date || '9999').localeCompare(String(b.due_date || '9999')) || String(a.created_at).localeCompare(String(b.created_at)));
+    const done = list.filter((p) => p.status === 'completed');
+    return `<section class="proj-col kind-${k.value}" aria-label="${esc(k.label)} төслүүд">
+      <header class="proj-col-head">
+        <span class="proj-col-emoji" aria-hidden="true">${k.emoji}</span>
+        <div><h2 class="proj-col-title">${esc(k.label)} төслүүд <span class="count">${open.length}</span></h2><p class="small muted">${esc(k.hint)} · ${esc(k.example)}</p></div>
+        <button type="button" class="btn btn-sm" data-action="new-project" data-kind="${k.value}">${icon('plus', 14)} Нэмэх</button>
+      </header>
+      ${open.length ? `<div class="proj-tiles">${open.map(projectTile).join('')}</div>` : `<p class="small faint proj-empty">Идэвхтэй ${esc(k.label.toLowerCase())} төсөл алга.</p>`}
+      ${done.length ? `<details class="proj-done"><summary>${icon('check', 14)} Дууссан <span class="count">${done.length}</span></summary>
+        <ul>${done.map((p) => `<li><a href="#/goals/${p.goal_id && goalsService.get(p.goal_id) ? p.goal_id : 'none'}?p=${p.id}">${esc(p.title)}</a><span class="small faint">${reflectionsService.byProject(p.id).length} тэмдэглэл</span></li>`).join('')}</ul></details>` : ''}
+    </section>`;
+  }).join('')}</div>`;
+}
+
 /** Хүслээс зорилго үүсгээд, шууд төсөл нэмэх санал тавина. */
 function goalFromWish(wish) {
   openGoalForm(null, {
@@ -9535,34 +9890,44 @@ function goalFromWish(wish) {
 }
 
 function renderList(root, route = parseRoute()) {
-  const tab = route.query?.tab === 'goals' ? 'goals' : 'wishes';
+  delete root.dataset.focused;
+  const tab = ['wishes', 'goals'].includes(route.query?.tab) ? route.query.tab : 'projects';
+  const projects = projectsService.all();
   const wishes = wishesService.all();
   const goals = goalsService.all();
   const linked = goals.filter((g) => g.wish_id && wishesService.get(g.wish_id)).length;
 
   root.innerHTML = `
     ${pageHead({
-    eyebrow: tab === 'wishes' ? `${wishes.length} хүсэл · ${wishes.filter((w) => w.achieved_at).length} биелсэн · ${linked} зорилготой холбогдсон` : 'Чиглэл',
+    eyebrow: tab === 'wishes' ? `${wishes.length} хүсэл · ${wishes.filter((w) => w.achieved_at).length} биелсэн · ${linked} зорилготой холбогдсон`
+      : tab === 'projects' ? PROJECT_KINDS.map((k) => `${k.emoji} ${projects.filter((p) => p.kind === k.value && p.status !== 'completed').length} ${k.label.toLowerCase()}`).join(' · ')
+        : 'Чиглэл',
     title: 'Зорилго ба төсөл',
     sub: chainHTML(),
     actions: tab === 'wishes'
       ? `<button type="button" class="btn" data-action="new-goal">${icon('goals', 16)} Шинэ зорилго</button><button type="button" class="btn btn-primary" data-action="new-wish">${icon('sparkle', 16)} Шинэ хүсэл</button>`
+      : tab === 'projects'
+        ? `<button type="button" class="btn" data-action="new-goal">${icon('goals', 16)} Шинэ зорилго</button><button type="button" class="btn btn-primary" data-action="new-project">${icon('plus', 16)} Шинэ төсөл</button>`
       : `<button type="button" class="btn" data-action="new-project">${icon('folder', 16)} Шинэ төсөл</button><button type="button" class="btn btn-primary" data-action="new-goal">${icon('plus', 16)} Шинэ зорилго</button>`,
   })}
     <nav class="tabs page-tabs" aria-label="Хүсэл ба зорилго">
       <a class="tab ${tab === 'wishes' ? 'is-active' : ''}" href="#/goals?tab=wishes" ${tab === 'wishes' ? 'aria-current="page"' : ''}>${icon('sparkle', 15)} Хүсэл мөрөөдөл<span class="count">${wishes.length}</span></a>
-      <a class="tab ${tab === 'goals' ? 'is-active' : ''}" href="#/goals?tab=goals" ${tab === 'goals' ? 'aria-current="page"' : ''}>${icon('goals', 15)} Зорилго ба төсөл<span class="count">${goals.length}</span></a>
+      <a class="tab ${tab === 'goals' ? 'is-active' : ''}" href="#/goals?tab=goals" ${tab === 'goals' ? 'aria-current="page"' : ''}>${icon('goals', 15)} Зорилго<span class="count">${goals.length}</span></a>
+      <a class="tab ${tab === 'projects' ? 'is-active' : ''}" href="#/goals" ${tab === 'projects' ? 'aria-current="page"' : ''}>${icon('folder', 15)} Төслүүд<span class="count">${projects.filter((p) => p.status !== 'completed').length}</span></a>
     </nav>
-    ${tab === 'wishes' ? wishesTab() : goalsTab()}`;
+    ${tab === 'wishes' ? wishesTab() : tab === 'goals' ? goalsTab() : projectsTab()}`;
 
   root.onclick = (e) => {
+    if (handleTaskAction(e)) return;
     const el = e.target.closest('[data-action]');
     if (!el) return;
+    const tileProject = projectsService.get(el.closest('[data-project-id]')?.dataset.projectId || '');
     const wishId = el.closest('[data-wish-id]')?.dataset.wishId;
     const wish = wishId && wishesService.get(wishId);
     switch (el.dataset.action) {
       case 'new-goal': openGoalForm(null, { onSaved: (g) => navigate(`goals/${g.id}`) }); break;
-      case 'new-project': openProjectForm(); break;
+      case 'new-project': openProjectForm(null, el.dataset.kind ? { kind: el.dataset.kind } : {}); break;
+      case 'complete-project': projectsService.update(tileProject.id, { status: 'completed' }).then(() => toast(`“${tileProject.title}” төсөл дууслаа 🎉`)); break;
       case 'new-wish': openWishForm(); break;
       case 'filter': statusFilter = el.dataset.value; renderList(root, route); break;
       case 'edit-wish': openWishForm(wish); break;
@@ -9653,7 +10018,7 @@ function projectCard(p) {
   </section>`;
 }
 
-function renderDetail(root, goalId) {
+function renderDetail(root, goalId, route = parseRoute()) {
   const isLoose = goalId === 'none';
   const goal = isLoose ? null : goalsService.get(goalId);
   if (!isLoose && !goal) {
@@ -9700,7 +10065,7 @@ function renderDetail(root, goalId) {
     return list.length ? `<h3 class="kind-title is-${k.value}">${k.emoji} ${esc(k.label)} төслүүд <span class="faint">${list.length}</span><span class="kind-title-hint small faint">${esc(k.hint)}</span></h3><div class="stack">${list.map(projectCard).join('')}</div>` : '';
   }).join('')
     : `<div class="card">${emptyState({
-      icon: 'folder', title: 'Төсөл алга байна', text: goal ? 'Энэ зорилгоо төслүүдэд хуваагаарай: ⚡ хурдан (цүнх авах) эсвэл 🌱 урт хугацааны (эрт унтдаг болох).' : 'Энд зорилгогүй төслүүд харагдана.',
+      icon: 'folder', title: 'Төсөл алга байна', text: goal ? 'Энэ зорилгоо төслүүдэд хуваагаарай: ⚡ жижиг (цүнх авах) эсвэл 🌱 том (эрт унтдаг болох).' : 'Энд зорилгогүй төслүүд харагдана.',
       actions: `<button type="button" class="btn btn-primary" data-action="new-project">${icon('plus', 16)} Төсөл нэмэх</button>`,
     })}</div>`}`;
 
@@ -9742,8 +10107,8 @@ function renderDetail(root, goalId) {
         openMenu(el, [
           { label: 'Төсөл засах', icon: 'edit', onSelect: () => openProjectForm(project) },
           project.kind === 'long'
-            ? { label: '⚡ Хурдан төсөл болгох', icon: 'zap', onSelect: () => projectsService.update(project.id, { kind: 'quick' }) }
-            : { label: '🌱 Урт хугацааны болгох', icon: 'refresh', onSelect: () => projectsService.update(project.id, { kind: 'long' }) },
+            ? { label: '⚡ Жижиг төсөл болгох', icon: 'zap', onSelect: () => projectsService.update(project.id, { kind: 'quick' }) }
+            : { label: '🌱 Том төсөл болгох', icon: 'refresh', onSelect: () => projectsService.update(project.id, { kind: 'long' }) },
           { label: 'Тэмдэглэл бичих', icon: 'edit', onSelect: () => openReflectionForm({ project }) },
           { label: 'Туслахаар задлах', icon: 'assistant', onSelect: () => navigate(`assistant?prompt=${encodeURIComponent(`Төслийг задла: ${project.title}`)}&send=1`) },
           project.status === 'completed'
@@ -9783,12 +10148,20 @@ function renderDetail(root, goalId) {
     } catch (err) { toast(err.message, { tone: 'danger' }); }
   };
   root.onchange = null;
+
+  // #/goals/<id>?p=<projectId> → тухайн төсөл рүү нэг удаа гүйлгээд тодруулна
+  const focusId = route.query?.p;
+  if (focusId && root.dataset.focused !== focusId) {
+    root.dataset.focused = focusId;
+    const card = root.querySelector(`[data-project-id="${CSS.escape(focusId)}"]`);
+    if (card) requestAnimationFrame(() => { card.scrollIntoView({ block: 'start', behavior: 'smooth' }); card.classList.add('is-focus'); setTimeout(() => card.classList.remove('is-focus'), 1800); });
+  } else if (!focusId) delete root.dataset.focused;
 }
 
 const __default = {
   title: 'Зорилго ба төсөл',
   render(root, route) {
-    if (route.params[0]) renderDetail(root, route.params[0]);
+    if (route.params[0]) renderDetail(root, route.params[0], route);
     else renderList(root, route);
   },
 };
@@ -10909,6 +11282,9 @@ const { esc, plural, downloadFile } = __req("js/lib/dom.js");
 const { icon } = __req("js/lib/icons.js");
 const { todayKey, addDaysKey, fromKey, fmt, fmtDuration, keyOfTimestamp, WEEKDAYS, WEEKDAYS_SHORT } = __req("js/lib/dates.js");
 const { prefs } = __req("js/state/prefs.js");
+const { PERIODS, periodRange, buildDigest, digestSize, localSummary, analyzeWithAI, saveReport, latestReports, reportsService } = __req("js/services/analysisService.js");
+const { isAiConfigured } = __req("js/config.js");
+const { openJournalForm } = __req("js/components/forms.js");
 
 const RANGES = [{ days: 7, label: '7 хоног' }, { days: 30, label: '30 хоног' }, { days: 90, label: '90 хоног' }];
 let range = 7;
@@ -11006,6 +11382,77 @@ function csv(s) {
   return `\uFEFF${[header.map(cell).join(','), ...body].join('\n')}`;
 }
 
+/* ── ✨ AI шинжилгээ ─────────────────────────────────────────────────────── */
+const ai = { period: '30', busy: false, error: '', selectedId: null };
+
+function aiErrorHint(msg) {
+  if (/ANTHROPIC_API_KEY/.test(msg)) return 'Claude-ийн API түлхүүр Supabase-д хараахан нэмэгдээгүй байна: Supabase → Edge Functions → Secrets → ANTHROPIC_API_KEY.';
+  if (/эрх алга/.test(msg)) return 'AI-г зөвхөн зөвшөөрсөн аккаунтад нээсэн байна (AI_ALLOWED_EMAILS).';
+  if (/кредит/.test(msg)) return 'Claude Console-д кредит нэмэх хэрэгтэй.';
+  return '';
+}
+
+const listBlock = (cls, title, items) => (items?.length ? `<div class="ai-block ${cls}"><h3>${title}</h3><ul>${items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '');
+
+function reportHTML(row) {
+  const d = row.report_data || {};
+  const r = d.report || {};
+  const when = row.generated_at ? new Date(row.generated_at) : null;
+  return `<article class="ai-report">
+    <p class="ai-headline">${esc(r.headline || '')}</p>
+    ${r.summary ? `<p class="ai-summary">${esc(r.summary)}</p>` : ''}
+    <div class="ai-grid">
+      ${listBlock('is-wins', '🏆 Сайн тал', r.wins)}
+      ${listBlock('is-patterns', '🔍 Хэв маяг', r.patterns)}
+      ${listBlock('is-watch', '⚠️ Анхаарах', r.watch)}
+    </div>
+    ${r.suggestions?.length ? `<div class="ai-block is-sugg"><h3>💡 Санал</h3><ol>${r.suggestions.map((s, i) => `<li><b>${esc(s.title)}</b><span>${esc(s.why)}</span>
+      <button type="button" class="link-btn" data-action="ai-sugg" data-i="${i}">${icon('plus', 12)} Хийх зүйл болгох</button></li>`).join('')}</ol></div>` : ''}
+    ${r.question ? `<div class="ai-question"><span>❓ ${esc(r.question)}</span><button type="button" class="btn btn-sm" data-action="ai-journal">${icon('journal', 14)} Тэмдэглэлдээ хариулах</button></div>` : ''}
+    <p class="ai-meta small faint">${icon('sparkle', 12)} Claude${d.model ? ` (${esc(d.model)})` : ''} · ${esc(d.label || '')} (${fmt.short(row.period_start)} – ${fmt.short(row.period_end)})${when ? ` · ${fmt.short(keyOfTimestamp(row.generated_at))} ${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}` : ''}</p>
+  </article>`;
+}
+
+function aiCard() {
+  const configured = isAiConfigured();
+  const period = periodRange(ai.period);
+  const digest = buildDigest(period.from, period.to);
+  const reports = latestReports();
+  const shown = (ai.selectedId && reportsService.get(ai.selectedId)) || reports[0] || null;
+  const local = localSummary(digest);
+  const thin = digestSize(digest) < 3;
+  let body;
+  if (ai.busy) {
+    body = `<div class="ai-busy"><span class="ai-spinner" aria-hidden="true"></span><span>Claude таны ${esc(period.label.toLowerCase())}-ийн өгөгдлийг уншиж байна… <span class="faint">(10–40 секунд)</span></span></div>`;
+  } else if (ai.error) {
+    const hint = aiErrorHint(ai.error);
+    body = `<div class="ai-error">${icon('alert', 16)}<div><b>AI шинжилгээ ажилласангүй:</b> ${esc(ai.error)}${hint ? `<br><span class="small">${esc(hint)}</span>` : ''}</div></div>
+      <div class="ai-local"><p class="ai-local-label">Энгийн тооцоо <span class="faint">(AI биш — зөвхөн тоонууд)</span></p><ul>${local.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>`;
+  } else if (shown) {
+    body = reportHTML(shown);
+  } else {
+    body = `<div class="ai-intro">
+      <p>Хийх зүйлс, тэмдэглэл ба сэтгэл санаа, «юу сурсан бэ» тэмдэглэлүүд, хүсэл, зорилго, төсөл, сургууль, ажлын мэдээллээс чинь Claude хэв маяг олж, сайн тал, анхаарах зүйл, 3 санал гаргана.</p>
+      ${configured ? '' : '<p class="small muted">Supabase-тэй холбогдож нэвтэрсэн үед ажиллана. Одоохондоо доор энгийн тооцоо харагдаж байна.</p>'}
+      ${local.length ? `<div class="ai-local"><p class="ai-local-label">Энгийн тооцоо <span class="faint">(AI биш)</span></p><ul>${local.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>` : ''}
+    </div>`;
+  }
+  return `<section class="card ai-card" id="aiCard">
+    <div class="card-head ai-head">
+      <div><h2 class="card-title">${icon('sparkle', 18)} AI шинжилгээ</h2><p class="card-sub">🔒 Зөвхөн таны аккаунтын өгөгдөл Claude руу илгээгдэнэ</p></div>
+      <div class="ai-controls no-print">
+        <select class="select select-sm" id="aiPeriod" aria-label="Шинжлэх хугацаа">${PERIODS.map((p) => `<option value="${p.value}" ${p.value === ai.period ? 'selected' : ''}>${p.label}</option>`).join('')}</select>
+        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : 'Нэвтэрсэн үед ажиллана'}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
+      </div>
+    </div>
+    <div class="card-body">
+      ${thin && !shown && !ai.busy ? '<p class="small muted ai-thin">Энэ хугацаанд өгөгдөл цөөн байна — хэдэн өдөр хэрэглэсний дараа шинжилгээ илүү утга учиртай болно.</p>' : ''}
+      ${body}
+      ${reports.length > 1 ? `<div class="ai-history no-print"><span class="small faint">Өмнөх:</span>${reports.slice(0, 6).map((r) => `<button type="button" class="chip-btn ${shown && r.id === shown.id ? 'is-active' : ''}" data-action="ai-show" data-id="${r.id}">${fmt.short(r.period_end)} · ${esc(r.report_data?.label || '')}</button>`).join('')}</div>` : ''}
+    </div>
+  </section>`;
+}
+
 const __default = {
   title: 'Шинжилгээ',
   render(root) {
@@ -11023,6 +11470,7 @@ const __default = {
           ${window.LIFEOS_SANDBOX ? '' : `<button type="button" class="btn no-print" data-action="csv" ${hasData ? '' : 'disabled'}>${icon('download', 16)} CSV</button>
           <button type="button" class="btn no-print" data-action="print" ${hasData ? '' : 'disabled'}>${icon('printer', 16)} Хэвлэх</button>`}`,
   })}
+      ${aiCard()}
       ${!hasData ? `<div class="card">${emptyState({
     icon: 'analytics', title: 'Хэмжих зүйл алга байна',
     text: 'Хэдэн ажил дуусгаж, тэмдэглэлдээ сэтгэл санаагаа бичээрэй — график, тайлан энд автоматаар гарна.',
@@ -11085,9 +11533,37 @@ const __default = {
     // Bind to the freshly rendered container (not #page) so listeners never pile up.
     bindChartTooltips(root.querySelector('#analyticsRoot'));
 
-    root.onclick = (e) => {
+    root.onchange = (e) => { if (e.target.id === 'aiPeriod') { ai.period = e.target.value; ai.error = ''; this.render(root); } };
+    root.onclick = async (e) => {
       const el = e.target.closest('[data-action]');
       if (!el) return;
+      const shownRow = (ai.selectedId && reportsService.get(ai.selectedId)) || latestReports()[0];
+      if (el.dataset.action === 'ai-run') {
+        const period = periodRange(ai.period);
+        ai.busy = true; ai.error = ''; this.render(root);
+        try {
+          const result = await analyzeWithAI(period);
+          const saved = await saveReport(period, result);
+          ai.selectedId = saved.id;
+          toast('AI шинжилгээ бэлэн боллоо ✨');
+        } catch (err) { ai.error = err.message || 'Алдаа гарлаа'; }
+        ai.busy = false;
+        this.render(root);
+        return;
+      }
+      if (el.dataset.action === 'ai-show') { ai.selectedId = el.dataset.id; ai.error = ''; this.render(root); return; }
+      if (el.dataset.action === 'ai-sugg') {
+        const s = shownRow?.report_data?.report?.suggestions?.[Number(el.dataset.i)];
+        if (s) {
+          try { await tasksService.create({ title: s.title.slice(0, 200), due_date: addDaysKey(todayKey(), 1), priority: 'medium', category: 'Хувийн', notes: s.why }); toast(`“${s.title}” маргаашийн хийх зүйлст нэмэгдлээ`); } catch (err) { toast(err.message, { tone: 'danger' }); }
+        }
+        return;
+      }
+      if (el.dataset.action === 'ai-journal') {
+        const q = shownRow?.report_data?.report?.question;
+        if (q) openJournalForm(null, { title: q.slice(0, 120) });
+        return;
+      }
       if (el.dataset.action === 'range') { range = Number(el.dataset.days); this.render(root); }
       if (el.dataset.action === 'csv') { downloadFile(`life-os-report-${todayKey()}-${range}d.csv`, csv(s), 'text/csv'); toast('CSV татагдлаа'); }
       if (el.dataset.action === 'print') window.print();

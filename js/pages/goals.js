@@ -1,7 +1,9 @@
 /**
  * Хүсэл, зорилго, төсөл.
+ *   #/goals             → (анхдагч) төслүүд: ⚡ Жижиг ба 🌱 Том гэж хоёр хуваан
  *   #/goals?tab=wishes  → хүсэл мөрөөдөл: 4 ангилал (Болох · Хийх · Эзэмших · Өгөх), хугацаагүй
  *   #/goals?tab=goals   → goal cards with progress, filter + sort, loose projects
+ *   #/goals/<id>?p=<projectId> → тухайн төсөл рүү гүйлгэнэ
  *   #/goals/<id>        → one goal: its wish, its projects, each with its tasks
  *   #/goals/none        → projects that don't belong to a goal
  *
@@ -145,6 +147,59 @@ function goalsTab() {
   }).join('')}</div>` : ''}`;
 }
 
+/* ───────────── Төслүүд: Жижиг / Том ───────────── */
+function projectTile(p) {
+  const pr = projectProgress(p.id);
+  const goal = p.goal_id ? goalsService.get(p.goal_id) : null;
+  const href = `#/goals/${goal ? goal.id : 'none'}?p=${p.id}`;
+  const next = sortTasks(tasksService.byProject(p.id).filter((t) => t.status !== 'done'))[0];
+  const notes = reflectionsService.byProject(p.id).length;
+  let when = '';
+  if (p.kind === 'long') when = `<span class="project-day">${projectDay(p)} дэх өдөр</span>`;
+  else if (p.due_date) {
+    const days = diffDays(todayKey(), p.due_date);
+    when = days < 0 ? `<span class="text-danger">${-days} хоног хэтэрсэн</span>` : days === 0 ? '<span class="text-warning">Өнөөдөр дуусна</span>' : `<span>${days} хоног үлдсэн</span>`;
+  }
+  return `<article class="card proj-tile kind-${p.kind}" data-project-id="${p.id}">
+    <a class="pt-main" href="${href}">
+      <span class="pt-title">${esc(p.title)}</span>
+      <span class="pt-goal">${goal ? `${icon('goals', 12)}${esc(goal.title)}` : `${icon('folder', 12)}Зорилгогүй`}</span>
+    </a>
+    <div class="pt-progress">${progressBar(pr.pct)}<span class="pt-pct">${pr.pct}%</span></div>
+    <div class="pt-meta"><span>${pr.done}/${pr.total} алхам</span>${when}${notes ? `<span>${icon('sparkle', 12)}${notes} тэмдэглэл</span>` : ''}</div>
+    ${next ? `<div class="pt-next"><span class="pt-next-label">Дараагийн алхам</span>${taskListHTML([next], { showProject: false })}</div>`
+    : pr.total ? '<p class="pt-done small">Бүх алхам дууссан 🎉 <button type="button" class="link-btn" data-action="complete-project">Төслийг дуусгах</button></p>'
+      : `<a class="pt-add small" href="${href}">${icon('plus', 13)} Алхам нэмэх</a>`}
+  </article>`;
+}
+
+function projectsTab() {
+  const all = projectsService.all();
+  if (!all.length) {
+    return `<div class="card">${emptyState({
+      icon: 'folder', title: 'Эхний төслөө нэмье',
+      text: '⚡ Жижиг төсөл — цөөн алхамтай, хурдан дуусна (цүнх авах). 🌱 Том төсөл — олон, давтагдах үйлдэлтэй (турах, эрт унтдаг болох).',
+      actions: PROJECT_KINDS.map((k) => `<button type="button" class="btn ${k.value === 'quick' ? '' : 'btn-primary'}" data-action="new-project" data-kind="${k.value}">${k.emoji} ${esc(k.label)} төсөл</button>`).join(''),
+    })}</div>`;
+  }
+  return `<div class="proj-board">${PROJECT_KINDS.map((k) => {
+    const list = all.filter((p) => p.kind === k.value);
+    const open = list.filter((p) => p.status !== 'completed')
+      .sort((a, b) => (a.status === 'paused') - (b.status === 'paused') || String(a.due_date || '9999').localeCompare(String(b.due_date || '9999')) || String(a.created_at).localeCompare(String(b.created_at)));
+    const done = list.filter((p) => p.status === 'completed');
+    return `<section class="proj-col kind-${k.value}" aria-label="${esc(k.label)} төслүүд">
+      <header class="proj-col-head">
+        <span class="proj-col-emoji" aria-hidden="true">${k.emoji}</span>
+        <div><h2 class="proj-col-title">${esc(k.label)} төслүүд <span class="count">${open.length}</span></h2><p class="small muted">${esc(k.hint)} · ${esc(k.example)}</p></div>
+        <button type="button" class="btn btn-sm" data-action="new-project" data-kind="${k.value}">${icon('plus', 14)} Нэмэх</button>
+      </header>
+      ${open.length ? `<div class="proj-tiles">${open.map(projectTile).join('')}</div>` : `<p class="small faint proj-empty">Идэвхтэй ${esc(k.label.toLowerCase())} төсөл алга.</p>`}
+      ${done.length ? `<details class="proj-done"><summary>${icon('check', 14)} Дууссан <span class="count">${done.length}</span></summary>
+        <ul>${done.map((p) => `<li><a href="#/goals/${p.goal_id && goalsService.get(p.goal_id) ? p.goal_id : 'none'}?p=${p.id}">${esc(p.title)}</a><span class="small faint">${reflectionsService.byProject(p.id).length} тэмдэглэл</span></li>`).join('')}</ul></details>` : ''}
+    </section>`;
+  }).join('')}</div>`;
+}
+
 /** Хүслээс зорилго үүсгээд, шууд төсөл нэмэх санал тавина. */
 function goalFromWish(wish) {
   openGoalForm(null, {
@@ -155,34 +210,44 @@ function goalFromWish(wish) {
 }
 
 function renderList(root, route = parseRoute()) {
-  const tab = route.query?.tab === 'goals' ? 'goals' : 'wishes';
+  delete root.dataset.focused;
+  const tab = ['wishes', 'goals'].includes(route.query?.tab) ? route.query.tab : 'projects';
+  const projects = projectsService.all();
   const wishes = wishesService.all();
   const goals = goalsService.all();
   const linked = goals.filter((g) => g.wish_id && wishesService.get(g.wish_id)).length;
 
   root.innerHTML = `
     ${pageHead({
-    eyebrow: tab === 'wishes' ? `${wishes.length} хүсэл · ${wishes.filter((w) => w.achieved_at).length} биелсэн · ${linked} зорилготой холбогдсон` : 'Чиглэл',
+    eyebrow: tab === 'wishes' ? `${wishes.length} хүсэл · ${wishes.filter((w) => w.achieved_at).length} биелсэн · ${linked} зорилготой холбогдсон`
+      : tab === 'projects' ? PROJECT_KINDS.map((k) => `${k.emoji} ${projects.filter((p) => p.kind === k.value && p.status !== 'completed').length} ${k.label.toLowerCase()}`).join(' · ')
+        : 'Чиглэл',
     title: 'Зорилго ба төсөл',
     sub: chainHTML(),
     actions: tab === 'wishes'
       ? `<button type="button" class="btn" data-action="new-goal">${icon('goals', 16)} Шинэ зорилго</button><button type="button" class="btn btn-primary" data-action="new-wish">${icon('sparkle', 16)} Шинэ хүсэл</button>`
+      : tab === 'projects'
+        ? `<button type="button" class="btn" data-action="new-goal">${icon('goals', 16)} Шинэ зорилго</button><button type="button" class="btn btn-primary" data-action="new-project">${icon('plus', 16)} Шинэ төсөл</button>`
       : `<button type="button" class="btn" data-action="new-project">${icon('folder', 16)} Шинэ төсөл</button><button type="button" class="btn btn-primary" data-action="new-goal">${icon('plus', 16)} Шинэ зорилго</button>`,
   })}
     <nav class="tabs page-tabs" aria-label="Хүсэл ба зорилго">
       <a class="tab ${tab === 'wishes' ? 'is-active' : ''}" href="#/goals?tab=wishes" ${tab === 'wishes' ? 'aria-current="page"' : ''}>${icon('sparkle', 15)} Хүсэл мөрөөдөл<span class="count">${wishes.length}</span></a>
-      <a class="tab ${tab === 'goals' ? 'is-active' : ''}" href="#/goals?tab=goals" ${tab === 'goals' ? 'aria-current="page"' : ''}>${icon('goals', 15)} Зорилго ба төсөл<span class="count">${goals.length}</span></a>
+      <a class="tab ${tab === 'goals' ? 'is-active' : ''}" href="#/goals?tab=goals" ${tab === 'goals' ? 'aria-current="page"' : ''}>${icon('goals', 15)} Зорилго<span class="count">${goals.length}</span></a>
+      <a class="tab ${tab === 'projects' ? 'is-active' : ''}" href="#/goals" ${tab === 'projects' ? 'aria-current="page"' : ''}>${icon('folder', 15)} Төслүүд<span class="count">${projects.filter((p) => p.status !== 'completed').length}</span></a>
     </nav>
-    ${tab === 'wishes' ? wishesTab() : goalsTab()}`;
+    ${tab === 'wishes' ? wishesTab() : tab === 'goals' ? goalsTab() : projectsTab()}`;
 
   root.onclick = (e) => {
+    if (handleTaskAction(e)) return;
     const el = e.target.closest('[data-action]');
     if (!el) return;
+    const tileProject = projectsService.get(el.closest('[data-project-id]')?.dataset.projectId || '');
     const wishId = el.closest('[data-wish-id]')?.dataset.wishId;
     const wish = wishId && wishesService.get(wishId);
     switch (el.dataset.action) {
       case 'new-goal': openGoalForm(null, { onSaved: (g) => navigate(`goals/${g.id}`) }); break;
-      case 'new-project': openProjectForm(); break;
+      case 'new-project': openProjectForm(null, el.dataset.kind ? { kind: el.dataset.kind } : {}); break;
+      case 'complete-project': projectsService.update(tileProject.id, { status: 'completed' }).then(() => toast(`“${tileProject.title}” төсөл дууслаа 🎉`)); break;
       case 'new-wish': openWishForm(); break;
       case 'filter': statusFilter = el.dataset.value; renderList(root, route); break;
       case 'edit-wish': openWishForm(wish); break;
@@ -273,7 +338,7 @@ function projectCard(p) {
   </section>`;
 }
 
-function renderDetail(root, goalId) {
+function renderDetail(root, goalId, route = parseRoute()) {
   const isLoose = goalId === 'none';
   const goal = isLoose ? null : goalsService.get(goalId);
   if (!isLoose && !goal) {
@@ -320,7 +385,7 @@ function renderDetail(root, goalId) {
     return list.length ? `<h3 class="kind-title is-${k.value}">${k.emoji} ${esc(k.label)} төслүүд <span class="faint">${list.length}</span><span class="kind-title-hint small faint">${esc(k.hint)}</span></h3><div class="stack">${list.map(projectCard).join('')}</div>` : '';
   }).join('')
     : `<div class="card">${emptyState({
-      icon: 'folder', title: 'Төсөл алга байна', text: goal ? 'Энэ зорилгоо төслүүдэд хуваагаарай: ⚡ хурдан (цүнх авах) эсвэл 🌱 урт хугацааны (эрт унтдаг болох).' : 'Энд зорилгогүй төслүүд харагдана.',
+      icon: 'folder', title: 'Төсөл алга байна', text: goal ? 'Энэ зорилгоо төслүүдэд хуваагаарай: ⚡ жижиг (цүнх авах) эсвэл 🌱 том (эрт унтдаг болох).' : 'Энд зорилгогүй төслүүд харагдана.',
       actions: `<button type="button" class="btn btn-primary" data-action="new-project">${icon('plus', 16)} Төсөл нэмэх</button>`,
     })}</div>`}`;
 
@@ -362,8 +427,8 @@ function renderDetail(root, goalId) {
         openMenu(el, [
           { label: 'Төсөл засах', icon: 'edit', onSelect: () => openProjectForm(project) },
           project.kind === 'long'
-            ? { label: '⚡ Хурдан төсөл болгох', icon: 'zap', onSelect: () => projectsService.update(project.id, { kind: 'quick' }) }
-            : { label: '🌱 Урт хугацааны болгох', icon: 'refresh', onSelect: () => projectsService.update(project.id, { kind: 'long' }) },
+            ? { label: '⚡ Жижиг төсөл болгох', icon: 'zap', onSelect: () => projectsService.update(project.id, { kind: 'quick' }) }
+            : { label: '🌱 Том төсөл болгох', icon: 'refresh', onSelect: () => projectsService.update(project.id, { kind: 'long' }) },
           { label: 'Тэмдэглэл бичих', icon: 'edit', onSelect: () => openReflectionForm({ project }) },
           { label: 'Туслахаар задлах', icon: 'assistant', onSelect: () => navigate(`assistant?prompt=${encodeURIComponent(`Төслийг задла: ${project.title}`)}&send=1`) },
           project.status === 'completed'
@@ -403,12 +468,20 @@ function renderDetail(root, goalId) {
     } catch (err) { toast(err.message, { tone: 'danger' }); }
   };
   root.onchange = null;
+
+  // #/goals/<id>?p=<projectId> → тухайн төсөл рүү нэг удаа гүйлгээд тодруулна
+  const focusId = route.query?.p;
+  if (focusId && root.dataset.focused !== focusId) {
+    root.dataset.focused = focusId;
+    const card = root.querySelector(`[data-project-id="${CSS.escape(focusId)}"]`);
+    if (card) requestAnimationFrame(() => { card.scrollIntoView({ block: 'start', behavior: 'smooth' }); card.classList.add('is-focus'); setTimeout(() => card.classList.remove('is-focus'), 1800); });
+  } else if (!focusId) delete root.dataset.focused;
 }
 
 export default {
   title: 'Зорилго ба төсөл',
   render(root, route) {
-    if (route.params[0]) renderDetail(root, route.params[0]);
+    if (route.params[0]) renderDetail(root, route.params[0], route);
     else renderList(root, route);
   },
 };

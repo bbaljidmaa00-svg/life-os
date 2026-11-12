@@ -6,6 +6,7 @@ import { store } from '../state/store.js';
 import { tasksService } from './tasksService.js';
 import { eventsService } from './eventsService.js';
 import { goalsService, projectsService, wishesService, reflectionsService } from './goalsService.js';
+import { reportsService } from './analysisService.js';
 import { journalService } from './journalService.js';
 import { birthdaysService } from './birthdaysService.js';
 import { aiService } from './aiService.js';
@@ -18,6 +19,7 @@ const LOADERS = [
   ['Хүсэл мөрөөдөл', wishesService],
   ['Зорилго', goalsService],
   ['Төслийн тэмдэглэл', reflectionsService],
+  ['AI тайлан', reportsService],
   ['Төсөл', projectsService],
   ['Тэмдэглэл', journalService],
   ['Төрсөн өдөр', birthdaysService],

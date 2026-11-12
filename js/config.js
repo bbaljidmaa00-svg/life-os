@@ -50,6 +50,7 @@ export const TABLES = {
   workGoals: 'work_goals',
   wishes: 'wishes',
   projectReflections: 'project_reflections',
+  reports: 'monthly_reports',
 };
 
 /**

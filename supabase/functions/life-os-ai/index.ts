@@ -7,9 +7,11 @@
  *      Claude (Anthropic API) руу илгээнэ.
  *   3. { reply, actions } хэлбэрээр хариулна — actions нь апп дээр
  *      «Нэмэх / Татгалзах» карт болж харагдах санал (автоматаар юу ч хийхгүй).
+ *   mode = 'analyze' үед: апп хэрэглэгчийн ӨӨРИЙН өгөгдлийн товчлолыг (digest) илгээнэ →
+ *      { report } — тойм, амжилт, хэв маяг, анхаарах зүйл, санал, эргэцүүлэх асуулт.
  *
  * Нууц тохиргоо (Supabase → Edge Functions → Secrets):
- *   ANTHROPIC_API_KEY  — заавал. console.anthropic.com-оос авна.
+ *   ANTHROPIC_API_KEY  — заавал. Claude Console (platform.claude.com) → API Keys-ээс авна.
  *   AI_MODEL           — заавал биш. Анхдагч: claude-sonnet-5-5 (хямд: claude-haiku-5-5)
  *   AI_ALLOWED_EMAILS  — заавал биш. Таслалаар тусгаарласан имэйлүүд; тохируулбал
  *                        зөвхөн эдгээр хэрэглэгч AI ашиглана (зардлаа хамгаална).
@@ -116,6 +118,74 @@ const RESPOND_TOOL = {
     required: ['reply', 'actions'],
   },
 };
+
+/* ── Шинжилгээний тайлангийн бүтэц ─────────────────────────────────────── */
+const REPORT_TOOL = {
+  name: 'report',
+  description: 'Хэрэглэгчийн өгөгдөлд тулгуурласан хувийн шинжилгээний тайлан. Бүх текст Монгол кирилл.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      headline: { type: 'string', description: 'Нэг өгүүлбэрээр гол дүгнэлт.' },
+      summary: { type: 'string', description: '2–4 өгүүлбэр. Тоо баримтаар.' },
+      wins: { type: 'array', items: { type: 'string' }, description: '2–5 амжилт, сайн тал (тоотой).' },
+      patterns: { type: 'array', items: { type: 'string' }, description: '2–5 ажиглагдсан хэв маяг, холбоо (жишээ нь сэтгэл санаа ба хийсэн ажил, гараг, цаг).' },
+      watch: { type: 'array', items: { type: 'string' }, description: '0–4 анхаарах зүйл (хэтэрсэн ажил, тэнцвэр алдагдал гэх мэт). Эелдэг, шүүмжлэлгүй.' },
+      suggestions: {
+        type: 'array',
+        items: { type: 'object', properties: { title: { type: 'string' }, why: { type: 'string' } }, required: ['title', 'why'] },
+        description: 'Яг 3 тодорхой, хэрэгжихүйц санал. title = үйлдэл, why = өгөгдлөөс яагаад.',
+      },
+      question: { type: 'string', description: 'Хэрэглэгчид эргэцүүлэх нэг асуулт.' },
+    },
+    required: ['headline', 'summary', 'wins', 'patterns', 'watch', 'suggestions', 'question'],
+  },
+};
+
+const ANALYZE_SYSTEM = `Чи "Life OS" апп-ын хувийн шинжээч. Хэрэглэгчийн өөрийн өгөгдлийн товчлолыг (JSON) уншаад, түүнд зориулсан дулаахан, үнэнч, тодорхой тайлан бич.
+Дүрэм:
+- Зөвхөн өгөгдөлд байгаа баримтад тулгуурла, тоо дурд. Байхгүй зүйлийг зохиохгүй. Өгөгдөл цөөн бол үүнийгээ шударгаар хэл.
+- Сэтгэл санаа, тэмдэглэлийн талаар эелдэг бай; эмнэлгийн онош, сэтгэл зүйн дүгнэлт бүү хий.
+- Сурсан зүйл, сэтгэгдлүүдээс давтагддаг санааг олж, тэдгээрийг хүсэл, зорилготой нь холбож тайлбарла.
+- Санал бүр жижиг, маргаашаас эхэлж болохуйц байх.
+- Монгол кирилл үсгээр, Markdown-гүй энгийн текстээр бич.
+Үргэлж "report" хэрэгслээр хариул.`;
+
+const strList = (v: unknown, n: number, max = 400) =>
+  (Array.isArray(v) ? v : []).map((x) => str(x, max)).filter(Boolean).slice(0, n);
+
+// deno-lint-ignore no-explicit-any
+function cleanReport(r: any) {
+  return {
+    headline: str(r?.headline, 300),
+    summary: str(r?.summary, 1500),
+    wins: strList(r?.wins, 5),
+    patterns: strList(r?.patterns, 5),
+    watch: strList(r?.watch, 4),
+    // deno-lint-ignore no-explicit-any
+    suggestions: (Array.isArray(r?.suggestions) ? r.suggestions : []).map((x: any) => ({ title: str(x?.title, 200), why: str(x?.why, 500) }))
+      .filter((x: { title: string }) => x.title).slice(0, 3),
+    question: str(r?.question, 300),
+  };
+}
+
+async function callClaude(payload: Record<string, unknown>) {
+  const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    body: JSON.stringify({ model: MODEL, ...payload }),
+  });
+  if (!aiRes.ok) {
+    const detail = await aiRes.text();
+    console.error('Anthropic API error', aiRes.status, detail.slice(0, 500));
+    const hint = aiRes.status === 401 ? 'API түлхүүр буруу байна.'
+      : aiRes.status === 429 ? 'Хэт олон хүсэлт — түр хүлээгээд дахин оролдоно уу.'
+        : aiRes.status === 400 && /credit|billing/i.test(detail) ? 'Anthropic аккаунтад кредит дууссан байна.'
+          : `AI үйлчилгээ алдаа өглөө (${aiRes.status}).`;
+    return { error: hint };
+  }
+  return { data: await aiRes.json() };
+}
 
 /* ── Claude-ийн санал болгосон өгөгдлийг шалгаж цэвэрлэнэ ─────────────────── */
 const isDate = (v: unknown) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v);
@@ -252,38 +322,40 @@ Deno.serve(async (req) => {
   // 2. Хүсэлтийг уншиж Claude руу илгээх
   let body: Record<string, unknown>;
   try { body = await req.json(); } catch { return json({ error: 'Хүсэлтийн формат буруу.' }, 400); }
+
+  // 2a. Шинжилгээ — зөвхөн энэ хэрэглэгчийн апп-аас илгээсэн өөрийнх нь өгөгдөл
+  if (body.mode === 'analyze') {
+    const digest = body.digest;
+    if (!digest || typeof digest !== 'object') return json({ error: 'Шинжлэх өгөгдөл алга.' }, 400);
+    const period = (body.period ?? {}) as Record<string, unknown>;
+    const res = await callClaude({
+      max_tokens: 2500,
+      system: ANALYZE_SYSTEM,
+      messages: [{ role: 'user', content: `Хугацаа: ${str(period.label, 60)} (${str(period.from, 10)} – ${str(period.to, 10)})\n\nМиний өгөгдөл (JSON):\n${JSON.stringify(digest).slice(0, 45000)}` }],
+      tools: [REPORT_TOOL],
+      tool_choice: { type: 'tool', name: 'report' },
+    });
+    if (res.error) return json({ error: res.error }, 502);
+    // deno-lint-ignore no-explicit-any
+    const tool = (res.data.content ?? []).find((c: any) => c.type === 'tool_use' && c.name === 'report');
+    if (!tool) return json({ error: 'Тайлан гаргаж чадсангүй. Дахин оролдоно уу.' }, 502);
+    return json({ report: cleanReport(tool.input), model: MODEL });
+  }
+
   const message = str(body.message, 4000);
   if (!message) return json({ error: 'Мессеж хоосон байна.' }, 400);
 
-  const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 1500,
-      system: systemPrompt(body),
-      messages: buildMessages(body.history, message),
-      tools: [RESPOND_TOOL],
-      tool_choice: { type: 'tool', name: 'respond' },
-    }),
+  const res = await callClaude({
+    max_tokens: 1500,
+    system: systemPrompt(body),
+    messages: buildMessages(body.history, message),
+    tools: [RESPOND_TOOL],
+    tool_choice: { type: 'tool', name: 'respond' },
   });
-
-  if (!aiRes.ok) {
-    const detail = await aiRes.text();
-    console.error('Anthropic API error', aiRes.status, detail.slice(0, 500));
-    const hint = aiRes.status === 401 ? 'API түлхүүр буруу байна.'
-      : aiRes.status === 429 ? 'Хэт олон хүсэлт — түр хүлээгээд дахин оролдоно уу.'
-        : aiRes.status === 400 && /credit|billing/i.test(detail) ? 'Anthropic аккаунтад кредит дууссан байна.'
-          : `AI үйлчилгээ алдаа өглөө (${aiRes.status}).`;
-    return json({ error: hint }, 502);
-  }
+  if (res.error) return json({ error: res.error }, 502);
 
   // 3. Хариултыг апп-ын хэлбэрт оруулах
-  const data = await aiRes.json();
+  const data = res.data;
   // deno-lint-ignore no-explicit-any
   const tool = (data.content ?? []).find((c: any) => c.type === 'tool_use' && c.name === 'respond');
   // deno-lint-ignore no-explicit-any

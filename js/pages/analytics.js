@@ -13,6 +13,9 @@ import { esc, plural, downloadFile } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
 import { todayKey, addDaysKey, fromKey, fmt, fmtDuration, keyOfTimestamp, WEEKDAYS, WEEKDAYS_SHORT } from '../lib/dates.js';
 import { prefs } from '../state/prefs.js';
+import { PERIODS, periodRange, buildDigest, digestSize, localSummary, analyzeWithAI, saveReport, latestReports, reportsService } from '../services/analysisService.js';
+import { isAiConfigured } from '../config.js';
+import { openJournalForm } from '../components/forms.js';
 
 const RANGES = [{ days: 7, label: '7 хоног' }, { days: 30, label: '30 хоног' }, { days: 90, label: '90 хоног' }];
 let range = 7;
@@ -110,6 +113,77 @@ function csv(s) {
   return `\uFEFF${[header.map(cell).join(','), ...body].join('\n')}`;
 }
 
+/* ── ✨ AI шинжилгээ ─────────────────────────────────────────────────────── */
+const ai = { period: '30', busy: false, error: '', selectedId: null };
+
+function aiErrorHint(msg) {
+  if (/ANTHROPIC_API_KEY/.test(msg)) return 'Claude-ийн API түлхүүр Supabase-д хараахан нэмэгдээгүй байна: Supabase → Edge Functions → Secrets → ANTHROPIC_API_KEY.';
+  if (/эрх алга/.test(msg)) return 'AI-г зөвхөн зөвшөөрсөн аккаунтад нээсэн байна (AI_ALLOWED_EMAILS).';
+  if (/кредит/.test(msg)) return 'Claude Console-д кредит нэмэх хэрэгтэй.';
+  return '';
+}
+
+const listBlock = (cls, title, items) => (items?.length ? `<div class="ai-block ${cls}"><h3>${title}</h3><ul>${items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>` : '');
+
+function reportHTML(row) {
+  const d = row.report_data || {};
+  const r = d.report || {};
+  const when = row.generated_at ? new Date(row.generated_at) : null;
+  return `<article class="ai-report">
+    <p class="ai-headline">${esc(r.headline || '')}</p>
+    ${r.summary ? `<p class="ai-summary">${esc(r.summary)}</p>` : ''}
+    <div class="ai-grid">
+      ${listBlock('is-wins', '🏆 Сайн тал', r.wins)}
+      ${listBlock('is-patterns', '🔍 Хэв маяг', r.patterns)}
+      ${listBlock('is-watch', '⚠️ Анхаарах', r.watch)}
+    </div>
+    ${r.suggestions?.length ? `<div class="ai-block is-sugg"><h3>💡 Санал</h3><ol>${r.suggestions.map((s, i) => `<li><b>${esc(s.title)}</b><span>${esc(s.why)}</span>
+      <button type="button" class="link-btn" data-action="ai-sugg" data-i="${i}">${icon('plus', 12)} Хийх зүйл болгох</button></li>`).join('')}</ol></div>` : ''}
+    ${r.question ? `<div class="ai-question"><span>❓ ${esc(r.question)}</span><button type="button" class="btn btn-sm" data-action="ai-journal">${icon('journal', 14)} Тэмдэглэлдээ хариулах</button></div>` : ''}
+    <p class="ai-meta small faint">${icon('sparkle', 12)} Claude${d.model ? ` (${esc(d.model)})` : ''} · ${esc(d.label || '')} (${fmt.short(row.period_start)} – ${fmt.short(row.period_end)})${when ? ` · ${fmt.short(keyOfTimestamp(row.generated_at))} ${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}` : ''}</p>
+  </article>`;
+}
+
+function aiCard() {
+  const configured = isAiConfigured();
+  const period = periodRange(ai.period);
+  const digest = buildDigest(period.from, period.to);
+  const reports = latestReports();
+  const shown = (ai.selectedId && reportsService.get(ai.selectedId)) || reports[0] || null;
+  const local = localSummary(digest);
+  const thin = digestSize(digest) < 3;
+  let body;
+  if (ai.busy) {
+    body = `<div class="ai-busy"><span class="ai-spinner" aria-hidden="true"></span><span>Claude таны ${esc(period.label.toLowerCase())}-ийн өгөгдлийг уншиж байна… <span class="faint">(10–40 секунд)</span></span></div>`;
+  } else if (ai.error) {
+    const hint = aiErrorHint(ai.error);
+    body = `<div class="ai-error">${icon('alert', 16)}<div><b>AI шинжилгээ ажилласангүй:</b> ${esc(ai.error)}${hint ? `<br><span class="small">${esc(hint)}</span>` : ''}</div></div>
+      <div class="ai-local"><p class="ai-local-label">Энгийн тооцоо <span class="faint">(AI биш — зөвхөн тоонууд)</span></p><ul>${local.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>`;
+  } else if (shown) {
+    body = reportHTML(shown);
+  } else {
+    body = `<div class="ai-intro">
+      <p>Хийх зүйлс, тэмдэглэл ба сэтгэл санаа, «юу сурсан бэ» тэмдэглэлүүд, хүсэл, зорилго, төсөл, сургууль, ажлын мэдээллээс чинь Claude хэв маяг олж, сайн тал, анхаарах зүйл, 3 санал гаргана.</p>
+      ${configured ? '' : '<p class="small muted">Supabase-тэй холбогдож нэвтэрсэн үед ажиллана. Одоохондоо доор энгийн тооцоо харагдаж байна.</p>'}
+      ${local.length ? `<div class="ai-local"><p class="ai-local-label">Энгийн тооцоо <span class="faint">(AI биш)</span></p><ul>${local.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>` : ''}
+    </div>`;
+  }
+  return `<section class="card ai-card" id="aiCard">
+    <div class="card-head ai-head">
+      <div><h2 class="card-title">${icon('sparkle', 18)} AI шинжилгээ</h2><p class="card-sub">🔒 Зөвхөн таны аккаунтын өгөгдөл Claude руу илгээгдэнэ</p></div>
+      <div class="ai-controls no-print">
+        <select class="select select-sm" id="aiPeriod" aria-label="Шинжлэх хугацаа">${PERIODS.map((p) => `<option value="${p.value}" ${p.value === ai.period ? 'selected' : ''}>${p.label}</option>`).join('')}</select>
+        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : 'Нэвтэрсэн үед ажиллана'}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
+      </div>
+    </div>
+    <div class="card-body">
+      ${thin && !shown && !ai.busy ? '<p class="small muted ai-thin">Энэ хугацаанд өгөгдөл цөөн байна — хэдэн өдөр хэрэглэсний дараа шинжилгээ илүү утга учиртай болно.</p>' : ''}
+      ${body}
+      ${reports.length > 1 ? `<div class="ai-history no-print"><span class="small faint">Өмнөх:</span>${reports.slice(0, 6).map((r) => `<button type="button" class="chip-btn ${shown && r.id === shown.id ? 'is-active' : ''}" data-action="ai-show" data-id="${r.id}">${fmt.short(r.period_end)} · ${esc(r.report_data?.label || '')}</button>`).join('')}</div>` : ''}
+    </div>
+  </section>`;
+}
+
 export default {
   title: 'Шинжилгээ',
   render(root) {
@@ -127,6 +201,7 @@ export default {
           ${window.LIFEOS_SANDBOX ? '' : `<button type="button" class="btn no-print" data-action="csv" ${hasData ? '' : 'disabled'}>${icon('download', 16)} CSV</button>
           <button type="button" class="btn no-print" data-action="print" ${hasData ? '' : 'disabled'}>${icon('printer', 16)} Хэвлэх</button>`}`,
   })}
+      ${aiCard()}
       ${!hasData ? `<div class="card">${emptyState({
     icon: 'analytics', title: 'Хэмжих зүйл алга байна',
     text: 'Хэдэн ажил дуусгаж, тэмдэглэлдээ сэтгэл санаагаа бичээрэй — график, тайлан энд автоматаар гарна.',
@@ -189,9 +264,37 @@ export default {
     // Bind to the freshly rendered container (not #page) so listeners never pile up.
     bindChartTooltips(root.querySelector('#analyticsRoot'));
 
-    root.onclick = (e) => {
+    root.onchange = (e) => { if (e.target.id === 'aiPeriod') { ai.period = e.target.value; ai.error = ''; this.render(root); } };
+    root.onclick = async (e) => {
       const el = e.target.closest('[data-action]');
       if (!el) return;
+      const shownRow = (ai.selectedId && reportsService.get(ai.selectedId)) || latestReports()[0];
+      if (el.dataset.action === 'ai-run') {
+        const period = periodRange(ai.period);
+        ai.busy = true; ai.error = ''; this.render(root);
+        try {
+          const result = await analyzeWithAI(period);
+          const saved = await saveReport(period, result);
+          ai.selectedId = saved.id;
+          toast('AI шинжилгээ бэлэн боллоо ✨');
+        } catch (err) { ai.error = err.message || 'Алдаа гарлаа'; }
+        ai.busy = false;
+        this.render(root);
+        return;
+      }
+      if (el.dataset.action === 'ai-show') { ai.selectedId = el.dataset.id; ai.error = ''; this.render(root); return; }
+      if (el.dataset.action === 'ai-sugg') {
+        const s = shownRow?.report_data?.report?.suggestions?.[Number(el.dataset.i)];
+        if (s) {
+          try { await tasksService.create({ title: s.title.slice(0, 200), due_date: addDaysKey(todayKey(), 1), priority: 'medium', category: 'Хувийн', notes: s.why }); toast(`“${s.title}” маргаашийн хийх зүйлст нэмэгдлээ`); } catch (err) { toast(err.message, { tone: 'danger' }); }
+        }
+        return;
+      }
+      if (el.dataset.action === 'ai-journal') {
+        const q = shownRow?.report_data?.report?.question;
+        if (q) openJournalForm(null, { title: q.slice(0, 120) });
+        return;
+      }
       if (el.dataset.action === 'range') { range = Number(el.dataset.days); this.render(root); }
       if (el.dataset.action === 'csv') { downloadFile(`life-os-report-${todayKey()}-${range}d.csv`, csv(s), 'text/csv'); toast('CSV татагдлаа'); }
       if (el.dataset.action === 'print') window.print();

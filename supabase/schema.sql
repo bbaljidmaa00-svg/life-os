@@ -21,6 +21,8 @@
 --    supabase/migrations/20261111_work_shifts_income_orders_goals.sql
 --  Хүсэл мөрөөдөл (wishes) ба goals.wish_id:
 --    supabase/migrations/20261111_wishes_and_goal_link.sql
+--  Төслийн төрөл (projects.kind) ба «Юу сурсан бэ?» (project_reflections):
+--    supabase/migrations/20261112_project_kind_and_reflections.sql
 --
 --  Таны санд мөн profiles, user_preferences, reminders, time_entries,
 --  in_app_notifications, decision_logs, monthly_reports хүснэгтүүд бий —

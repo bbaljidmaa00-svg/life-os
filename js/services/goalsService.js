@@ -8,6 +8,7 @@ import { TABLES } from '../config.js';
 import { createService } from './createService.js';
 import { tasksService } from './tasksService.js';
 import { store } from '../state/store.js';
+import { todayKey, diffDays, keyOfTimestamp } from '../lib/dates.js';
 
 export const STATUSES = [
   { value: 'active', label: 'Идэвхтэй' },
@@ -36,10 +37,11 @@ export const goalsService = createService({
 const projectsBase = createService({
   key: 'projects',
   tableName: TABLES.projects,
-  columns: ['id', 'goal_id', 'title', 'description', 'status', 'due_date', 'created_at'],
+  columns: ['id', 'goal_id', 'title', 'description', 'status', 'due_date', 'kind', 'created_at'],
   normalize: (row) => ({
     ...row,
     goal_id: row.goal_id || null,
+    kind: row.kind === 'long' ? 'long' : 'quick',
     title: row.title || '',
     description: row.description || '',
     due_date: row.due_date ? String(row.due_date).slice(0, 10) : null,
@@ -73,6 +75,42 @@ export function goalProgress(goalId) {
   }
   if (goal?.status === 'completed') pct = 100;
   return { done, total: tasks.length, pct, projects: projects.length };
+}
+
+/* ── Төслийн төрөл ба «Юу сурсан бэ?» тэмдэглэл ─────────────────────────── */
+export const PROJECT_KINDS = [
+  { value: 'quick', label: 'Хурдан', emoji: '⚡', hint: 'Цөөн алхамтай, хурдан дуусна', example: 'Цүнх авах, Burberry авах' },
+  { value: 'long', label: 'Урт хугацааны', emoji: '🌱', hint: 'Олон, давтагдах үйлдэлтэй', example: 'Турах, эрт унтдаг болох' },
+];
+export const projectKind = (v) => PROJECT_KINDS.find((k) => k.value === v) || PROJECT_KINDS[0];
+
+const reflectionsBase = createService({
+  key: 'projectReflections',
+  tableName: TABLES.projectReflections,
+  columns: ['id', 'project_id', 'task_id', 'task_title', 'learned', 'feeling', 'mood', 'created_at'],
+  normalize: (row) => ({
+    ...row,
+    task_id: row.task_id || null,
+    task_title: row.task_title || '',
+    learned: row.learned || '',
+    feeling: row.feeling || '',
+    mood: row.mood ? Number(row.mood) : null,
+  }),
+});
+
+export const reflectionsService = {
+  ...reflectionsBase,
+  /** Төслийн тэмдэглэлүүд — шинэ нь эхэндээ. */
+  byProject: (projectId) => reflectionsBase.all()
+    .filter((r) => r.project_id === projectId)
+    .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))),
+  forTask: (taskId) => reflectionsBase.all().find((r) => r.task_id === taskId) || null,
+};
+
+/** Урт хугацааны төсөл хэд дэх өдрөө явж байна (үүсгэсэн өдрөөс). */
+export function projectDay(p, today = todayKey()) {
+  const start = keyOfTimestamp(p.created_at) || today;
+  return Math.max(1, diffDays(start, today) + 1);
 }
 
 /* ── Хүсэл мөрөөдөл ───────────────────────────────────────────────────────

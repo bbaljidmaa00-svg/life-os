@@ -15,6 +15,7 @@ export const PREF_DEFAULTS = {
   workEnd: '18:00',
   defaultDuration: 30,    // minutes, for new tasks
   defaultPriority: 'medium',
+  askReflection: 'on',     // 'on' | 'off' — төслийн алхам дуусахад «Юу сурсан бэ?» асуух
 };
 
 function read() {

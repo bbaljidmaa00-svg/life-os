@@ -117,7 +117,7 @@ export function confirmDialog({ title = 'Итгэлтэй байна уу?', mes
  * throws, the error is shown inside the form and the modal stays open.
  * Inputs with `required` are checked before onSubmit runs.
  */
-export function openFormModal({ title, fields, submitLabel = 'Хадгалах', onSubmit, onDelete, deleteLabel = 'Устгах', size = 'md', onMount }) {
+export function openFormModal({ title, fields, submitLabel = 'Хадгалах', cancelLabel = 'Болих', onSubmit, onDelete, deleteLabel = 'Устгах', size = 'md', onMount }) {
   return openModal({
     title,
     size,
@@ -127,7 +127,7 @@ export function openFormModal({ title, fields, submitLabel = 'Хадгалах',
         <div class="modal-foot">
           ${onDelete ? `<button type="button" class="btn btn-ghost-danger" data-delete>${icon('trash', 16)}<span>${esc(deleteLabel)}</span></button>` : ''}
           <span class="spacer"></span>
-          <button type="button" class="btn" data-close>Болих</button>
+          <button type="button" class="btn" data-close>${esc(cancelLabel)}</button>
           <button type="submit" class="btn btn-primary">${esc(submitLabel)}</button>
         </div>
       </form>`,
@@ -141,7 +141,10 @@ export function openFormModal({ title, fields, submitLabel = 'Хадгалах',
         const invalid = form.querySelector(':invalid');
         if (invalid) {
           const label = invalid.closest('.field')?.querySelector('label, .label')?.textContent?.replace('*', '').trim() || 'Энэ талбар';
-          showError(`«${label}» талбарыг бөглөнө үү.`);
+          const v = invalid.validity;
+          showError(v.rangeOverflow ? `«${label}» хамгийн ихдээ ${invalid.max} байна.`
+            : v.rangeUnderflow ? `«${label}» хамгийн багадаа ${invalid.min} байна.`
+              : `«${label}» талбарыг бөглөнө үү.`);
           invalid.focus();
           return;
         }

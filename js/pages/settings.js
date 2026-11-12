@@ -108,6 +108,7 @@ function render(root) {
           <h2 class="settings-title">${icon('tasks')} Хийх зүйлс</h2>
           ${row('Анхдагч хугацаа', 'Шинэ ажилд урьдчилан бөглөгдөнө.', `<select class="select select-sm" data-pref="defaultDuration" data-type="number" aria-label="Анхдагч хугацаа">${options(durationOpts, p.defaultDuration)}</select>`)}
           ${row('Анхдагч ач холбогдол', '', segmented('defaultPriority', PRIORITIES, p.defaultPriority, { attrs: 'data-pref="defaultPriority"' }))}
+          ${row('«Юу сурсан бэ?» асуух', 'Төслийн алхмыг ✓ хийхэд сурсан зүйл, сэтгэгдлээ бичих цонх гарна.', segmented('askReflection', [{ value: 'on', label: 'Асуух' }, { value: 'off', label: 'Асуухгүй' }], p.askReflection, { attrs: 'data-pref="askReflection"' }))}
         </section>
 
         <section class="card settings-section" id="notifications">

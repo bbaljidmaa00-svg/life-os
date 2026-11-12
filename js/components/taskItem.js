@@ -4,8 +4,9 @@
  * true when the click was a task action (complete / edit / delete).
  */
 import { tasksService, PRIORITY_LABEL } from '../services/tasksService.js';
-import { projectsService } from '../services/goalsService.js';
-import { openTaskForm, deleteWithUndo } from './forms.js';
+import { projectsService, reflectionsService } from '../services/goalsService.js';
+import { openTaskForm, deleteWithUndo, openReflectionForm } from './forms.js';
+import { prefs } from '../state/prefs.js';
 import { toast } from '../lib/ui.js';
 import { esc } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
@@ -42,7 +43,14 @@ export async function toggleTask(task, row) {
   row?.classList.toggle('is-done', task.status !== 'done');
   try {
     const updated = await tasksService.toggle(task.id);
-    if (updated.status === 'done') toast(`“${updated.title}” дууслаа`, { action: () => tasksService.toggle(task.id) });
+    if (updated.status === 'done') {
+      toast(`“${updated.title}” дууслаа`, { action: () => tasksService.toggle(task.id) });
+      // Төслийн алхам бол «Юу сурсан бэ?» гэж асууна (нэг алхамд нэг удаа; Тохиргооноос унтрааж болно).
+      const project = updated.project_id && projectsService.get(updated.project_id);
+      if (project && prefs.get().askReflection !== 'off' && !reflectionsService.forTask(updated.id)) {
+        openReflectionForm({ task: updated, project });
+      }
+    }
   } catch (err) {
     row?.classList.toggle('is-done');
     toast(err.message, { tone: 'danger' });

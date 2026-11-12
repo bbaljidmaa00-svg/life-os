@@ -10,17 +10,18 @@
 import {
   goalsService, projectsService, goalProgress, projectProgress, deleteGoal, deleteProject, STATUSES, STATUS_TONE,
   wishesService, WISH_CATEGORIES, wishCategory, goalsOfWish, wishProgress,
+  PROJECT_KINDS, projectKind, reflectionsService, projectDay,
 } from '../services/goalsService.js';
 import { tasksService, sortTasks } from '../services/tasksService.js';
 import { taskListHTML, handleTaskAction } from '../components/taskItem.js';
-import { openGoalForm, openProjectForm, openWishForm } from '../components/forms.js';
+import { openGoalForm, openProjectForm, openWishForm, openReflectionForm, reflectMood } from '../components/forms.js';
 import { parseTaskInput } from '../lib/nlp.js';
 import { prefs } from '../state/prefs.js';
 import { emptyState, pageHead, progressBar, confirmDialog, openMenu, toast, options } from '../lib/ui.js';
 import { esc } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
 import { navigate, parseRoute } from '../lib/nav.js';
-import { todayKey, diffDays, fmt } from '../lib/dates.js';
+import { todayKey, diffDays, fmt, relDay, keyOfTimestamp } from '../lib/dates.js';
 
 let statusFilter = 'active';
 let sortBy = 'target';
@@ -140,7 +141,7 @@ function goalsTab() {
     ${loose.length ? `<h2 class="section-title">${icon('folder', 16)} Зорилгогүй төслүүд <span class="faint">${loose.length}</span><span class="spacer"></span><a class="card-link" href="#/goals/none">Нээх ${icon('chevronRight', 14)}</a></h2>
       <div class="card card-list">${loose.map((p) => {
     const pr = projectProgress(p.id);
-    return `<a class="project-row" href="#/goals/none"><span class="project-row-title">${esc(p.title)}</span>${statusBadge(p.status)}<span class="project-row-bar">${progressBar(pr.pct)}</span><span class="small faint">${pr.done}/${pr.total}</span></a>`;
+    return `<a class="project-row" href="#/goals/none"><span class="project-row-title">${projectKind(p.kind).emoji} ${esc(p.title)}</span>${statusBadge(p.status)}<span class="project-row-bar">${progressBar(pr.pct)}</span><span class="small faint">${pr.done}/${pr.total}</span></a>`;
   }).join('')}</div>` : ''}`;
 }
 
@@ -224,27 +225,51 @@ function renderList(root, route = parseRoute()) {
 }
 
 /* ───────────── Detail ───────────── */
+/** «Юу сурсан бэ?» тэмдэглэлүүд — төслийн доор. */
+function reflectionsHTML(p) {
+  const list = reflectionsService.byProject(p.id);
+  const add = `<button type="button" class="btn btn-sm btn-ghost" data-action="add-reflection">${icon('edit', 14)} Тэмдэглэл бичих</button>`;
+  if (!list.length) {
+    return `<div class="reflections is-empty"><p class="small faint">${p.kind === 'long' ? 'Алхам бүрээ ✓ хийх бүрт юу сурснаа бичвэл энд таны замнал харагдана.' : 'Алхмаа ✓ хийхэд «Юу сурсан бэ?» гэж асууна.'}</p>${add}</div>`;
+  }
+  return `<details class="reflections" ${p.kind === 'long' ? 'open' : ''}>
+    <summary>${icon('sparkle', 15)} Сурсан зүйлс, сэтгэгдэл <span class="count">${list.length}</span></summary>
+    <ul class="reflection-list">${list.map((r) => {
+    const m = reflectMood(r.mood);
+    return `<li><button type="button" class="reflection" data-action="edit-reflection" data-id="${r.id}">
+        <span class="rf-head">${m ? `<span class="rf-mood" title="${esc(m.label)}">${m.emoji}</span>` : ''}<span class="rf-step">${esc(r.task_title || 'Тэмдэглэл')}</span><span class="rf-date">${esc(relDay(keyOfTimestamp(r.created_at) || todayKey()))}</span></span>
+        ${r.learned ? `<span class="rf-learned"><b>Сурсан:</b> ${esc(r.learned)}</span>` : ''}
+        ${r.feeling ? `<span class="rf-feeling">${esc(r.feeling)}</span>` : ''}
+      </button></li>`;
+  }).join('')}</ul>
+    ${add}
+  </details>`;
+}
+
 function projectCard(p) {
   const pr = projectProgress(p.id);
   const tasks = sortTasks(tasksService.byProject(p.id));
+  const kind = projectKind(p.kind);
   const due = p.due_date ? `${icon('calendar', 13)}${p.status !== 'completed' && p.due_date < todayKey() ? `<span class="text-danger">Дуусах: ${fmt.short(p.due_date)}</span>` : `Дуусах: ${fmt.short(p.due_date)}`}` : '';
-  return `<section class="card project-card" data-project-id="${p.id}">
+  const dayText = p.kind === 'long' && p.status !== 'completed' ? `<span class="project-day">${projectDay(p)} дэх өдөр</span>` : '';
+  return `<section class="card project-card kind-${p.kind}" data-project-id="${p.id}">
     <header class="project-head">
       <div class="project-head-main">
-        <h3 class="project-title">${icon('folder', 16)}${esc(p.title)}</h3>
-        <div class="project-meta">${statusBadge(p.status)}<span>${pr.done}/${pr.total} ажил</span>${due ? `<span>${due}</span>` : ''}</div>
+        <h3 class="project-title"><span class="project-kind" title="${esc(kind.label)}: ${esc(kind.hint)}">${kind.emoji}</span>${esc(p.title)}</h3>
+        <div class="project-meta">${statusBadge(p.status)}<span class="kind-badge is-${p.kind}">${esc(kind.label)}</span>${dayText}<span>${pr.done}/${pr.total} алхам</span>${due ? `<span>${due}</span>` : ''}</div>
       </div>
       <div class="project-progress"><span>${pr.pct}%</span>${progressBar(pr.pct)}</div>
       <button type="button" class="icon-btn" data-action="project-menu" aria-label="Төслийн сонголт: ${esc(p.title)}" aria-haspopup="menu">${icon('more')}</button>
     </header>
     ${p.description ? `<p class="project-desc">${esc(p.description)}</p>` : ''}
     <div class="project-tasks">
-      ${tasks.length ? taskListHTML(tasks, { showProject: false }) : '<p class="project-empty small faint">Энэ төсөлд ажил алга байна.</p>'}
+      ${tasks.length ? taskListHTML(tasks, { showProject: false }) : `<p class="project-empty small faint">${p.kind === 'long' ? 'Өдөр бүр хийх алхмаа нэмээрэй — жишээ нь “22:30-д утсаа унтраах”.' : 'Хийх алхмаа нэмээрэй — жишээ нь “Дэлгүүрээс үнэ харьцуулах”.'}</p>`}
       <form class="inline-add" data-add-to="${p.id}" autocomplete="off">
-        ${icon('plus', 16)}<input class="inline-add-input" id="add-${p.id}" placeholder="Ажил нэмэх…" aria-label="Ажил нэмэх: ${esc(p.title)}" maxlength="200">
+        ${icon('plus', 16)}<input class="inline-add-input" id="add-${p.id}" placeholder="Алхам нэмэх…" aria-label="Алхам нэмэх: ${esc(p.title)}" maxlength="200">
         <button type="submit" class="btn btn-sm">Нэмэх</button>
       </form>
     </div>
+    ${reflectionsHTML(p)}
   </section>`;
 }
 
@@ -283,16 +308,19 @@ function renderDetail(root, goalId) {
       : `<button type="button" class="wish-link-bar is-empty" data-action="edit-goal">${icon('sparkle', 16)}<span>Энэ зорилгыг аль нэг хүсэлтэйгээ холбох</span>${icon('chevronRight', 14)}</button>`;
   })()}
       <div class="card goal-summary">
-        <div class="goal-summary-main"><span class="goal-summary-pct">${progress.pct}%</span>${progressBar(progress.pct)}<span class="small muted">${progress.total} ажлаас ${progress.done} нь дууссан</span></div>
+        <div class="goal-summary-main"><span class="goal-summary-pct">${progress.pct}%</span>${progressBar(progress.pct)}<span class="small muted">${progress.total} алхмаас ${progress.done} нь дууссан</span></div>
         <div class="goal-summary-stat"><span class="small faint">Зорилт</span><strong>${goal.target_date ? fmt.medium(goal.target_date) : '—'}</strong><span class="small muted">${targetText(goal.target_date, goal.status)}</span></div>
         <div class="goal-summary-stat"><span class="small faint">Төсөл</span><strong>${projects.length}</strong><span class="small muted">${projects.filter((p) => p.status === 'completed').length} дууссан</span></div>
       </div>`
     : pageHead({ eyebrow: 'Төслүүд', title: 'Зорилгогүй төслүүд', sub: 'Төсөл бүрийн цэс → “Төсөл засах” хэсгээс зорилготой холбоно.' })}
     <div class="section-title">${icon('folder', 16)} Төслүүд <span class="faint">${projects.length}</span><span class="spacer"></span>
       <button type="button" class="btn btn-sm" data-action="new-project">${icon('plus', 14)} Төсөл нэмэх</button></div>
-    ${projects.length ? `<div class="stack">${projects.map(projectCard).join('')}</div>`
+    ${projects.length ? PROJECT_KINDS.map((k) => {
+    const list = projects.filter((p) => p.kind === k.value);
+    return list.length ? `<h3 class="kind-title is-${k.value}">${k.emoji} ${esc(k.label)} төслүүд <span class="faint">${list.length}</span><span class="kind-title-hint small faint">${esc(k.hint)}</span></h3><div class="stack">${list.map(projectCard).join('')}</div>` : '';
+  }).join('')
     : `<div class="card">${emptyState({
-      icon: 'folder', title: 'Төсөл алга байна', text: goal ? 'Энэ зорилгоо төслүүдэд хуваагаарай — тус бүр өөрийн ажилтай тодорхой хэсгүүд.' : 'Энд зорилгогүй төслүүд харагдана.',
+      icon: 'folder', title: 'Төсөл алга байна', text: goal ? 'Энэ зорилгоо төслүүдэд хуваагаарай: ⚡ хурдан (цүнх авах) эсвэл 🌱 урт хугацааны (эрт унтдаг болох).' : 'Энд зорилгогүй төслүүд харагдана.',
       actions: `<button type="button" class="btn btn-primary" data-action="new-project">${icon('plus', 16)} Төсөл нэмэх</button>`,
     })}</div>`}`;
 
@@ -305,6 +333,12 @@ function renderDetail(root, goalId) {
     switch (el.dataset.action) {
       case 'edit-goal': openGoalForm(goal); break;
       case 'new-project': openProjectForm(null, { goal_id: goal?.id || '' }); break;
+      case 'add-reflection': openReflectionForm({ project }); break;
+      case 'edit-reflection': {
+        const r = reflectionsService.get(el.dataset.id);
+        if (r) openReflectionForm({ project: projectsService.get(r.project_id), reflection: r });
+        break;
+      }
       case 'goal-menu':
         openMenu(el, [
           goal.status === 'completed'
@@ -327,6 +361,10 @@ function renderDetail(root, goalId) {
       case 'project-menu':
         openMenu(el, [
           { label: 'Төсөл засах', icon: 'edit', onSelect: () => openProjectForm(project) },
+          project.kind === 'long'
+            ? { label: '⚡ Хурдан төсөл болгох', icon: 'zap', onSelect: () => projectsService.update(project.id, { kind: 'quick' }) }
+            : { label: '🌱 Урт хугацааны болгох', icon: 'refresh', onSelect: () => projectsService.update(project.id, { kind: 'long' }) },
+          { label: 'Тэмдэглэл бичих', icon: 'edit', onSelect: () => openReflectionForm({ project }) },
           { label: 'Туслахаар задлах', icon: 'assistant', onSelect: () => navigate(`assistant?prompt=${encodeURIComponent(`Төслийг задла: ${project.title}`)}&send=1`) },
           project.status === 'completed'
             ? { label: 'Идэвхжүүлэх', icon: 'refresh', onSelect: () => projectsService.update(project.id, { status: 'active' }) }

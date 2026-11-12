@@ -7,7 +7,7 @@
 import { store } from '../state/store.js';
 import { tasksService } from './tasksService.js';
 import { eventsService } from './eventsService.js';
-import { goalsService, projectsService, wishesService } from './goalsService.js';
+import { goalsService, projectsService, wishesService, reflectionsService } from './goalsService.js';
 import { journalService } from './journalService.js';
 import { birthdaysService } from './birthdaysService.js';
 import { aiService } from './aiService.js';
@@ -38,11 +38,13 @@ export async function loadSampleData() {
   const biz = await goalsService.create({ wish_id: wStudio.id, title: 'Чөлөөт дизайны бизнесээ өргөжүүлэх', description: 'Тогтмол хоёр шинэ харилцагч, сүүлийн ажлуудаа харуулсан портфолио.', target_date: d(90), status: 'active' });
   await goalsService.create({ wish_id: wWise.id, title: 'Энэ жил 12 ном унших', description: 'Сард нэг ном, голдуу баримтат.', target_date: d(55), status: 'paused' });
 
-  const run = await projectsService.create({ goal_id: fit.id, title: '8 долоо хоногийн гүйлтийн хөтөлбөр', description: 'Долоо хоногт гурван удаа, 12 км хүртэл нэмэгдүүлнэ.', due_date: d(40), status: 'active' });
-  const meal = await projectsService.create({ goal_id: fit.id, title: 'Хоолоо урьдчилан бэлдэх дадал', due_date: d(21), status: 'active' });
+  const run = await projectsService.create({ kind: 'long', goal_id: fit.id, title: '8 долоо хоногийн гүйлтийн хөтөлбөр', description: 'Долоо хоногт гурван удаа, 12 км хүртэл нэмэгдүүлнэ.', due_date: d(40), status: 'active' });
+  const meal = await projectsService.create({ kind: 'long', goal_id: fit.id, title: 'Хоолоо урьдчилан бэлдэх дадал', due_date: d(21), status: 'active' });
   const site = await projectsService.create({ goal_id: biz.id, title: 'Портфолио вэбсайт шинэчлэх', description: 'Шинэ кейс судалгаа, хурдан нүүр хуудас.', due_date: d(14), status: 'active' });
   const outreach = await projectsService.create({ goal_id: biz.id, title: 'Харилцагч хайх', due_date: d(30), status: 'active' });
   const office = await projectsService.create({ goal_id: null, title: 'Гэрийн ажлын булан засах', status: 'active' });
+  const sleep = await projectsService.create({ kind: 'long', goal_id: fit.id, title: 'Эрт унтдаг болох', description: '23:00 гэхэд орондоо орох — 21 хоног дараалан.', status: 'active' });
+  const bag = await projectsService.create({ kind: 'quick', goal_id: null, title: 'Шинэ цүнх авах', due_date: d(10), status: 'active' });
 
   /* Ажлууд */
   const tasks = [
@@ -74,7 +76,26 @@ export async function loadSampleData() {
     { title: '“Гүн ажил” номоос 40 хуудас унших', due_date: d(-1), priority: 'low', category: 'Сурлага', estimated_minutes: 45, status: 'done', completed_at: doneAt(-1, 22) },
     { title: 'Хөнгөн гүйлт — 5 км', due_date: d(-10), priority: 'medium', category: 'Эрүүл мэнд', estimated_minutes: 35, project_id: run.id, status: 'done', completed_at: doneAt(-10, 7) },
   ];
+  tasks.push(
+    { title: '22:30-д утсаа унтраах', due_date: T, due_time: '22:30', priority: 'medium', category: 'Эрүүл мэнд', estimated_minutes: 5, project_id: sleep.id },
+    { title: '22:30-д утсаа унтраах', due_date: d(-1), due_time: '22:30', priority: 'medium', category: 'Эрүүл мэнд', estimated_minutes: 5, project_id: sleep.id, status: 'done', completed_at: doneAt(-1, 22) },
+    { title: 'Оройн 18 цагаас хойш кофе уухгүй', due_date: d(-2), priority: 'low', category: 'Эрүүл мэнд', project_id: sleep.id, status: 'done', completed_at: doneAt(-2, 18) },
+    { title: 'Цүнхний загвар, үнэ харьцуулах', due_date: d(2), priority: 'medium', category: 'Хувийн', estimated_minutes: 30, project_id: bag.id },
+    { title: 'Цүнх худалдаж авах', due_date: d(10), priority: 'low', category: 'Хувийн', estimated_minutes: 60, project_id: bag.id },
+  );
   for (const t of tasks) await tasksService.create(t);
+
+  /* «Юу сурсан бэ?» тэмдэглэлүүд */
+  const findTask = (title, done = true) => tasksService.all().find((t) => t.title === title && (t.status === 'done') === done);
+  const reflections = [
+    { project: sleep, task: findTask('22:30-д утсаа унтраах'), mood: 4, learned: 'Утсаа өөр өрөөнд цэнэглэвэл гараа сунгахгүй юм байна.', feeling: 'Өглөө 7-д амархан сэрлээ. Өөрөөрөө бахархаж байна.' },
+    { project: sleep, task: findTask('Оройн 18 цагаас хойш кофе уухгүй'), mood: 3, learned: 'Кофеноос татгалзахад эхний өдөр толгой өвдсөн.', feeling: '' },
+    { project: run, task: findTask('Урт гүйлт — 8 км'), mood: 5, learned: 'Эхний 2 км-т удаан гүйвэл дуустал тэсэж чадна.', feeling: 'Анх удаа 8 км гүйлээ! 🎉' },
+    { project: meal, task: findTask('Хоолны сав бэлдэх'), mood: 4, learned: 'Ням гарагт 1 цаг бэлдэхэд 3 өдрийн хоол болдог.', feeling: 'Мөнгө ч хэмнэгдэж байна.' },
+  ];
+  for (const r of reflections) {
+    if (r.task) await reflectionsService.create({ project_id: r.project.id, task_id: r.task.id, task_title: r.task.title, mood: r.mood, learned: r.learned, feeling: r.feeling });
+  }
 
   /* Үйл явдлууд */
   const events = [

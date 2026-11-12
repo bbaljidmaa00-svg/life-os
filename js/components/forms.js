@@ -4,13 +4,17 @@
  */
 import { tasksService, PRIORITIES, DURATIONS } from '../services/tasksService.js';
 import { eventsService, EVENT_CATEGORIES } from '../services/eventsService.js';
-import { goalsService, projectsService, wishesService, deleteWish, goalsOfWish, STATUSES, WISH_CATEGORIES, wishCategory } from '../services/goalsService.js';
+import {
+  goalsService, projectsService, wishesService, deleteWish, goalsOfWish, STATUSES, WISH_CATEGORIES, wishCategory,
+  PROJECT_KINDS, projectKind, reflectionsService,
+} from '../services/goalsService.js';
+import { icon } from '../lib/icons.js';
 import { journalService, MOODS } from '../services/journalService.js';
 import { birthdaysService, RELATIONSHIPS, REMINDER_OPTIONS } from '../services/birthdaysService.js';
 import { prefs } from '../state/prefs.js';
 import { openFormModal, openMenu, toast, segmented, options, confirmDialog } from '../lib/ui.js';
 import { esc } from '../lib/dom.js';
-import { todayKey, timeToMin, minToTime, fmtDuration, MONTHS } from '../lib/dates.js';
+import { todayKey, addDaysKey, timeToMin, minToTime, fmtDuration, MONTHS } from '../lib/dates.js';
 
 let seq = 0;
 const fid = (name) => `f-${name}-${++seq}`;
@@ -241,7 +245,7 @@ export function openWishForm(wish = null, defaults = {}, { onSaved } = {}) {
 
 /* ───────────── Project ───────────── */
 export function openProjectForm(project = null, defaults = {}, { onSaved } = {}) {
-  const p = project || { title: '', description: '', goal_id: '', due_date: '', status: 'active', ...defaults };
+  const p = project || { title: '', description: '', goal_id: '', due_date: '', status: 'active', kind: 'quick', ...defaults };
   const id = { title: fid('title'), goal: fid('goal'), desc: fid('desc'), date: fid('date'), status: fid('status') };
   const goalOptions = `<option value="">Зорилгогүй</option>${goalsService.all().map((g) => `<option value="${g.id}" ${g.id === p.goal_id ? 'selected' : ''}>${esc(g.title)}</option>`).join('')}`;
   return openFormModal({
@@ -249,7 +253,11 @@ export function openProjectForm(project = null, defaults = {}, { onSaved } = {})
     submitLabel: project ? 'Хадгалах' : 'Төсөл үүсгэх',
     fields: `
       <div class="field"><label for="${id.title}">Төслийн нэр</label>
-        <input id="${id.title}" name="title" class="input" required maxlength="160" value="${esc(p.title)}" placeholder="жишээ нь: Портфолио вэбсайт гаргах" ${project ? '' : 'autofocus'}></div>
+        <input id="${id.title}" name="title" class="input" required maxlength="160" value="${esc(p.title)}" placeholder="жишээ нь: ${esc(projectKind(p.kind).example.split(',')[0])}" ${project ? '' : 'autofocus'}></div>
+      <div class="field"><span class="label">Төрөл</span>
+        <div class="kind-pick" role="radiogroup" aria-label="Төслийн төрөл">
+          ${PROJECT_KINDS.map((k) => `<label class="kind-opt is-${k.value}"><input type="radio" name="kind" value="${k.value}" ${k.value === (p.kind || 'quick') ? 'checked' : ''}><span><b>${k.emoji} ${esc(k.label)}</b><small>${esc(k.hint)}</small><small class="faint">${esc(k.example)}</small></span></label>`).join('')}
+        </div></div>
       <div class="field"><label for="${id.goal}">Зорилго</label><select id="${id.goal}" name="goal_id" class="select">${goalOptions}</select></div>
       <div class="field-row">
         <div class="field"><label for="${id.date}">Дуусах огноо</label><input id="${id.date}" name="due_date" type="date" class="input" value="${p.due_date || ''}"></div>
@@ -257,11 +265,72 @@ export function openProjectForm(project = null, defaults = {}, { onSaved } = {})
       </div>
       <div class="field"><label for="${id.desc}">Тайлбар</label><textarea id="${id.desc}" name="description" class="textarea" rows="3" placeholder="Хамрах хүрээ, үр дүн…">${esc(p.description)}</textarea></div>`,
     async onSubmit(data) {
-      const payload = { title: data.title, goal_id: data.goal_id || null, due_date: data.due_date || null, status: data.status, description: data.description };
+      const payload = { title: data.title, goal_id: data.goal_id || null, due_date: data.due_date || null, status: data.status, description: data.description, kind: data.kind === 'long' ? 'long' : 'quick' };
       const saved = project ? await projectsService.update(project.id, payload) : await projectsService.create(payload);
       toast(project ? 'Төсөл шинэчлэгдлээ' : 'Төсөл үүслээ');
       onSaved?.(saved);
     },
+  });
+}
+
+/* ───────────── «Юу сурсан бэ?» — төслийн алхам дуусахад ───────────── */
+const REFLECT_MOODS = [
+  { value: 1, emoji: '😣', label: 'Хэцүү' },
+  { value: 2, emoji: '😕', label: 'Тааруу' },
+  { value: 3, emoji: '😐', label: 'Зүгээр' },
+  { value: 4, emoji: '🙂', label: 'Сайн' },
+  { value: 5, emoji: '🤩', label: 'Гайхалтай' },
+];
+export const reflectMood = (v) => REFLECT_MOODS.find((m) => m.value === Number(v)) || null;
+
+/**
+ * Төслийн алхам (task) дуусахад эсвэл зүгээр л төслийн тэмдэглэл бичихэд.
+ * Урт хугацааны төсөлд «Маргааш дахин хийх» сонголт гарна (давтагдах дадал).
+ */
+export function openReflectionForm({ task = null, project, reflection = null } = {}) {
+  const r = reflection || { learned: '', feeling: '', mood: null };
+  const isLong = project?.kind === 'long';
+  const id = { learned: fid('learned'), feeling: fid('feeling'), again: fid('again') };
+  const stepTitle = task?.title || reflection?.task_title || '';
+  return openFormModal({
+    title: reflection ? 'Тэмдэглэл засах' : task ? '🎉 Дууслаа! Юу сурсан бэ?' : 'Төслийн тэмдэглэл',
+    submitLabel: 'Хадгалах',
+    cancelLabel: reflection ? 'Болих' : 'Алгасах',
+    fields: `
+      ${stepTitle ? `<p class="reflect-task">${icon('check', 14)}<span><b>${esc(stepTitle)}</b>${project ? `<span class="faint"> · ${esc(project.title)}</span>` : ''}</span></p>` : ''}
+      <div class="field"><span class="label">Ямар байсан бэ?</span>
+        <div class="reflect-moods" role="radiogroup" aria-label="Мэдрэмж">
+          ${REFLECT_MOODS.map((m) => `<label class="reflect-mood" title="${esc(m.label)}"><input type="radio" name="mood" value="${m.value}" ${Number(r.mood) === m.value ? 'checked' : ''}><span class="rm-emoji" aria-hidden="true">${m.emoji}</span><small>${esc(m.label)}</small></label>`).join('')}
+        </div></div>
+      <div class="field"><label for="${id.learned}">Юу сурсан бэ?</label>
+        <textarea id="${id.learned}" name="learned" class="textarea" rows="2" placeholder="Жишээ нь: Орой утсаа 22:30-д унтраавал амархан унтдаг юм байна." ${reflection ? '' : 'autofocus'}>${esc(r.learned)}</textarea></div>
+      <div class="field"><label for="${id.feeling}">Сэтгэгдэл</label>
+        <textarea id="${id.feeling}" name="feeling" class="textarea" rows="2" placeholder="Ямар мэдрэмж төрсөн бэ? Дараагийн удаа юуг өөрөөр хийх вэ?">${esc(r.feeling)}</textarea></div>
+      ${task && isLong ? `<label class="switch-row" for="${id.again}"><span class="switch"><input id="${id.again}" type="checkbox" name="again"><span></span></span><span>🔁 Маргааш дахин хийх <span class="faint small">— энэ алхмыг маргаашийн хийх зүйлст нэмнэ</span></span></label>` : ''}`,
+    async onSubmit(data) {
+      const learned = (data.learned || '').trim();
+      const feeling = (data.feeling || '').trim();
+      const mood = data.mood ? Number(data.mood) : null;
+      if (data.again && task) {
+        await tasksService.create({
+          title: task.title, project_id: task.project_id, priority: task.priority, category: task.category,
+          estimated_minutes: task.estimated_minutes, due_date: addDaysKey(todayKey(), 1), due_time: task.due_time || null,
+        });
+      }
+      if (!learned && !feeling && !mood) {
+        if (reflection) { await reflectionsService.remove(reflection.id); toast('Тэмдэглэл устгагдлаа'); } else if (data.again) toast('Маргааш дахин хийхээр нэмлээ 🔁');
+        return;
+      }
+      const payload = { learned, feeling, mood };
+      if (reflection) {
+        await reflectionsService.update(reflection.id, payload);
+        toast('Тэмдэглэл шинэчлэгдлээ');
+      } else {
+        await reflectionsService.create({ ...payload, project_id: project.id, task_id: task?.id || null, task_title: task?.title || null });
+        toast(data.again ? 'Хадгаллаа · маргааш дахин хийхээр нэмлээ 🔁' : 'Сурсан зүйлээ хадгаллаа ✨');
+      }
+    },
+    onDelete: reflection ? async () => { await reflectionsService.remove(reflection.id); toast('Тэмдэглэл устгагдлаа'); } : null,
   });
 }
 

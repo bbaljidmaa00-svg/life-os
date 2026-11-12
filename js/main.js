@@ -12,6 +12,7 @@ import { isSupabaseConfigured } from './config.js';
 import { setDataMode } from './lib/dataAdapter.js';
 import { authService } from './services/authService.js';
 import { loadAllData } from './services/index.js';
+import { checkAiStatus } from './services/aiStatus.js';
 import { loadSampleData } from './services/sampleData.js';
 import { toast } from './lib/ui.js';
 import { startNotificationTicker } from './services/notificationsService.js';
@@ -50,6 +51,8 @@ async function boot() {
     }
     startRouter();
     startNotificationTicker();
+    // AI зөвхөн эзэмшигчид: функцээс төлөвийг асууна (Claude дуудахгүй). Бэлэн бол хуудас шинэчлэгдэж AI асна.
+    if (store.meta().mode === 'supabase') checkAiStatus();
   } catch (err) {
     console.error(err);
     app.innerHTML = `<div class="boot"><div class="boot-mark">Life OS</div>

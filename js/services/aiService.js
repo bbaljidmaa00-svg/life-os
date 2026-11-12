@@ -3,16 +3,17 @@
  * TABLES.aiMessages, TABLES.aiMemories.
  *
  * send() routes each message:
- *   • AI_ENDPOINT set  → POST to your endpoint (real model, see README)
- *   • otherwise        → lib/localAssistant.js (rule-based, clearly labelled)
+ *   • aiReady() (owner account + API key set) → POST to the Edge Function (Claude)
+ *   • otherwise, and always for the 3 key questions → lib/localAssistant.js (clearly labelled)
  * Both paths return { content, actions } and are stored the same way.
  */
-import { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY, isAiConfigured } from '../config.js';
+import { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY } from '../config.js';
+import { aiReady } from './aiStatus.js';
 import { createService } from './createService.js';
 import { aiMessagesMap } from './dbMapping.js';
 import { authService } from './authService.js';
 import { store } from '../state/store.js';
-import { respond as localRespond } from '../lib/localAssistant.js';
+import { respond as localRespond, isKeyQuestion } from '../lib/localAssistant.js';
 import { tasksService } from './tasksService.js';
 import { eventsService } from './eventsService.js';
 import { goalsService } from './goalsService.js';
@@ -96,7 +97,7 @@ export const aiService = {
   conversations,
   messages,
   memories,
-  isConnected: isAiConfigured,
+  isConnected: aiReady,
 
   messagesFor(conversationId) {
     return messages.all()
@@ -123,7 +124,7 @@ export const aiService = {
     await messages.create({ conversation_id: conversationId, role: 'user', content: text, actions: [], source: 'user' });
     let result;
     try {
-      result = isAiConfigured() ? await callEndpoint(conversationId, text) : localRespond(text);
+      result = aiReady() && !isKeyQuestion(text) ? await callEndpoint(conversationId, text) : localRespond(text);
     } catch (err) {
       // AI ажиллахгүй бол (түлхүүр тохируулаагүй, интернэтгүй…) энгийн дүрмүүдээр хариулна.
       const fallback = localRespond(text);

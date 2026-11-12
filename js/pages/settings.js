@@ -10,6 +10,7 @@ import { exportAllData } from '../services/index.js';
 import { loadSampleData } from '../services/sampleData.js';
 import { testConnection } from '../lib/supabaseClient.js';
 import { SUPABASE_URL, TABLES, isSupabaseConfigured, isAiConfigured } from '../config.js';
+import { aiReady, aiStatus, aiStatusText, checkAiStatus } from '../services/aiStatus.js';
 import { segmented, options, toast, confirmDialog } from '../lib/ui.js';
 import { esc, downloadFile, plural } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
@@ -47,8 +48,9 @@ function connectionSection() {
       <div class="status-item"><span class="small faint">Хадгалалт</span>${meta.mode === 'supabase' ? status(true, 'Supabase') : status(false, 'Зөвхөн сешн — хадгалагдахгүй')}</div>
       <div class="status-item"><span class="small faint">Supabase төсөл</span>${configured ? status(true, esc(host)) : status(false, 'Тохируулаагүй')}</div>
       <div class="status-item"><span class="small faint">Нэвтэрсэн</span>${meta.user ? status(true, esc(meta.user.email || 'Тийм')) : status(false, 'Үгүй')}</div>
-      <div class="status-item"><span class="small faint">AI endpoint</span>${isAiConfigured() ? status(true, 'Тохируулсан') : status(false, 'Холбогдоогүй')}</div>
+      <div class="status-item"><span class="small faint">Claude AI</span>${aiReady() ? status(true, `Бэлэн${aiStatus().model ? ` · ${esc(aiStatus().model)}` : ''}`) : status(false, isAiConfigured() && aiStatus().checked ? 'Унтраастай' : isAiConfigured() ? 'Шалгаж байна…' : 'Холбогдоогүй')}</div>
     </div>
+    ${isAiConfigured() && meta.mode === 'supabase' ? row('Claude AI (зөвхөн таны аккаунт)', esc(aiStatusText()), `<button type="button" class="btn btn-sm" data-action="ai-check">${icon('refresh', 14)} Дахин шалгах</button>`) : ''}
     ${meta.loadErrors.length ? `<div class="form-error">${meta.loadErrors.map((e) => `<p><strong>${esc(e.label)}:</strong> ${esc(e.message)}${e.hint ? ` — ${esc(e.hint)}` : ''}</p>`).join('')}</div>` : ''}
     ${row('Холболт шалгах', 'Ажлын хүснэгтээс нэг бодит унших хүсэлт илгээнэ.', `<button type="button" class="btn btn-sm" data-action="test">${icon('refresh', 14)} Шалгах</button>`)}
     ${testResult ? `<p class="${testResult.ok ? 'form-success' : 'form-error'}">${esc(testResult.message)}</p>` : ''}
@@ -171,6 +173,10 @@ export default {
       if (!el) return;
       try {
         switch (el.dataset.action) {
+          case 'ai-check':
+            await checkAiStatus({ force: true });
+            toast(aiStatusText());
+            break;
           case 'test':
             el.disabled = true;
             testResult = await testConnection();

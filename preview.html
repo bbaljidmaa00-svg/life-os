@@ -2443,9 +2443,9 @@ const TABLES = {
  * Хүсэлт/хариултын формат README.md → "AI загвар холбох" хэсэгт бий.
  * Хоосон үед Туслах нь тодорхой шошготой энгийн дүрмүүдээр ажиллана.
  */
-// Одоогоор API-гүй горим: Туслах таны өгөгдлөөс шууд тооцоолж хариулна.
-// Claude API (ANTHROPIC_API_KEY) нэмбэл доорх хаягийг буцааж тавина:
-//   'https://cztdncdfhyrctqzpfwob.supabase.co/functions/v1/life-os-ai'
+// AI зөвхөн функц «бэлэн» гэж хариулсан үед асна (services/aiStatus.js):
+// таны имэйл AI_ALLOWED_EMAILS-д байх + ANTHROPIC_API_KEY тохируулсан байх.
+// Тэр хүртэл Туслах API-гүй горимоор ажиллана.
 const AI_ENDPOINT = '';
 
 function isSupabaseConfigured() {
@@ -3558,6 +3558,82 @@ async function deleteProject(projectId) {
 
 });
 
+__def("js/services/aiStatus.js", function (__e) {
+'use strict';
+Object.defineProperty(__e, "aiStatusText", { enumerable: true, get: () => aiStatusText });
+Object.defineProperty(__e, "checkAiStatus", { enumerable: true, get: () => checkAiStatus });
+Object.defineProperty(__e, "aiStatus", { enumerable: true, get: () => aiStatus });
+Object.defineProperty(__e, "aiReady", { enumerable: true, get: () => aiReady });
+/**
+ * AI-г зөвхөн эзэмшигчийн аккаунтад асаана.
+ *
+ * Апп нэвтэрсний дараа Edge Function-оос { mode: 'status' } асууна (Claude дуудахгүй, үнэгүй):
+ *   • allowed — энэ аккаунт AI_ALLOWED_EMAILS-д байгаа эсэх
+ *   • ready   — allowed + ANTHROPIC_API_KEY тохируулсан
+ * ready биш бол Туслах, шинжилгээ API-гүй горимоороо ажиллана — хуурамч «AI» хариу гарахгүй.
+ */
+const { AI_ENDPOINT, SUPABASE_ANON_KEY, isAiConfigured } = __req("js/config.js");
+const { authService } = __req("js/services/authService.js");
+const { store } = __req("js/state/store.js");
+
+const EMPTY = { checked: false, ready: false, allowed: false, ownerSet: false, keySet: false, model: '', error: '' };
+let current = { ...EMPTY };
+let inflight = null;
+
+const aiStatus = () => current;
+const aiReady = () => isAiConfigured() && current.ready;
+
+/** Хэрэглэгчид ойлгомжтой нэг мөр — яагаад AI асаагүй байгааг хэлнэ. */
+function aiStatusText() {
+  if (!isAiConfigured()) return 'AI холбоогүй (API-гүй горим).';
+  if (!current.checked) return 'AI-н төлөвийг шалгаж байна…';
+  if (current.ready) return `AI бэлэн${current.model ? ` · ${current.model}` : ''}.`;
+  if (current.error) return `AI-н төлөв шалгаж чадсангүй: ${current.error}`;
+  if (!current.ownerSet) return 'AI_ALLOWED_EMAILS тохируулаагүй — AI хэнд ч нээгдээгүй.';
+  if (!current.allowed) return 'AI зөвхөн эзэмшигчийн аккаунтад нээлттэй.';
+  return 'Claude API түлхүүр (ANTHROPIC_API_KEY) нэмээгүй байна.';
+}
+
+function checkAiStatus({ force = false } = {}) {
+  if (!isAiConfigured()) return Promise.resolve(current);
+  if (inflight) return inflight;
+  if (current.checked && !force) return Promise.resolve(current);
+  inflight = (async () => {
+    let next;
+    try {
+      const token = await authService.accessToken();
+      if (!token) {
+        next = { ...EMPTY, checked: true, error: 'нэвтрээгүй байна' };
+      } else {
+        const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+        if (SUPABASE_ANON_KEY) headers.apikey = SUPABASE_ANON_KEY;
+        const res = await fetch(AI_ENDPOINT, { method: 'POST', headers, body: JSON.stringify({ mode: 'status' }) });
+        const json = await res.json().catch(() => ({}));
+        next = res.ok
+          ? {
+            checked: true,
+            ready: json.ready === true,
+            allowed: json.allowed === true,
+            ownerSet: json.owner_set === true,
+            keySet: json.key_set === true,
+            model: String(json.model || ''),
+            error: '',
+          }
+          : { ...EMPTY, checked: true, error: String(json.error || res.status) };
+      }
+    } catch {
+      next = { ...EMPTY, checked: true, error: 'интернэт холболт тасарсан байж магадгүй' };
+    }
+    current = next;
+    inflight = null;
+    store.setMeta({ ai: next });
+    return next;
+  })();
+  return inflight;
+}
+
+});
+
 __def("js/services/journalService.js", function (__e) {
 'use strict';
 Object.defineProperty(__e, "MOODS", { enumerable: true, get: () => MOODS });
@@ -4207,7 +4283,8 @@ Object.defineProperty(__e, "latestReports", { enumerable: true, get: () => lates
  *
  * AI холбогдоогүй үед хуурамч «AI» хариу гаргахгүй — зөвхөн тодорхой шошготой энгийн тооцоо харуулна.
  */
-const { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY, isAiConfigured } = __req("js/config.js");
+const { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY } = __req("js/config.js");
+const { aiReady, aiStatusText } = __req("js/services/aiStatus.js");
 const { createService } = __req("js/services/createService.js");
 const { authService } = __req("js/services/authService.js");
 const { tasksService } = __req("js/services/tasksService.js");
@@ -4372,7 +4449,7 @@ function localSummary(d) {
 
 /** Edge Function-ээр Claude-д шинжлүүлнэ → { report, model } */
 async function analyzeWithAI(period) {
-  if (!isAiConfigured()) throw new Error('AI (Claude API) холбоогүй байна.');
+  if (!aiReady()) throw new Error(aiStatusText());
   const digest = buildDigest(period.from, period.to);
   const headers = { 'Content-Type': 'application/json' };
   const token = await authService.accessToken();
@@ -5053,6 +5130,7 @@ function computeStats(days = 7, endKey = todayKey()) {
 
 __def("js/lib/localAssistant.js", function (__e) {
 'use strict';
+Object.defineProperty(__e, "isKeyQuestion", { enumerable: true, get: () => isKeyQuestion });
 Object.defineProperty(__e, "respond", { enumerable: true, get: () => respond });
 Object.defineProperty(__e, "KEY_QUESTIONS", { enumerable: true, get: () => KEY_QUESTIONS });
 /**
@@ -5101,6 +5179,12 @@ const proposal = (type, data) => ({ type, data, status: 'pending' });
 function dayLabel(key) {
   const rel = relDay(key);
   return ['Өнөөдөр', 'Маргааш', 'Нөгөөдөр'].includes(rel) ? `${rel}, ${fmt.short(key)}` : fmt.long(key);
+}
+
+/** 3 гол асуулт уу? — эдгээрийг AI асаалттай үед ч энд (үнэгүй, хичээл/ээлж тооцсон) хариулна. */
+function isKeyQuestion(text) {
+  const low = String(text || '').trim().toLowerCase();
+  return FREE_RE.test(low) || IMPORTANT_RE.test(low) || NOTDONE_RE.test(low);
 }
 
 function respond(text) {
@@ -5453,16 +5537,17 @@ Object.defineProperty(__e, "aiService", { enumerable: true, get: () => aiService
  * TABLES.aiMessages, TABLES.aiMemories.
  *
  * send() routes each message:
- *   • AI_ENDPOINT set  → POST to your endpoint (real model, see README)
- *   • otherwise        → lib/localAssistant.js (rule-based, clearly labelled)
+ *   • aiReady() (owner account + API key set) → POST to the Edge Function (Claude)
+ *   • otherwise, and always for the 3 key questions → lib/localAssistant.js (clearly labelled)
  * Both paths return { content, actions } and are stored the same way.
  */
-const { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY, isAiConfigured } = __req("js/config.js");
+const { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY } = __req("js/config.js");
+const { aiReady } = __req("js/services/aiStatus.js");
 const { createService } = __req("js/services/createService.js");
 const { aiMessagesMap } = __req("js/services/dbMapping.js");
 const { authService } = __req("js/services/authService.js");
 const { store } = __req("js/state/store.js");
-const { respond: localRespond } = __req("js/lib/localAssistant.js");
+const { respond: localRespond, isKeyQuestion } = __req("js/lib/localAssistant.js");
 const { tasksService } = __req("js/services/tasksService.js");
 const { eventsService } = __req("js/services/eventsService.js");
 const { goalsService } = __req("js/services/goalsService.js");
@@ -5546,7 +5631,7 @@ const aiService = {
   conversations,
   messages,
   memories,
-  isConnected: isAiConfigured,
+  isConnected: aiReady,
 
   messagesFor(conversationId) {
     return messages.all()
@@ -5573,7 +5658,7 @@ const aiService = {
     await messages.create({ conversation_id: conversationId, role: 'user', content: text, actions: [], source: 'user' });
     let result;
     try {
-      result = isAiConfigured() ? await callEndpoint(conversationId, text) : localRespond(text);
+      result = aiReady() && !isKeyQuestion(text) ? await callEndpoint(conversationId, text) : localRespond(text);
     } catch (err) {
       // AI ажиллахгүй бол (түлхүүр тохируулаагүй, интернэтгүй…) энгийн дүрмүүдээр хариулна.
       const fallback = localRespond(text);
@@ -10552,7 +10637,7 @@ function messageHTML(m) {
   if (m.role === 'user') {
     return `<div class="msg msg-user"><div class="msg-bubble">${formatText(m.content)}</div></div>`;
   }
-  const source = m.source === 'ai' ? 'AI' : m.source === 'error' ? 'Алдаа' : 'Таны өгөгдлөөс тооцоолсон · API-гүй';
+  const source = m.source === 'ai' ? 'Claude AI' : m.source === 'error' ? 'Алдаа' : 'Таны өгөгдлөөс тооцоолсон · API-гүй';
   return `<div class="msg msg-assistant">
     <div class="msg-avatar" aria-hidden="true">${icon('assistant', 16)}</div>
     <div class="msg-content">
@@ -10762,7 +10847,7 @@ const __default = {
                 <option value="">Шинэ яриа</option>${conversations.map((c) => `<option value="${c.id}" ${c.id === activeId ? 'selected' : ''}>${esc(c.title)}</option>`).join('')}</select>` : ''}
               <h2 class="ai-title">${esc(active?.title || 'Шинэ яриа')}</h2>
             </div>
-            <span class="badge ${connected ? 'tone-success' : 'tone-info'}" title="${connected ? 'Мессеж таны AI endpoint руу явна' : 'Хариулт таны өгөгдлөөс шууд тооцоологдоно'}">${icon(connected ? 'check' : 'info', 13)} ${connected ? 'AI холбогдсон' : 'API-гүй туслах'}</span>
+            <span class="badge ${connected ? 'tone-success' : 'tone-info'}" title="${connected ? 'Чөлөөт асуулт Claude руу явна; 3 гол асуултад таны өгөгдлөөс шууд хариулна' : 'Хариулт таны өгөгдлөөс шууд тооцоологдоно'}">${icon(connected ? 'check' : 'info', 13)} ${connected ? 'Claude холбогдсон' : 'API-гүй туслах'}</span>
             <button type="button" class="icon-btn ai-mem-btn" data-action="open-memories" aria-label="Санамж">${icon('bookmark')}</button>
             ${active ? `<button type="button" class="icon-btn ai-new-btn" data-action="new-chat" aria-label="Шинэ яриа">${icon('plus')}</button>` : ''}
           </header>
@@ -11452,7 +11537,7 @@ const { icon } = __req("js/lib/icons.js");
 const { todayKey, addDaysKey, fromKey, fmt, fmtDuration, keyOfTimestamp, WEEKDAYS, WEEKDAYS_SHORT } = __req("js/lib/dates.js");
 const { prefs } = __req("js/state/prefs.js");
 const { PERIODS, periodRange, buildDigest, digestSize, localSummary, analyzeWithAI, saveReport, latestReports, reportsService } = __req("js/services/analysisService.js");
-const { isAiConfigured } = __req("js/config.js");
+const { aiReady, aiStatusText } = __req("js/services/aiStatus.js");
 const { openJournalForm } = __req("js/components/forms.js");
 
 const RANGES = [{ days: 7, label: '7 хоног' }, { days: 30, label: '30 хоног' }, { days: 90, label: '90 хоног' }];
@@ -11556,7 +11641,9 @@ const ai = { period: '30', busy: false, error: '', selectedId: null };
 
 function aiErrorHint(msg) {
   if (/ANTHROPIC_API_KEY/.test(msg)) return 'Claude-ийн API түлхүүр Supabase-д хараахан нэмэгдээгүй байна: Supabase → Edge Functions → Secrets → ANTHROPIC_API_KEY.';
-  if (/эрх алга/.test(msg)) return 'AI-г зөвхөн зөвшөөрсөн аккаунтад нээсэн байна (AI_ALLOWED_EMAILS).';
+  if (/эрх алга|эзэмшигч|AI_ALLOWED_EMAILS/.test(msg)) return 'AI зөвхөн AI_ALLOWED_EMAILS-д бичсэн имэйлээр нэвтэрсэн аккаунтад ажиллана.';
+  if (/хугацаа нь дууссан|буруу/.test(msg)) return 'platform.claude.com/settings/keys дээр шинэ түлхүүр үүсгээд Supabase-д солино.';
+  if (/workspace/.test(msg)) return 'Түлхүүр үүсгэхдээ workspace сонгоно уу.';
   if (/кредит/.test(msg)) return 'Claude Console-д кредит нэмэх хэрэгтэй.';
   return '';
 }
@@ -11583,7 +11670,7 @@ function reportHTML(row) {
 }
 
 function aiCard() {
-  const configured = isAiConfigured();
+  const configured = aiReady();
   const period = periodRange(ai.period);
   const digest = buildDigest(period.from, period.to);
   const reports = latestReports();
@@ -11602,7 +11689,7 @@ function aiCard() {
   } else {
     body = `<div class="ai-intro">
       <p>Хийх зүйлс, тэмдэглэл ба сэтгэл санаа, «юу сурсан бэ» тэмдэглэлүүд, хүсэл, зорилго, төсөл, сургууль, ажлын мэдээллээс чинь Claude хэв маяг олж, сайн тал, анхаарах зүйл, 3 санал гаргана.</p>
-      ${configured ? '' : '<p class="small muted">Одоогоор API-гүй горимд байгаа тул AI шинжилгээ унтраастай — доор таны өгөгдлөөс шууд тооцоолсон тойм харагдана. Claude API түлхүүр нэмбэл энэ хэсэг асна.</p>'}
+      ${configured ? '' : `<p class="small muted">${esc(aiStatusText())} Тэр болтол AI шинжилгээ унтраастай — доор таны өгөгдлөөс шууд тооцоолсон тойм харагдана.</p>`}
       ${local.length ? `<div class="ai-local"><p class="ai-local-label">Энгийн тооцоо <span class="faint">(AI биш)</span></p><ul>${local.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>` : ''}
     </div>`;
   }
@@ -11611,7 +11698,7 @@ function aiCard() {
       <div><h2 class="card-title">${icon('sparkle', 18)} AI шинжилгээ</h2><p class="card-sub">🔒 Зөвхөн таны аккаунтын өгөгдөл Claude руу илгээгдэнэ</p></div>
       <div class="ai-controls no-print">
         <select class="select select-sm" id="aiPeriod" aria-label="Шинжлэх хугацаа">${PERIODS.map((p) => `<option value="${p.value}" ${p.value === ai.period ? 'selected' : ''}>${p.label}</option>`).join('')}</select>
-        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : 'Claude API түлхүүр нэмбэл ажиллана'}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
+        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : esc(aiStatusText())}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
       </div>
     </div>
     <div class="card-body">
@@ -11757,6 +11844,7 @@ const { exportAllData } = __req("js/services/index.js");
 const { loadSampleData } = __req("js/services/sampleData.js");
 const { testConnection } = __req("js/lib/supabaseClient.js");
 const { SUPABASE_URL, TABLES, isSupabaseConfigured, isAiConfigured } = __req("js/config.js");
+const { aiReady, aiStatus, aiStatusText, checkAiStatus } = __req("js/services/aiStatus.js");
 const { segmented, options, toast, confirmDialog } = __req("js/lib/ui.js");
 const { esc, downloadFile, plural } = __req("js/lib/dom.js");
 const { icon } = __req("js/lib/icons.js");
@@ -11794,8 +11882,9 @@ function connectionSection() {
       <div class="status-item"><span class="small faint">Хадгалалт</span>${meta.mode === 'supabase' ? status(true, 'Supabase') : status(false, 'Зөвхөн сешн — хадгалагдахгүй')}</div>
       <div class="status-item"><span class="small faint">Supabase төсөл</span>${configured ? status(true, esc(host)) : status(false, 'Тохируулаагүй')}</div>
       <div class="status-item"><span class="small faint">Нэвтэрсэн</span>${meta.user ? status(true, esc(meta.user.email || 'Тийм')) : status(false, 'Үгүй')}</div>
-      <div class="status-item"><span class="small faint">AI endpoint</span>${isAiConfigured() ? status(true, 'Тохируулсан') : status(false, 'Холбогдоогүй')}</div>
+      <div class="status-item"><span class="small faint">Claude AI</span>${aiReady() ? status(true, `Бэлэн${aiStatus().model ? ` · ${esc(aiStatus().model)}` : ''}`) : status(false, isAiConfigured() && aiStatus().checked ? 'Унтраастай' : isAiConfigured() ? 'Шалгаж байна…' : 'Холбогдоогүй')}</div>
     </div>
+    ${isAiConfigured() && meta.mode === 'supabase' ? row('Claude AI (зөвхөн таны аккаунт)', esc(aiStatusText()), `<button type="button" class="btn btn-sm" data-action="ai-check">${icon('refresh', 14)} Дахин шалгах</button>`) : ''}
     ${meta.loadErrors.length ? `<div class="form-error">${meta.loadErrors.map((e) => `<p><strong>${esc(e.label)}:</strong> ${esc(e.message)}${e.hint ? ` — ${esc(e.hint)}` : ''}</p>`).join('')}</div>` : ''}
     ${row('Холболт шалгах', 'Ажлын хүснэгтээс нэг бодит унших хүсэлт илгээнэ.', `<button type="button" class="btn btn-sm" data-action="test">${icon('refresh', 14)} Шалгах</button>`)}
     ${testResult ? `<p class="${testResult.ok ? 'form-success' : 'form-error'}">${esc(testResult.message)}</p>` : ''}
@@ -11918,6 +12007,10 @@ const __default = {
       if (!el) return;
       try {
         switch (el.dataset.action) {
+          case 'ai-check':
+            await checkAiStatus({ force: true });
+            toast(aiStatusText());
+            break;
           case 'test':
             el.disabled = true;
             testResult = await testConnection();
@@ -12063,6 +12156,7 @@ const { isSupabaseConfigured } = __req("js/config.js");
 const { setDataMode } = __req("js/lib/dataAdapter.js");
 const { authService } = __req("js/services/authService.js");
 const { loadAllData } = __req("js/services/index.js");
+const { checkAiStatus } = __req("js/services/aiStatus.js");
 const { loadSampleData } = __req("js/services/sampleData.js");
 const { toast } = __req("js/lib/ui.js");
 const { startNotificationTicker } = __req("js/services/notificationsService.js");
@@ -12101,6 +12195,8 @@ async function boot() {
     }
     startRouter();
     startNotificationTicker();
+    // AI зөвхөн эзэмшигчид: функцээс төлөвийг асууна (Claude дуудахгүй). Бэлэн бол хуудас шинэчлэгдэж AI асна.
+    if (store.meta().mode === 'supabase') checkAiStatus();
   } catch (err) {
     console.error(err);
     app.innerHTML = `<div class="boot"><div class="boot-mark">Life OS</div>

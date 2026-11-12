@@ -9,16 +9,23 @@
  *      «Нэмэх / Татгалзах» карт болж харагдах санал (автоматаар юу ч хийхгүй).
  *   mode = 'analyze' үед: апп хэрэглэгчийн ӨӨРИЙН өгөгдлийн товчлолыг (digest) илгээнэ →
  *      { report } — тойм, амжилт, хэв маяг, анхаарах зүйл, санал, эргэцүүлэх асуулт.
+ *   mode = 'status' үед: Claude-г дуудахгүй, зөвхөн { allowed, ready } буцаана —
+ *      апп үүгээр AI-г асаах эсэхээ шийднэ.
+ *
+ * Зөвхөн эзэмшигчид: AI_ALLOWED_EMAILS-д бичигдсэн имэйлээр нэвтэрсэн хэрэглэгч л
+ * AI ашиглана. Хоосон бол ХЭН Ч ашиглахгүй (fail closed) — өөр хүн бүртгүүлээд
+ * таны API кредитийг зарцуулах боломжгүй.
  *
  * Нууц тохиргоо (Supabase → Edge Functions → Secrets):
- *   ANTHROPIC_API_KEY  — заавал. Claude Console (platform.claude.com) → API Keys-ээс авна.
+ *   ANTHROPIC_API_KEY  — заавал. platform.claude.com/settings/keys → Create key (workspace сонгоно).
+ *   ANTHROPIC_WORKSPACE_ID — заавал биш. Түлхүүрээ workspace-д холбоогүй бол л хэрэгтэй.
  *   AI_MODEL           — заавал биш. Анхдагч: claude-sonnet-5-5 (хямд: claude-haiku-5-5)
- *   AI_ALLOWED_EMAILS  — заавал биш. Таслалаар тусгаарласан имэйлүүд; тохируулбал
- *                        зөвхөн эдгээр хэрэглэгч AI ашиглана (зардлаа хамгаална).
+ *   AI_ALLOWED_EMAILS  — заавал. Life OS-д нэвтэрдэг таны имэйл (олон бол таслалаар).
  */
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? '';
 const MODEL = Deno.env.get('AI_MODEL') || 'claude-sonnet-5-5';
+const WORKSPACE_ID = Deno.env.get('ANTHROPIC_WORKSPACE_ID') ?? '';
 const ALLOWED = (Deno.env.get('AI_ALLOWED_EMAILS') ?? '')
   .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? '';
@@ -172,13 +179,19 @@ function cleanReport(r: any) {
 async function callClaude(payload: Record<string, unknown>) {
   const aiRes = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+    headers: {
+      Authorization: `Bearer ${ANTHROPIC_API_KEY}`,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      ...(WORKSPACE_ID ? { 'anthropic-workspace-id': WORKSPACE_ID } : {}),
+    },
     body: JSON.stringify({ model: MODEL, ...payload }),
   });
   if (!aiRes.ok) {
     const detail = await aiRes.text();
     console.error('Anthropic API error', aiRes.status, detail.slice(0, 500));
-    const hint = aiRes.status === 401 ? 'API түлхүүр буруу байна.'
+    const hint = aiRes.status === 401 ? 'API түлхүүр буруу эсвэл хугацаа нь дууссан байна.'
+      : aiRes.status === 400 && /workspace/i.test(detail) ? 'Түлхүүр workspace-д холбогдоогүй байна — Console дээр workspace сонгож шинэ түлхүүр үүсгэнэ үү.'
       : aiRes.status === 429 ? 'Хэт олон хүсэлт — түр хүлээгээд дахин оролдоно уу.'
         : aiRes.status === 400 && /credit|billing/i.test(detail) ? 'Anthropic аккаунтад кредит дууссан байна.'
           : `AI үйлчилгээ алдаа өглөө (${aiRes.status}).`;
@@ -311,17 +324,32 @@ Deno.serve(async (req) => {
   });
   if (!userRes.ok) return json({ error: 'Нэвтрэлт хүчингүй байна. Дахин нэвтэрнэ үү.' }, 401);
   const user = await userRes.json();
-  if (ALLOWED.length && !ALLOWED.includes(String(user.email ?? '').toLowerCase())) {
-    return json({ error: 'Энэ аккаунтад AI туслах ашиглах эрх алга.' }, 403);
+  const allowed = ALLOWED.length > 0 && ALLOWED.includes(String(user.email ?? '').toLowerCase());
+
+  let body: Record<string, unknown>;
+  try { body = await req.json(); } catch { return json({ error: 'Хүсэлтийн формат буруу.' }, 400); }
+
+  // 1a. Төлөв — Claude дуудахгүй. Эрхгүй хэрэглэгчид түлхүүрийн талаар юу ч хэлэхгүй.
+  if (body.mode === 'status') {
+    return json({
+      allowed,
+      owner_set: ALLOWED.length > 0,
+      key_set: allowed ? Boolean(ANTHROPIC_API_KEY) : false,
+      ready: allowed && Boolean(ANTHROPIC_API_KEY),
+      model: allowed ? MODEL : '',
+    });
+  }
+
+  // 1b. Зөвхөн эзэмшигч (AI_ALLOWED_EMAILS). Хоосон бол хэнд ч нээхгүй.
+  if (!allowed) {
+    return json({ error: ALLOWED.length ? 'AI зөвхөн эзэмшигчийн аккаунтад нээлттэй.' : 'AI_ALLOWED_EMAILS тохируулаагүй байна (Supabase → Edge Functions → Secrets).' }, 403);
   }
 
   if (!ANTHROPIC_API_KEY) {
     return json({ error: 'ANTHROPIC_API_KEY тохируулаагүй байна (Supabase → Edge Functions → Secrets).' }, 503);
   }
 
-  // 2. Хүсэлтийг уншиж Claude руу илгээх
-  let body: Record<string, unknown>;
-  try { body = await req.json(); } catch { return json({ error: 'Хүсэлтийн формат буруу.' }, 400); }
+  // 2. Хүсэлтийг Claude руу илгээх
 
   // 2a. Шинжилгээ — зөвхөн энэ хэрэглэгчийн апп-аас илгээсэн өөрийнх нь өгөгдөл
   if (body.mode === 'analyze') {

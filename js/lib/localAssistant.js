@@ -46,6 +46,12 @@ function dayLabel(key) {
   return ['Өнөөдөр', 'Маргааш', 'Нөгөөдөр'].includes(rel) ? `${rel}, ${fmt.short(key)}` : fmt.long(key);
 }
 
+/** 3 гол асуулт уу? — эдгээрийг AI асаалттай үед ч энд (үнэгүй, хичээл/ээлж тооцсон) хариулна. */
+export function isKeyQuestion(text) {
+  const low = String(text || '').trim().toLowerCase();
+  return FREE_RE.test(low) || IMPORTANT_RE.test(low) || NOTDONE_RE.test(low);
+}
+
 export function respond(text) {
   const t = String(text || '').trim();
   const low = t.toLowerCase();

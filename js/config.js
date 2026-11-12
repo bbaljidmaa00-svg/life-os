@@ -59,10 +59,10 @@ export const TABLES = {
  * Хүсэлт/хариултын формат README.md → "AI загвар холбох" хэсэгт бий.
  * Хоосон үед Туслах нь тодорхой шошготой энгийн дүрмүүдээр ажиллана.
  */
-// Одоогоор API-гүй горим: Туслах таны өгөгдлөөс шууд тооцоолж хариулна.
-// Claude API (ANTHROPIC_API_KEY) нэмбэл доорх хаягийг буцааж тавина:
-//   'https://cztdncdfhyrctqzpfwob.supabase.co/functions/v1/life-os-ai'
-export const AI_ENDPOINT = '';
+// AI зөвхөн функц «бэлэн» гэж хариулсан үед асна (services/aiStatus.js):
+// таны имэйл AI_ALLOWED_EMAILS-д байх + ANTHROPIC_API_KEY тохируулсан байх.
+// Тэр хүртэл Туслах API-гүй горимоор ажиллана.
+export const AI_ENDPOINT = 'https://cztdncdfhyrctqzpfwob.supabase.co/functions/v1/life-os-ai';
 
 export function isSupabaseConfigured() {
   return SUPABASE_URL.trim() !== '' && SUPABASE_ANON_KEY.trim() !== '';

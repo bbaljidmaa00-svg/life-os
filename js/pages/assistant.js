@@ -212,7 +212,7 @@ function messageHTML(m) {
   if (m.role === 'user') {
     return `<div class="msg msg-user"><div class="msg-bubble">${formatText(m.content)}</div></div>`;
   }
-  const source = m.source === 'ai' ? 'AI' : m.source === 'error' ? 'Алдаа' : 'Таны өгөгдлөөс тооцоолсон · API-гүй';
+  const source = m.source === 'ai' ? 'Claude AI' : m.source === 'error' ? 'Алдаа' : 'Таны өгөгдлөөс тооцоолсон · API-гүй';
   return `<div class="msg msg-assistant">
     <div class="msg-avatar" aria-hidden="true">${icon('assistant', 16)}</div>
     <div class="msg-content">
@@ -422,7 +422,7 @@ export default {
                 <option value="">Шинэ яриа</option>${conversations.map((c) => `<option value="${c.id}" ${c.id === activeId ? 'selected' : ''}>${esc(c.title)}</option>`).join('')}</select>` : ''}
               <h2 class="ai-title">${esc(active?.title || 'Шинэ яриа')}</h2>
             </div>
-            <span class="badge ${connected ? 'tone-success' : 'tone-info'}" title="${connected ? 'Мессеж таны AI endpoint руу явна' : 'Хариулт таны өгөгдлөөс шууд тооцоологдоно'}">${icon(connected ? 'check' : 'info', 13)} ${connected ? 'AI холбогдсон' : 'API-гүй туслах'}</span>
+            <span class="badge ${connected ? 'tone-success' : 'tone-info'}" title="${connected ? 'Чөлөөт асуулт Claude руу явна; 3 гол асуултад таны өгөгдлөөс шууд хариулна' : 'Хариулт таны өгөгдлөөс шууд тооцоологдоно'}">${icon(connected ? 'check' : 'info', 13)} ${connected ? 'Claude холбогдсон' : 'API-гүй туслах'}</span>
             <button type="button" class="icon-btn ai-mem-btn" data-action="open-memories" aria-label="Санамж">${icon('bookmark')}</button>
             ${active ? `<button type="button" class="icon-btn ai-new-btn" data-action="new-chat" aria-label="Шинэ яриа">${icon('plus')}</button>` : ''}
           </header>

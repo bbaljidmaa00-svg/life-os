@@ -4,7 +4,8 @@
  *
  * AI холбогдоогүй үед хуурамч «AI» хариу гаргахгүй — зөвхөн тодорхой шошготой энгийн тооцоо харуулна.
  */
-import { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY, isAiConfigured } from '../config.js';
+import { TABLES, AI_ENDPOINT, SUPABASE_ANON_KEY } from '../config.js';
+import { aiReady, aiStatusText } from './aiStatus.js';
 import { createService } from './createService.js';
 import { authService } from './authService.js';
 import { tasksService } from './tasksService.js';
@@ -171,7 +172,7 @@ export function localSummary(d) {
 
 /** Edge Function-ээр Claude-д шинжлүүлнэ → { report, model } */
 export async function analyzeWithAI(period) {
-  if (!isAiConfigured()) throw new Error('AI (Claude API) холбоогүй байна.');
+  if (!aiReady()) throw new Error(aiStatusText());
   const digest = buildDigest(period.from, period.to);
   const headers = { 'Content-Type': 'application/json' };
   const token = await authService.accessToken();

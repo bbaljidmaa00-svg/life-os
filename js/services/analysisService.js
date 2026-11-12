@@ -171,7 +171,7 @@ export function localSummary(d) {
 
 /** Edge Function-ээр Claude-д шинжлүүлнэ → { report, model } */
 export async function analyzeWithAI(period) {
-  if (!isAiConfigured()) throw new Error('AI холбогдоогүй байна — Supabase-тэй холбогдож нэвтэрсэн үед ажиллана.');
+  if (!isAiConfigured()) throw new Error('AI (Claude API) холбоогүй байна.');
   const digest = buildDigest(period.from, period.to);
   const headers = { 'Content-Type': 'application/json' };
   const token = await authService.accessToken();

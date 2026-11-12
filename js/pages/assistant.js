@@ -7,6 +7,7 @@
  * break a project into tasks…). Nothing changes until the user clicks.
  */
 import { aiService } from '../services/aiService.js';
+import { KEY_QUESTIONS } from '../lib/localAssistant.js';
 import { tasksService } from '../services/tasksService.js';
 import { eventsService } from '../services/eventsService.js';
 import { projectsService, goalsService } from '../services/goalsService.js';
@@ -28,18 +29,17 @@ let lastCount = 0;
 const drafts = new Map(); // edited breakdown steps, keyed "messageId:index"
 
 const SUGGESTIONS = [
-  { label: 'Өдрөө төлөвлөх', icon: 'clock', prompt: 'Өдрөө төлөвлө' },
-  { label: 'Долоо хоногоо төлөвлөх', icon: 'calendar', prompt: 'Долоо хоногоо төлөвлө' },
-  { label: 'Дуусаагүй ажлууд', icon: 'list', prompt: 'Дуусаагүй ажлууд юу байна?' },
-  { label: 'Бүтээмжийн статистик', icon: 'analytics', prompt: 'Статистикаа харуул' },
+  ...KEY_QUESTIONS,
+  { label: 'Өдрөө төлөвлөх', icon: 'calendar', prompt: 'Өдрөө төлөвлө' },
+  { label: 'Статистик', icon: 'analytics', prompt: 'Статистикаа харуул' },
 ];
 
 const CAPABILITIES = [
   { icon: 'tasks', title: 'Ажил нэмэх', text: 'Огноо, цаг, ач холбогдол, #ангиллаар нь бич.', prompt: 'Ажил: Баасан гарагт 15 цагт улирлын тайлан илгээх чухал #ажил 1 цаг' },
   { icon: 'calendar', title: 'Үйл явдал нэмэх', text: 'Уулзалт, хичээл, оройн хоол — цагтай нь.', prompt: 'Маргааш 12:30-13:30 Маятай үдийн хоол' },
   { icon: 'layers', title: 'Төслийг задлах', text: 'Төслийг ажлын жагсаалт болгох.', prompt: 'Төслийг задла: Портфолио вэбсайт гаргах' },
-  { icon: 'clock', title: 'Өдрөө төлөвлөх', text: 'Дуусаагүй ажлуудыг өнөөдрийн үйл явдлын завсарт багтаах.', prompt: 'Өдрөө төлөвлө' },
-  { icon: 'list', title: 'Дуусаагүй ажлууд', text: 'Хугацаа хэтэрснийг харж, дахин товлох.', prompt: 'Дуусаагүй ажлууд юу байна?' },
+  { icon: 'clock', title: 'Өдрөө төлөвлөх', text: 'Дуусаагүй зүйлсийг өнөөдрийн үйл явдлын завсарт багтаах.', prompt: 'Өдрөө төлөвлө' },
+  { icon: 'list', title: 'Дуусаагүй зүйлс', text: 'Хугацаа хэтэрснийг харж, дахин товлох.', prompt: 'Дуусаагүй зүйлс юу байна?' },
   { icon: 'zap', title: 'Бүтээмжийн статистик', text: 'Гүйцэтгэл, ажилласан хугацаа, сэтгэл санааны хэв маяг.', prompt: 'Статистикаа харуул' },
 ];
 
@@ -143,9 +143,9 @@ function reviewCard(m, a) {
   const tasks = a.data.task_ids.map((id) => tasksService.get(id)).filter(Boolean);
   const overdueOpen = tasks.filter((t) => t.status !== 'done' && t.due_date && t.due_date < todayKey());
   return `<div class="action-card">
-    <p class="ac-kicker">${icon('list', 14)} Дуусаагүй ажлууд</p>
+    <p class="ac-kicker">${icon('list', 14)} Дуусаагүй зүйлс</p>
     ${tasks.length ? `<ul class="task-list ac-review">${tasks.map((t) => taskItemHTML(t)).join('')}</ul>` : '<p class="small faint">Эдгээр ажил устгагдсан.</p>'}
-    ${overdueOpen.length ? `<div class="ac-actions"><button type="button" class="btn btn-sm btn-primary" data-action="ac-move-overdue" data-ids="${overdueOpen.map((t) => t.id).join(',')}">Хэтэрсэн ${overdueOpen.length} ажлыг өнөөдөр рүү шилжүүлэх</button></div>` : ''}
+    ${overdueOpen.length ? `<div class="ac-actions"><button type="button" class="btn btn-sm btn-primary" data-action="ac-move-overdue" data-ids="${overdueOpen.map((t) => t.id).join(',')}">Хэтэрсэн ${overdueOpen.length} зүйлийг өнөөдөр рүү шилжүүлэх</button></div>` : ''}
   </div>`;
 }
 
@@ -212,7 +212,7 @@ function messageHTML(m) {
   if (m.role === 'user') {
     return `<div class="msg msg-user"><div class="msg-bubble">${formatText(m.content)}</div></div>`;
   }
-  const source = m.source === 'ai' ? 'AI' : m.source === 'error' ? 'Алдаа' : 'Дүрмийн хариулт · AI загваргүй';
+  const source = m.source === 'ai' ? 'AI' : m.source === 'error' ? 'Алдаа' : 'Таны өгөгдлөөс тооцоолсон · API-гүй';
   return `<div class="msg msg-assistant">
     <div class="msg-avatar" aria-hidden="true">${icon('assistant', 16)}</div>
     <div class="msg-content">
@@ -250,8 +250,10 @@ function memoriesPanel() {
 function welcomeHTML() {
   return `<div class="ai-welcome">
     <div class="ai-welcome-mark">${icon('assistant', 26)}</div>
-    <h2>Юуг төлөвлөх вэ?</h2>
-    <p class="muted">Ажил, үйл явдлаа энгийн үгээр бичих эсвэл хуваарь гаргуулаарай. Өөрчлөлт бүрийг эхлээд санал хэлбэрээр харуулж, та баталгаажуулна.</p>
+    <h2>Юу асуух вэ?</h2>
+    <p class="muted">Таны хуанли, хичээл, ээлж, хийх зүйлсээс шууд тооцоолж хариулна.</p>
+    <div class="key-questions">${KEY_QUESTIONS.map((q) => `<button type="button" class="key-q" data-action="suggest" data-prompt="${esc(q.prompt)}"><span class="key-q-emoji" aria-hidden="true">${q.emoji}</span><span>${esc(q.label)}</span></button>`).join('')}</div>
+    <p class="small faint ai-welcome-more">Эсвэл ажил, үйл явдлаа энгийн үгээр бичээрэй — өөрчлөлт бүрийг эхлээд санал хэлбэрээр харуулж, та баталгаажуулна.</p>
     <div class="ai-capabilities">${CAPABILITIES.map((c) => `
       <button type="button" class="ai-cap" data-action="suggest" data-prompt="${esc(c.prompt)}">
         <span class="ai-cap-icon">${icon(c.icon, 17)}</span><span class="ai-cap-title">${esc(c.title)}</span><span class="ai-cap-text">${esc(c.text)}</span>
@@ -382,7 +384,7 @@ function bindMemoryForm(container, refresh) {
 
 /* ───────────── page ───────────── */
 export default {
-  title: 'AI туслах',
+  title: 'Туслах',
   render(root, route) {
     if (route.key !== lastRouteKey) {
       lastRouteKey = route.key;
@@ -420,11 +422,11 @@ export default {
                 <option value="">Шинэ яриа</option>${conversations.map((c) => `<option value="${c.id}" ${c.id === activeId ? 'selected' : ''}>${esc(c.title)}</option>`).join('')}</select>` : ''}
               <h2 class="ai-title">${esc(active?.title || 'Шинэ яриа')}</h2>
             </div>
-            <span class="badge ${connected ? 'tone-success' : 'tone-warning'}" title="${connected ? 'Мессеж таны AI endpoint руу явна' : 'Хариулт энгийн дүрмээс гарна'}">${icon(connected ? 'check' : 'info', 13)} ${connected ? 'AI холбогдсон' : 'AI холбогдоогүй'}</span>
+            <span class="badge ${connected ? 'tone-success' : 'tone-info'}" title="${connected ? 'Мессеж таны AI endpoint руу явна' : 'Хариулт таны өгөгдлөөс шууд тооцоологдоно'}">${icon(connected ? 'check' : 'info', 13)} ${connected ? 'AI холбогдсон' : 'API-гүй туслах'}</span>
             <button type="button" class="icon-btn ai-mem-btn" data-action="open-memories" aria-label="Санамж">${icon('bookmark')}</button>
             ${active ? `<button type="button" class="icon-btn ai-new-btn" data-action="new-chat" aria-label="Шинэ яриа">${icon('plus')}</button>` : ''}
           </header>
-          ${connected ? '' : `<div class="ai-notice">${icon('info', 16)}<p><strong>AI загвар холбогдоогүй байна.</strong> Хариултууд таны өгөгдлийг уншдаг цөөн тооны энгийн дүрмээс гарна — чөлөөт яриа биш, тодорхой командуудыг ойлгоно. Жинхэнэ загвар холбохын тулд <code>js/config.js</code>-д <code>AI_ENDPOINT</code>-ийг тохируулна уу.</p></div>`}
+          ${connected || !messages.length ? '' : `<div class="ai-notice">${icon('info', 16)}<p><strong>API-гүй туслах.</strong> Чөлөөт яриа биш — тогтсон асуултуудад таны өгөгдлөөс тооцоолж хариулна. Доорх товчнуудыг дараарай.</p></div>`}
           <div class="ai-messages" id="aiMessages" aria-live="polite">
             ${messages.length ? messages.map(messageHTML).join('') : welcomeHTML()}
             ${pending ? `<div class="msg msg-assistant"><div class="msg-avatar" aria-hidden="true">${icon('assistant', 16)}</div><div class="msg-content"><div class="msg-bubble typing" aria-label="Боловсруулж байна"><span></span><span></span><span></span></div></div></div>` : ''}
@@ -539,7 +541,7 @@ export default {
           const ids = el.dataset.ids.split(',');
           try {
             for (const id of ids) if (tasksService.get(id)) await tasksService.update(id, { due_date: todayKey() });
-            toast(`${ids.length} ажлыг өнөөдөр рүү шилжүүллээ`);
+            toast(`${ids.length} зүйлийг өнөөдөр рүү шилжүүллээ`);
           } catch (err) { toast(err.message, { tone: 'danger' }); }
           break;
         }

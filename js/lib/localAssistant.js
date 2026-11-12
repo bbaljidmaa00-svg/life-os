@@ -12,14 +12,26 @@
  * Монгол болон англи командыг хоёуланг нь таньдаг.
  */
 import { parseNatural, cleanTaskTitle, cleanEventTitle } from './nlp.js';
-import { planDay, planWeek, DEFAULT_ESTIMATE } from './planner.js';
+import { planDay, planWeek, freeSlots, DEFAULT_ESTIMATE } from './planner.js';
 import { computeStats } from './insights.js';
-import { tasksService, compareTasks } from '../services/tasksService.js';
+import { tasksService, compareTasks, sortTasks } from '../services/tasksService.js';
 import { eventsService } from '../services/eventsService.js';
-import { projectsService } from '../services/goalsService.js';
+import { projectsService, goalsService } from '../services/goalsService.js';
+import { homeworkService, dueMoment as homeworkDue, dueCountdown, subjectById } from '../services/schoolService.js';
+import { ordersService, isOrderLate } from '../services/workService.js';
 import { birthdaysService } from '../services/birthdaysService.js';
 import { prefs } from '../state/prefs.js';
-import { todayKey, addDaysKey, relDay, fmt, fmtTime, fmtDuration, minToTime, timeToMin, nowMinutes } from './dates.js';
+import { todayKey, addDaysKey, relDay, fmt, fmtTime, fmtDuration, minToTime, timeToMin, nowMinutes, diffDays } from './dates.js';
+
+/* Гол 3 асуулт — Туслах хуудасны товчнууд ч эдгээрийг ашиглана. */
+export const KEY_QUESTIONS = [
+  { label: 'Би хэзээ завтай вэ?', icon: 'clock', emoji: '🕐', prompt: 'Би хэзээ завтай вэ?' },
+  { label: 'Юу хийгээгүй байна?', icon: 'list', emoji: '📋', prompt: 'Юу юу хийгээгүй байна?' },
+  { label: 'Хамгийн чухал нь юу вэ?', icon: 'zap', emoji: '⭐', prompt: 'Хамгийн чухал хийх зүйл юу вэ?' },
+];
+const FREE_RE = /завтай|зав\s*(гарах|байх|байна|хэзээ)|хэзээ\s*зав|чөлөөтэй|чөлөөт\s*цаг|сул\s*цаг|zawtai|zavtai|zaw\s*(bai|bgaa|ba)|chuluutei|when am i free|free time|\bam i free\b/;
+const NOTDONE_RE = /хийгээгүй|хийгдээгүй|дуусаагүй|хоцорсон|хугацаа хэтэрсэн|үлдсэн ажил|юу\s+үлдсэн|hiigeegui|hiigegui|hiigdeegui|duusaagui|uldsen/;
+const IMPORTANT_RE = /хамгийн\s+чухал|чухал\s+нь\s+юу|юунаас\s+эхл|эхлээд\s+юу|юуг\s+эхлээд|юу\s+хийх\s+ёстой|hamgiin\s+ch[uy]k?hal|ch[uy]k?hal\s+n[iy]?\s|ehleed\s+yu|most important|what should i do first|priorit/;
 
 // Кирилл үгэнд \b ажилладаггүй тул энгийн "агуулж байна уу" шалгалт хийнэ.
 const has = (text, re) => re.test(text);
@@ -50,6 +62,9 @@ export function respond(text) {
     return eventProposal(t);
   }
 
+  if (FREE_RE.test(low)) return freeTime(t);
+  if (IMPORTANT_RE.test(low)) return mostImportant();
+  if (NOTDONE_RE.test(low)) return notDone();
   if (/^(hi|hello|hey|yo|good (morning|afternoon|evening))\b[!. ]*$/i.test(t) || /^(сайн уу|сайн байна уу|сайн байцгаана уу|сайхан амарсан уу)[!.?\s]*$/i.test(t)) return help(true);
   if (/\b(help|what can you do|commands)\b/.test(low) || has(low, /тусламж|юу хийж чадах|команд/)) return help(false);
   if (/\b(break(?:ing)?\s+(?:it\s+|this\s+)?down|break\b.+\binto\b|split\b.+\binto\b|sub-?tasks?|steps\s+(?:for|to))\b/.test(low) || has(low, /задла|дэд ажил|алхам болго|хэсэгчил/)) return breakdown(t);
@@ -126,9 +141,113 @@ function memory(text) {
   ]);
 }
 
+/* ── 🕐 Би хэзээ завтай вэ? ───────────────────────────────────────────── */
+function freeTime(text) {
+  const parsed = parseNatural(text);
+  const days = parsed.date ? [parsed.date] : Array.from({ length: 7 }, (_, i) => addDaysKey(todayKey(), i));
+  const results = days.map((d) => freeSlots(d));
+  const lines = ['Таны сул цаг (08:00–22:00 хооронд — үйл явдал, хичээл, ажлын ээлжийг хассан):'];
+  results.forEach((r) => {
+    if (r.dayOver) { lines.push(`• ${dayLabel(r.date)}: өнөөдрийн өдөр дуусах дөхжээ — амраарай 🌙`); return; }
+    if (!r.slots.length) { lines.push(`• ${dayLabel(r.date)}: бүтэн завгүй`); return; }
+    const parts = r.slots.slice(0, 4).map((x) => `${fmtTime(x.start)}–${fmtTime(x.end)}`);
+    lines.push(`• ${dayLabel(r.date)}: ${parts.join(', ')}${r.slots.length > 4 ? ` (+${r.slots.length - 4})` : ''} — нийт ${fmtDuration(r.freeMinutes)}`);
+  });
+  const first = results.find((r) => r.slots.length);
+  if (first) lines.push('', `👉 Хамгийн ойрын зав: ${dayLabel(first.date)} ${fmtTime(first.slots[0].start)}–${fmtTime(first.slots[0].end)} (${fmtDuration(first.slots[0].minutes)}).`);
+  if (results.length > 1) {
+    const best = [...results].sort((a, b) => b.freeMinutes - a.freeMinutes)[0];
+    if (best.freeMinutes) lines.push(`🌟 Хамгийн их завтай өдөр: ${dayLabel(best.date)} — ${fmtDuration(best.freeMinutes)}.`);
+  }
+  return reply(lines.join('\n'), [
+    { type: 'link', status: 'info', data: { label: 'Календарьт харах', href: `#/calendar?view=${parsed.date ? 'day' : 'week'}&date=${parsed.date || todayKey()}` } },
+  ]);
+}
+
+/* ── 📋 Юу хийгээгүй байна? ──────────────────────────────────────────── */
+function notDone() {
+  const today = todayKey();
+  const tomorrow = addDaysKey(today, 1);
+  const open = tasksService.open();
+  const overdue = sortTasks(open.filter((t) => t.due_date && t.due_date < today));
+  const dueToday = sortTasks(open.filter((t) => t.due_date === today));
+  const homework = homeworkService.open().filter((h) => h.due_date && h.due_date <= tomorrow);
+  const orders = ordersService.open().filter((o) => o.due_date && o.due_date <= tomorrow);
+  const shown = new Set([...overdue, ...dueToday].map((t) => t.id));
+  const steps = projectsService.all().filter((p) => p.status === 'active')
+    .map((p) => ({ p, t: sortTasks(tasksService.byProject(p.id).filter((t) => t.status !== 'done'))[0] }))
+    .filter((x) => x.t && !shown.has(x.t.id)).slice(0, 4);
+  const later = open.filter((t) => t.due_date && t.due_date > today).length;
+  const undated = open.filter((t) => !t.due_date).length;
+
+  if (!overdue.length && !dueToday.length && !homework.length && !orders.length && !steps.length) {
+    return reply(`Яаралтай хийх зүйл алга — бүгдийг хийчихсэн байна 🎉${later || undated ? `\nДараа хийх ${later} зүйл, огноогүй ${undated} зүйл үлдсэн.` : ''}`);
+  }
+  const list = (items, fmtItem, max = 5) => [...items.slice(0, max).map(fmtItem), ...(items.length > max ? [`  …бас ${items.length - max}`] : [])];
+  const lines = ['Хийгээгүй зүйлс:'];
+  if (overdue.length) lines.push('', `⏰ Хугацаа хэтэрсэн (${overdue.length}):`, ...list(overdue, (t) => `• ${t.title} — ${diffDays(t.due_date, today)} хоног хэтэрсэн`));
+  if (dueToday.length) lines.push('', `📅 Өнөөдөр хийх (${dueToday.length}):`, ...list(dueToday, (t) => `• ${t.title}${t.due_time ? ` (${fmtTime(t.due_time)} гэхэд)` : ''}`));
+  if (homework.length) lines.push('', `📚 Гэрийн даалгавар (${homework.length}):`, ...list(homework, (h) => `• ${h.title}${subjectById(h.subject_id) ? ` · ${subjectById(h.subject_id).name}` : ''} — ${dueCountdown(h)}`));
+  if (orders.length) lines.push('', `📦 Захиалга (${orders.length}):`, ...list(orders, (o) => `• ${o.customer_name} — ${o.items}${isOrderLate(o) ? ' — хоцорсон!' : ` — ${relDay(o.due_date)}`}`));
+  if (steps.length) lines.push('', '🌱 Төслүүдийн дараагийн алхам:', ...steps.map(({ p, t }) => `• ${p.title} → ${t.title}`));
+  if (later || undated) lines.push('', `Мөн дараа хийх ${later} зүйл, огноогүй ${undated} зүйл бий.`);
+  const ids = [...overdue, ...dueToday].slice(0, 12).map((t) => t.id);
+  return reply(lines.join('\n'), ids.length ? [proposal('review', { task_ids: ids })] : []);
+}
+
+/* ── ⭐ Хамгийн чухал хийх зүйл юу вэ? ───────────────────────────────── */
+function mostImportant() {
+  const now = Date.now();
+  const today = todayKey();
+  const tomorrow = addDaysKey(today, 1);
+  const cands = [];
+  tasksService.open().forEach((t) => {
+    let score = 0;
+    const why = [];
+    if (t.due_date) {
+      const d = diffDays(today, t.due_date);
+      if (d < 0) { score += 100 + Math.min(30, -d * 5); why.push(`${-d} хоног хэтэрсэн`); } else if (d === 0) { score += 70; why.push(t.due_time ? `өнөөдөр ${fmtTime(t.due_time)} гэхэд` : 'өнөөдөр дуусах'); } else if (d === 1) { score += 45; why.push('маргааш дуусах'); } else if (d <= 3) { score += 25; why.push(`${d} хоногийн дараа`); } else if (d <= 7) score += 10;
+    }
+    if (t.priority === 'high') { score += 35; why.push('өндөр ач холбогдол'); } else if (t.priority === 'medium') score += 12;
+    const proj = t.project_id && projectsService.get(t.project_id);
+    const goal = proj?.goal_id && goalsService.get(proj.goal_id);
+    if (goal) { score += 12; why.push(`«${goal.title}» зорилгын алхам`); } else if (proj) { score += 6; why.push(`«${proj.title}» төсөл`); }
+    cands.push({ task: t, title: t.title, score, why, minutes: t.estimated_minutes || DEFAULT_ESTIMATE });
+  });
+  homeworkService.open().forEach((h) => {
+    const hours = (homeworkDue(h) - now) / 3600000;
+    let score = 15;
+    const why = [subjectById(h.subject_id)?.name || 'гэрийн даалгавар'];
+    if (hours < 0) { score += 110; why.push('хугацаа хэтэрсэн'); } else if (hours < 24) { score += 80; why.push(dueCountdown(h)); } else if (hours < 48) { score += 50; why.push(dueCountdown(h)); } else if (hours < 72) score += 25;
+    cands.push({ title: `📚 ${h.title}`, score, why, minutes: h.estimated_minutes || 60 });
+  });
+  ordersService.open().forEach((o) => {
+    let score = 20;
+    const why = ['захиалагч хүлээж байна'];
+    if (isOrderLate(o)) { score += 100; why.unshift('хүргэх хугацаа хэтэрсэн'); } else if (o.due_date === today) { score += 75; why.unshift('өнөөдөр хүргэх'); } else if (o.due_date === tomorrow) { score += 45; why.unshift('маргааш хүргэх'); }
+    cands.push({ title: `📦 ${o.customer_name} — ${o.items}`, score, why, minutes: 30 });
+  });
+  if (!cands.length) return reply('Одоогоор хийх зүйл алга — амарч болно 🌸 Шинэ зүйл нэмбэл чухлыг нь эрэмбэлээд хэлж өгнө.');
+  cands.sort((a, b) => b.score - a.score);
+  const top = cands.slice(0, 3);
+  const lines = ['⭐ Хамгийн чухал 3 зүйл:'];
+  top.forEach((c, i) => lines.push(`${i + 1}. ${c.title}${c.why.length ? ` — ${c.why.join(', ')}` : ''}`));
+  // №1-ийг хийх сул цаг
+  let slot = null;
+  for (let i = 0; i < 3 && !slot; i++) {
+    const r = freeSlots(addDaysKey(today, i));
+    const s = r.slots.find((x) => x.minutes >= Math.min(top[0].minutes, 120));
+    if (s) slot = { date: r.date, ...s };
+  }
+  lines.push('', `👉 Эхлээд №1-ийг хий${slot ? ` — ${dayLabel(slot.date)} ${fmtTime(slot.start)}-аас ${fmtDuration(slot.minutes)} зав байна` : ''}.`);
+  lines.push('Эрэмбэ: хугацаа (хэтэрсэн, ойрхон) + ач холбогдол + зорилготой холбоотой эсэх.');
+  const ids = top.filter((c) => c.task).map((c) => c.task.id);
+  return reply(lines.join('\n'), ids.length ? [proposal('review', { task_ids: ids })] : []);
+}
+
 function review() {
   const open = tasksService.open();
-  if (!open.length) return reply('Дуусаагүй ажил алга — бүгдийг нь дуусгасан байна.');
+  if (!open.length) return reply('Дуусаагүй зүйл алга — бүгдийг нь дуусгасан байна.');
   const today = todayKey();
   const overdue = open.filter((t) => t.due_date && t.due_date < today).length;
   const dueToday = open.filter((t) => t.due_date === today).length;
@@ -240,12 +359,16 @@ function breakdown(text) {
 }
 
 function help(greet) {
-  return reply(`${greet ? 'Сайн байна уу! ' : ''}AI загвар холбогдоогүй тул зөвхөн дараах командуудыг (энгийн дүрэм + таны өгөгдөл) ойлгоно:
+  return reply(`${greet ? 'Сайн байна уу! ' : ''}Би API-гүй туслах — таны өгөгдлөөс шууд тооцоолж хариулна. Гол 3 асуулт:
+• “Би хэзээ завтай вэ?” — үйл явдал, хичээл, ээлжийн завсрын сул цаг
+• “Юу юу хийгээгүй байна?” — хэтэрсэн, өнөөдрийн, даалгавар, захиалга
+• “Хамгийн чухал хийх зүйл юу вэ?” — эрэмбэлсэн 3 зүйл, хийх цагтай нь
+Мөн:
 • Ажил нэмэх — “Баасан гарагт 15 цагт тайлан илгээх чухал #ажил 1 цаг”
 • Үйл явдал нэмэх — “Маргааш 12:30-13:30 Маятай үдийн хоол”
 • Өдрөө төлөвлөх — “Өдрөө төлөвлө” эсвэл “Маргаашийг төлөвлө”
 • Долоо хоногоо төлөвлөх — “Долоо хоногоо төлөвлө”
-• Дуусаагүй ажлууд — “Дуусаагүй ажлууд юу байна?”
+• Дуусаагүй зүйлс — “Дуусаагүй зүйлс юу байна?”
 • Бүтээмжийн статистик — “Статистикаа харуул”
 • Хуваарь — “Маргааш юу байгаа вэ?”
 • Төслийг задлах — “Төслийг задла: Вэбсайт гаргах”
@@ -253,9 +376,12 @@ function help(greet) {
 }
 
 function fallback() {
-  return reply(`Үүнийг миний ойлгох командтай тааруулж чадсангүй. AI загвар холбогдоогүй үед чөлөөт хүсэлтийг тайлбарлаж чадахгүй. Иймэрхүү бичээд үзээрэй:
+  return reply(`Үүнийг ойлгосонгүй 🙈 Би API-гүй туслах тул тогтсон асуултуудад хариулдаг. Иймэрхүү асуугаарай:
+• “Би хэзээ завтай вэ?” · “Маргааш хэзээ завтай вэ?”
+• “Юу юу хийгээгүй байна?”
+• “Хамгийн чухал хийх зүйл юу вэ?”
 • “Ажил: …” — огноо, цаг, ач холбогдолтой
 • “Өдрөө төлөвлө” / “Долоо хоногоо төлөвлө”
-• “Дуусаагүй ажлууд” / “Статистикаа харуул”
+• “Дуусаагүй зүйлс” / “Статистикаа харуул”
 • “Төслийг задла: …”`);
 }

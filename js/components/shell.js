@@ -23,7 +23,7 @@ export const NAV = [
   { id: 'goals', label: 'Зорилго ба төсөл', icon: 'goals' },
   { id: 'school', label: 'Сургууль', icon: 'school' },
   { id: 'work', label: 'Ажил', icon: 'briefcase' },
-  { id: 'assistant', label: 'AI туслах', icon: 'assistant' },
+  { id: 'assistant', label: 'Туслах', icon: 'assistant' },
   { section: 'Амьдрал' },
   { id: 'journal', label: 'Тэмдэглэл', icon: 'journal' },
   { id: 'birthdays', label: 'Төрсөн өдөр', icon: 'gift' },

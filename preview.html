@@ -1785,6 +1785,14 @@ section.card .goal-mini { margin-top: 10px; text-decoration: none; color: var(--
 @media (prefers-reduced-motion: reduce) { .ai-spinner { animation-duration: 2s; } }
 .ai-controls .select { width: auto; min-width: 150px; }
 
+/* ═══ Туслах: гол 3 асуулт ══════════════════════════════════════════════ */
+.key-questions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; width: 100%; max-width: 640px; margin: 14px auto 6px; }
+.key-q { display: grid; justify-items: center; gap: 6px; padding: 16px 10px; border-radius: 22px; border: 1.5px solid var(--glass-border); background: linear-gradient(180deg, var(--glass-strong), color-mix(in srgb, var(--accent-soft) 70%, var(--surface))); box-shadow: var(--shadow-sm); color: var(--text); font: inherit; font-size: 14px; font-weight: 900; cursor: pointer; transition: transform var(--dur), box-shadow var(--dur); }
+.key-q:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.key-q-emoji { font-size: 28px; line-height: 1; }
+.ai-welcome-more { max-width: 520px; margin: 8px auto 0; }
+@media (max-width: 560px) { .key-questions { grid-template-columns: minmax(0, 1fr); } .key-q { grid-template-columns: auto 1fr; justify-items: start; align-items: center; padding: 12px 16px; text-align: left; } .key-q-emoji { font-size: 22px; } }
+
 /* ── css/decor.css ── */
 /* ═══════════════════════════════════════════════════════════════════════════
    Тэнгэрийн бөмбөлөг — чимэглэлийн давхарга (хамгийн сүүлд ачаална).
@@ -2435,6 +2443,9 @@ const TABLES = {
  * Хүсэлт/хариултын формат README.md → "AI загвар холбох" хэсэгт бий.
  * Хоосон үед Туслах нь тодорхой шошготой энгийн дүрмүүдээр ажиллана.
  */
+// Одоогоор API-гүй горим: Туслах таны өгөгдлөөс шууд тооцоолж хариулна.
+// Claude API (ANTHROPIC_API_KEY) нэмбэл доорх хаягийг буцааж тавина:
+//   'https://cztdncdfhyrctqzpfwob.supabase.co/functions/v1/life-os-ai'
 const AI_ENDPOINT = '';
 
 function isSupabaseConfigured() {
@@ -4361,7 +4372,7 @@ function localSummary(d) {
 
 /** Edge Function-ээр Claude-д шинжлүүлнэ → { report, model } */
 async function analyzeWithAI(period) {
-  if (!isAiConfigured()) throw new Error('AI холбогдоогүй байна — Supabase-тэй холбогдож нэвтэрсэн үед ажиллана.');
+  if (!isAiConfigured()) throw new Error('AI (Claude API) холбоогүй байна.');
   const digest = buildDigest(period.from, period.to);
   const headers = { 'Content-Type': 'application/json' };
   const token = await authService.accessToken();
@@ -4785,6 +4796,7 @@ function parseTaskInput(text, options) {
 
 __def("js/lib/planner.js", function (__e) {
 'use strict';
+Object.defineProperty(__e, "freeSlots", { enumerable: true, get: () => freeSlots });
 Object.defineProperty(__e, "planDay", { enumerable: true, get: () => planDay });
 Object.defineProperty(__e, "planWeek", { enumerable: true, get: () => planWeek });
 Object.defineProperty(__e, "DEFAULT_ESTIMATE", { enumerable: true, get: () => DEFAULT_ESTIMATE });
@@ -4802,6 +4814,7 @@ const { prefs } = __req("js/state/prefs.js");
 const { tasksService, PRIORITY_RANK } = __req("js/services/tasksService.js");
 const { eventsService } = __req("js/services/eventsService.js");
 const { shiftsOn, shiftSpan, workplaceById } = __req("js/services/workService.js");
+const { classesOn, subjectById } = __req("js/services/schoolService.js");
 const { todayKey, addDaysKey, timeToMin, minToTime, nowMinutes } = __req("js/lib/dates.js");
 
 const DEFAULT_ESTIMATE = 30;
@@ -4832,7 +4845,34 @@ function eventIntervals(dateKey) {
       const s = timeToMin(sh.start_time);
       return { s, e: Math.min(24 * 60, s + shiftSpan(sh)), title: `Ээлж: ${workplaceById(sh.workplace_id)?.name || 'Ажил'}`, id: sh.id, shift: true };
     }))
+    // Хичээлийн хуваарь ч завгүй цаг.
+    .concat(classesOn(dateKey).filter((c) => c.start_time && c.end_time).map((c) => ({
+      s: timeToMin(c.start_time), e: timeToMin(c.end_time), title: `Хичээл: ${subjectById(c.subject_id)?.name || ''}`.trim(), id: c.id, cls: true,
+    })))
     .sort((a, b) => a.s - b.s);
+}
+
+/**
+ * Тухайн өдрийн сул цагууд (үйл явдал, ажлын ээлж, хичээлийг хассан).
+ * window — өдрийн хүрээ (анхдагч 08:00–22:00). Өнөөдрийнх бол одооноос эхэлнэ.
+ * → { date, slots: [{ start, end, minutes }], freeMinutes, busy: [...] }
+ */
+function freeSlots(dateKey = todayKey(), { from = '08:00', to = '22:00', minMinutes = 30, now = new Date() } = {}) {
+  const winStart = timeToMin(from);
+  const winEnd = timeToMin(to);
+  const start = dateKey === todayKey() ? Math.max(winStart, Math.ceil(nowMinutes(now) / 15) * 15) : winStart;
+  const busy = eventIntervals(dateKey);
+  const slots = [];
+  let cursor = start;
+  for (const b of busy) {
+    if (b.e <= cursor) continue;
+    if (b.s >= winEnd) break;
+    if (b.s - cursor >= minMinutes) slots.push({ s: cursor, e: Math.min(b.s, winEnd) });
+    cursor = Math.max(cursor, b.e);
+  }
+  if (winEnd - cursor >= minMinutes) slots.push({ s: cursor, e: winEnd });
+  const list = slots.filter((x) => x.e - x.s >= minMinutes).map((x) => ({ start: minToTime(x.s), end: minToTime(x.e), minutes: x.e - x.s }));
+  return { date: dateKey, slots: list, freeMinutes: list.reduce((sum, x) => sum + x.minutes, 0), busy, dayOver: start >= winEnd };
 }
 
 function planDay(dateKey = todayKey(), now = new Date()) {
@@ -5014,6 +5054,7 @@ function computeStats(days = 7, endKey = todayKey()) {
 __def("js/lib/localAssistant.js", function (__e) {
 'use strict';
 Object.defineProperty(__e, "respond", { enumerable: true, get: () => respond });
+Object.defineProperty(__e, "KEY_QUESTIONS", { enumerable: true, get: () => KEY_QUESTIONS });
 /**
  * Туслах хуудасны дүрэмд суурилсан туслагч.
  *
@@ -5028,14 +5069,26 @@ Object.defineProperty(__e, "respond", { enumerable: true, get: () => respond });
  * Монгол болон англи командыг хоёуланг нь таньдаг.
  */
 const { parseNatural, cleanTaskTitle, cleanEventTitle } = __req("js/lib/nlp.js");
-const { planDay, planWeek, DEFAULT_ESTIMATE } = __req("js/lib/planner.js");
+const { planDay, planWeek, freeSlots, DEFAULT_ESTIMATE } = __req("js/lib/planner.js");
 const { computeStats } = __req("js/lib/insights.js");
-const { tasksService, compareTasks } = __req("js/services/tasksService.js");
+const { tasksService, compareTasks, sortTasks } = __req("js/services/tasksService.js");
 const { eventsService } = __req("js/services/eventsService.js");
-const { projectsService } = __req("js/services/goalsService.js");
+const { projectsService, goalsService } = __req("js/services/goalsService.js");
+const { homeworkService, dueMoment: homeworkDue, dueCountdown, subjectById } = __req("js/services/schoolService.js");
+const { ordersService, isOrderLate } = __req("js/services/workService.js");
 const { birthdaysService } = __req("js/services/birthdaysService.js");
 const { prefs } = __req("js/state/prefs.js");
-const { todayKey, addDaysKey, relDay, fmt, fmtTime, fmtDuration, minToTime, timeToMin, nowMinutes } = __req("js/lib/dates.js");
+const { todayKey, addDaysKey, relDay, fmt, fmtTime, fmtDuration, minToTime, timeToMin, nowMinutes, diffDays } = __req("js/lib/dates.js");
+
+/* Гол 3 асуулт — Туслах хуудасны товчнууд ч эдгээрийг ашиглана. */
+const KEY_QUESTIONS = [
+  { label: 'Би хэзээ завтай вэ?', icon: 'clock', emoji: '🕐', prompt: 'Би хэзээ завтай вэ?' },
+  { label: 'Юу хийгээгүй байна?', icon: 'list', emoji: '📋', prompt: 'Юу юу хийгээгүй байна?' },
+  { label: 'Хамгийн чухал нь юу вэ?', icon: 'zap', emoji: '⭐', prompt: 'Хамгийн чухал хийх зүйл юу вэ?' },
+];
+const FREE_RE = /завтай|зав\s*(гарах|байх|байна|хэзээ)|хэзээ\s*зав|чөлөөтэй|чөлөөт\s*цаг|сул\s*цаг|zawtai|zavtai|zaw\s*(bai|bgaa|ba)|chuluutei|when am i free|free time|\bam i free\b/;
+const NOTDONE_RE = /хийгээгүй|хийгдээгүй|дуусаагүй|хоцорсон|хугацаа хэтэрсэн|үлдсэн ажил|юу\s+үлдсэн|hiigeegui|hiigegui|hiigdeegui|duusaagui|uldsen/;
+const IMPORTANT_RE = /хамгийн\s+чухал|чухал\s+нь\s+юу|юунаас\s+эхл|эхлээд\s+юу|юуг\s+эхлээд|юу\s+хийх\s+ёстой|hamgiin\s+ch[uy]k?hal|ch[uy]k?hal\s+n[iy]?\s|ehleed\s+yu|most important|what should i do first|priorit/;
 
 // Кирилл үгэнд \b ажилладаггүй тул энгийн "агуулж байна уу" шалгалт хийнэ.
 const has = (text, re) => re.test(text);
@@ -5066,6 +5119,9 @@ function respond(text) {
     return eventProposal(t);
   }
 
+  if (FREE_RE.test(low)) return freeTime(t);
+  if (IMPORTANT_RE.test(low)) return mostImportant();
+  if (NOTDONE_RE.test(low)) return notDone();
   if (/^(hi|hello|hey|yo|good (morning|afternoon|evening))\b[!. ]*$/i.test(t) || /^(сайн уу|сайн байна уу|сайн байцгаана уу|сайхан амарсан уу)[!.?\s]*$/i.test(t)) return help(true);
   if (/\b(help|what can you do|commands)\b/.test(low) || has(low, /тусламж|юу хийж чадах|команд/)) return help(false);
   if (/\b(break(?:ing)?\s+(?:it\s+|this\s+)?down|break\b.+\binto\b|split\b.+\binto\b|sub-?tasks?|steps\s+(?:for|to))\b/.test(low) || has(low, /задла|дэд ажил|алхам болго|хэсэгчил/)) return breakdown(t);
@@ -5142,9 +5198,113 @@ function memory(text) {
   ]);
 }
 
+/* ── 🕐 Би хэзээ завтай вэ? ───────────────────────────────────────────── */
+function freeTime(text) {
+  const parsed = parseNatural(text);
+  const days = parsed.date ? [parsed.date] : Array.from({ length: 7 }, (_, i) => addDaysKey(todayKey(), i));
+  const results = days.map((d) => freeSlots(d));
+  const lines = ['Таны сул цаг (08:00–22:00 хооронд — үйл явдал, хичээл, ажлын ээлжийг хассан):'];
+  results.forEach((r) => {
+    if (r.dayOver) { lines.push(`• ${dayLabel(r.date)}: өнөөдрийн өдөр дуусах дөхжээ — амраарай 🌙`); return; }
+    if (!r.slots.length) { lines.push(`• ${dayLabel(r.date)}: бүтэн завгүй`); return; }
+    const parts = r.slots.slice(0, 4).map((x) => `${fmtTime(x.start)}–${fmtTime(x.end)}`);
+    lines.push(`• ${dayLabel(r.date)}: ${parts.join(', ')}${r.slots.length > 4 ? ` (+${r.slots.length - 4})` : ''} — нийт ${fmtDuration(r.freeMinutes)}`);
+  });
+  const first = results.find((r) => r.slots.length);
+  if (first) lines.push('', `👉 Хамгийн ойрын зав: ${dayLabel(first.date)} ${fmtTime(first.slots[0].start)}–${fmtTime(first.slots[0].end)} (${fmtDuration(first.slots[0].minutes)}).`);
+  if (results.length > 1) {
+    const best = [...results].sort((a, b) => b.freeMinutes - a.freeMinutes)[0];
+    if (best.freeMinutes) lines.push(`🌟 Хамгийн их завтай өдөр: ${dayLabel(best.date)} — ${fmtDuration(best.freeMinutes)}.`);
+  }
+  return reply(lines.join('\n'), [
+    { type: 'link', status: 'info', data: { label: 'Календарьт харах', href: `#/calendar?view=${parsed.date ? 'day' : 'week'}&date=${parsed.date || todayKey()}` } },
+  ]);
+}
+
+/* ── 📋 Юу хийгээгүй байна? ──────────────────────────────────────────── */
+function notDone() {
+  const today = todayKey();
+  const tomorrow = addDaysKey(today, 1);
+  const open = tasksService.open();
+  const overdue = sortTasks(open.filter((t) => t.due_date && t.due_date < today));
+  const dueToday = sortTasks(open.filter((t) => t.due_date === today));
+  const homework = homeworkService.open().filter((h) => h.due_date && h.due_date <= tomorrow);
+  const orders = ordersService.open().filter((o) => o.due_date && o.due_date <= tomorrow);
+  const shown = new Set([...overdue, ...dueToday].map((t) => t.id));
+  const steps = projectsService.all().filter((p) => p.status === 'active')
+    .map((p) => ({ p, t: sortTasks(tasksService.byProject(p.id).filter((t) => t.status !== 'done'))[0] }))
+    .filter((x) => x.t && !shown.has(x.t.id)).slice(0, 4);
+  const later = open.filter((t) => t.due_date && t.due_date > today).length;
+  const undated = open.filter((t) => !t.due_date).length;
+
+  if (!overdue.length && !dueToday.length && !homework.length && !orders.length && !steps.length) {
+    return reply(`Яаралтай хийх зүйл алга — бүгдийг хийчихсэн байна 🎉${later || undated ? `\nДараа хийх ${later} зүйл, огноогүй ${undated} зүйл үлдсэн.` : ''}`);
+  }
+  const list = (items, fmtItem, max = 5) => [...items.slice(0, max).map(fmtItem), ...(items.length > max ? [`  …бас ${items.length - max}`] : [])];
+  const lines = ['Хийгээгүй зүйлс:'];
+  if (overdue.length) lines.push('', `⏰ Хугацаа хэтэрсэн (${overdue.length}):`, ...list(overdue, (t) => `• ${t.title} — ${diffDays(t.due_date, today)} хоног хэтэрсэн`));
+  if (dueToday.length) lines.push('', `📅 Өнөөдөр хийх (${dueToday.length}):`, ...list(dueToday, (t) => `• ${t.title}${t.due_time ? ` (${fmtTime(t.due_time)} гэхэд)` : ''}`));
+  if (homework.length) lines.push('', `📚 Гэрийн даалгавар (${homework.length}):`, ...list(homework, (h) => `• ${h.title}${subjectById(h.subject_id) ? ` · ${subjectById(h.subject_id).name}` : ''} — ${dueCountdown(h)}`));
+  if (orders.length) lines.push('', `📦 Захиалга (${orders.length}):`, ...list(orders, (o) => `• ${o.customer_name} — ${o.items}${isOrderLate(o) ? ' — хоцорсон!' : ` — ${relDay(o.due_date)}`}`));
+  if (steps.length) lines.push('', '🌱 Төслүүдийн дараагийн алхам:', ...steps.map(({ p, t }) => `• ${p.title} → ${t.title}`));
+  if (later || undated) lines.push('', `Мөн дараа хийх ${later} зүйл, огноогүй ${undated} зүйл бий.`);
+  const ids = [...overdue, ...dueToday].slice(0, 12).map((t) => t.id);
+  return reply(lines.join('\n'), ids.length ? [proposal('review', { task_ids: ids })] : []);
+}
+
+/* ── ⭐ Хамгийн чухал хийх зүйл юу вэ? ───────────────────────────────── */
+function mostImportant() {
+  const now = Date.now();
+  const today = todayKey();
+  const tomorrow = addDaysKey(today, 1);
+  const cands = [];
+  tasksService.open().forEach((t) => {
+    let score = 0;
+    const why = [];
+    if (t.due_date) {
+      const d = diffDays(today, t.due_date);
+      if (d < 0) { score += 100 + Math.min(30, -d * 5); why.push(`${-d} хоног хэтэрсэн`); } else if (d === 0) { score += 70; why.push(t.due_time ? `өнөөдөр ${fmtTime(t.due_time)} гэхэд` : 'өнөөдөр дуусах'); } else if (d === 1) { score += 45; why.push('маргааш дуусах'); } else if (d <= 3) { score += 25; why.push(`${d} хоногийн дараа`); } else if (d <= 7) score += 10;
+    }
+    if (t.priority === 'high') { score += 35; why.push('өндөр ач холбогдол'); } else if (t.priority === 'medium') score += 12;
+    const proj = t.project_id && projectsService.get(t.project_id);
+    const goal = proj?.goal_id && goalsService.get(proj.goal_id);
+    if (goal) { score += 12; why.push(`«${goal.title}» зорилгын алхам`); } else if (proj) { score += 6; why.push(`«${proj.title}» төсөл`); }
+    cands.push({ task: t, title: t.title, score, why, minutes: t.estimated_minutes || DEFAULT_ESTIMATE });
+  });
+  homeworkService.open().forEach((h) => {
+    const hours = (homeworkDue(h) - now) / 3600000;
+    let score = 15;
+    const why = [subjectById(h.subject_id)?.name || 'гэрийн даалгавар'];
+    if (hours < 0) { score += 110; why.push('хугацаа хэтэрсэн'); } else if (hours < 24) { score += 80; why.push(dueCountdown(h)); } else if (hours < 48) { score += 50; why.push(dueCountdown(h)); } else if (hours < 72) score += 25;
+    cands.push({ title: `📚 ${h.title}`, score, why, minutes: h.estimated_minutes || 60 });
+  });
+  ordersService.open().forEach((o) => {
+    let score = 20;
+    const why = ['захиалагч хүлээж байна'];
+    if (isOrderLate(o)) { score += 100; why.unshift('хүргэх хугацаа хэтэрсэн'); } else if (o.due_date === today) { score += 75; why.unshift('өнөөдөр хүргэх'); } else if (o.due_date === tomorrow) { score += 45; why.unshift('маргааш хүргэх'); }
+    cands.push({ title: `📦 ${o.customer_name} — ${o.items}`, score, why, minutes: 30 });
+  });
+  if (!cands.length) return reply('Одоогоор хийх зүйл алга — амарч болно 🌸 Шинэ зүйл нэмбэл чухлыг нь эрэмбэлээд хэлж өгнө.');
+  cands.sort((a, b) => b.score - a.score);
+  const top = cands.slice(0, 3);
+  const lines = ['⭐ Хамгийн чухал 3 зүйл:'];
+  top.forEach((c, i) => lines.push(`${i + 1}. ${c.title}${c.why.length ? ` — ${c.why.join(', ')}` : ''}`));
+  // №1-ийг хийх сул цаг
+  let slot = null;
+  for (let i = 0; i < 3 && !slot; i++) {
+    const r = freeSlots(addDaysKey(today, i));
+    const s = r.slots.find((x) => x.minutes >= Math.min(top[0].minutes, 120));
+    if (s) slot = { date: r.date, ...s };
+  }
+  lines.push('', `👉 Эхлээд №1-ийг хий${slot ? ` — ${dayLabel(slot.date)} ${fmtTime(slot.start)}-аас ${fmtDuration(slot.minutes)} зав байна` : ''}.`);
+  lines.push('Эрэмбэ: хугацаа (хэтэрсэн, ойрхон) + ач холбогдол + зорилготой холбоотой эсэх.');
+  const ids = top.filter((c) => c.task).map((c) => c.task.id);
+  return reply(lines.join('\n'), ids.length ? [proposal('review', { task_ids: ids })] : []);
+}
+
 function review() {
   const open = tasksService.open();
-  if (!open.length) return reply('Дуусаагүй ажил алга — бүгдийг нь дуусгасан байна.');
+  if (!open.length) return reply('Дуусаагүй зүйл алга — бүгдийг нь дуусгасан байна.');
   const today = todayKey();
   const overdue = open.filter((t) => t.due_date && t.due_date < today).length;
   const dueToday = open.filter((t) => t.due_date === today).length;
@@ -5256,12 +5416,16 @@ function breakdown(text) {
 }
 
 function help(greet) {
-  return reply(`${greet ? 'Сайн байна уу! ' : ''}AI загвар холбогдоогүй тул зөвхөн дараах командуудыг (энгийн дүрэм + таны өгөгдөл) ойлгоно:
+  return reply(`${greet ? 'Сайн байна уу! ' : ''}Би API-гүй туслах — таны өгөгдлөөс шууд тооцоолж хариулна. Гол 3 асуулт:
+• “Би хэзээ завтай вэ?” — үйл явдал, хичээл, ээлжийн завсрын сул цаг
+• “Юу юу хийгээгүй байна?” — хэтэрсэн, өнөөдрийн, даалгавар, захиалга
+• “Хамгийн чухал хийх зүйл юу вэ?” — эрэмбэлсэн 3 зүйл, хийх цагтай нь
+Мөн:
 • Ажил нэмэх — “Баасан гарагт 15 цагт тайлан илгээх чухал #ажил 1 цаг”
 • Үйл явдал нэмэх — “Маргааш 12:30-13:30 Маятай үдийн хоол”
 • Өдрөө төлөвлөх — “Өдрөө төлөвлө” эсвэл “Маргаашийг төлөвлө”
 • Долоо хоногоо төлөвлөх — “Долоо хоногоо төлөвлө”
-• Дуусаагүй ажлууд — “Дуусаагүй ажлууд юу байна?”
+• Дуусаагүй зүйлс — “Дуусаагүй зүйлс юу байна?”
 • Бүтээмжийн статистик — “Статистикаа харуул”
 • Хуваарь — “Маргааш юу байгаа вэ?”
 • Төслийг задлах — “Төслийг задла: Вэбсайт гаргах”
@@ -5269,10 +5433,13 @@ function help(greet) {
 }
 
 function fallback() {
-  return reply(`Үүнийг миний ойлгох командтай тааруулж чадсангүй. AI загвар холбогдоогүй үед чөлөөт хүсэлтийг тайлбарлаж чадахгүй. Иймэрхүү бичээд үзээрэй:
+  return reply(`Үүнийг ойлгосонгүй 🙈 Би API-гүй туслах тул тогтсон асуултуудад хариулдаг. Иймэрхүү асуугаарай:
+• “Би хэзээ завтай вэ?” · “Маргааш хэзээ завтай вэ?”
+• “Юу юу хийгээгүй байна?”
+• “Хамгийн чухал хийх зүйл юу вэ?”
 • “Ажил: …” — огноо, цаг, ач холбогдолтой
 • “Өдрөө төлөвлө” / “Долоо хоногоо төлөвлө”
-• “Дуусаагүй ажлууд” / “Статистикаа харуул”
+• “Дуусаагүй зүйлс” / “Статистикаа харуул”
 • “Төслийг задла: …”`);
 }
 
@@ -7571,7 +7738,7 @@ const NAV = [
   { id: 'goals', label: 'Зорилго ба төсөл', icon: 'goals' },
   { id: 'school', label: 'Сургууль', icon: 'school' },
   { id: 'work', label: 'Ажил', icon: 'briefcase' },
-  { id: 'assistant', label: 'AI туслах', icon: 'assistant' },
+  { id: 'assistant', label: 'Туслах', icon: 'assistant' },
   { section: 'Амьдрал' },
   { id: 'journal', label: 'Тэмдэглэл', icon: 'journal' },
   { id: 'birthdays', label: 'Төрсөн өдөр', icon: 'gift' },
@@ -10180,6 +10347,7 @@ Object.defineProperty(__e, "default", { enumerable: true, get: () => __default }
  * break a project into tasks…). Nothing changes until the user clicks.
  */
 const { aiService } = __req("js/services/aiService.js");
+const { KEY_QUESTIONS } = __req("js/lib/localAssistant.js");
 const { tasksService } = __req("js/services/tasksService.js");
 const { eventsService } = __req("js/services/eventsService.js");
 const { projectsService, goalsService } = __req("js/services/goalsService.js");
@@ -10201,18 +10369,17 @@ let lastCount = 0;
 const drafts = new Map(); // edited breakdown steps, keyed "messageId:index"
 
 const SUGGESTIONS = [
-  { label: 'Өдрөө төлөвлөх', icon: 'clock', prompt: 'Өдрөө төлөвлө' },
-  { label: 'Долоо хоногоо төлөвлөх', icon: 'calendar', prompt: 'Долоо хоногоо төлөвлө' },
-  { label: 'Дуусаагүй ажлууд', icon: 'list', prompt: 'Дуусаагүй ажлууд юу байна?' },
-  { label: 'Бүтээмжийн статистик', icon: 'analytics', prompt: 'Статистикаа харуул' },
+  ...KEY_QUESTIONS,
+  { label: 'Өдрөө төлөвлөх', icon: 'calendar', prompt: 'Өдрөө төлөвлө' },
+  { label: 'Статистик', icon: 'analytics', prompt: 'Статистикаа харуул' },
 ];
 
 const CAPABILITIES = [
   { icon: 'tasks', title: 'Ажил нэмэх', text: 'Огноо, цаг, ач холбогдол, #ангиллаар нь бич.', prompt: 'Ажил: Баасан гарагт 15 цагт улирлын тайлан илгээх чухал #ажил 1 цаг' },
   { icon: 'calendar', title: 'Үйл явдал нэмэх', text: 'Уулзалт, хичээл, оройн хоол — цагтай нь.', prompt: 'Маргааш 12:30-13:30 Маятай үдийн хоол' },
   { icon: 'layers', title: 'Төслийг задлах', text: 'Төслийг ажлын жагсаалт болгох.', prompt: 'Төслийг задла: Портфолио вэбсайт гаргах' },
-  { icon: 'clock', title: 'Өдрөө төлөвлөх', text: 'Дуусаагүй ажлуудыг өнөөдрийн үйл явдлын завсарт багтаах.', prompt: 'Өдрөө төлөвлө' },
-  { icon: 'list', title: 'Дуусаагүй ажлууд', text: 'Хугацаа хэтэрснийг харж, дахин товлох.', prompt: 'Дуусаагүй ажлууд юу байна?' },
+  { icon: 'clock', title: 'Өдрөө төлөвлөх', text: 'Дуусаагүй зүйлсийг өнөөдрийн үйл явдлын завсарт багтаах.', prompt: 'Өдрөө төлөвлө' },
+  { icon: 'list', title: 'Дуусаагүй зүйлс', text: 'Хугацаа хэтэрснийг харж, дахин товлох.', prompt: 'Дуусаагүй зүйлс юу байна?' },
   { icon: 'zap', title: 'Бүтээмжийн статистик', text: 'Гүйцэтгэл, ажилласан хугацаа, сэтгэл санааны хэв маяг.', prompt: 'Статистикаа харуул' },
 ];
 
@@ -10316,9 +10483,9 @@ function reviewCard(m, a) {
   const tasks = a.data.task_ids.map((id) => tasksService.get(id)).filter(Boolean);
   const overdueOpen = tasks.filter((t) => t.status !== 'done' && t.due_date && t.due_date < todayKey());
   return `<div class="action-card">
-    <p class="ac-kicker">${icon('list', 14)} Дуусаагүй ажлууд</p>
+    <p class="ac-kicker">${icon('list', 14)} Дуусаагүй зүйлс</p>
     ${tasks.length ? `<ul class="task-list ac-review">${tasks.map((t) => taskItemHTML(t)).join('')}</ul>` : '<p class="small faint">Эдгээр ажил устгагдсан.</p>'}
-    ${overdueOpen.length ? `<div class="ac-actions"><button type="button" class="btn btn-sm btn-primary" data-action="ac-move-overdue" data-ids="${overdueOpen.map((t) => t.id).join(',')}">Хэтэрсэн ${overdueOpen.length} ажлыг өнөөдөр рүү шилжүүлэх</button></div>` : ''}
+    ${overdueOpen.length ? `<div class="ac-actions"><button type="button" class="btn btn-sm btn-primary" data-action="ac-move-overdue" data-ids="${overdueOpen.map((t) => t.id).join(',')}">Хэтэрсэн ${overdueOpen.length} зүйлийг өнөөдөр рүү шилжүүлэх</button></div>` : ''}
   </div>`;
 }
 
@@ -10385,7 +10552,7 @@ function messageHTML(m) {
   if (m.role === 'user') {
     return `<div class="msg msg-user"><div class="msg-bubble">${formatText(m.content)}</div></div>`;
   }
-  const source = m.source === 'ai' ? 'AI' : m.source === 'error' ? 'Алдаа' : 'Дүрмийн хариулт · AI загваргүй';
+  const source = m.source === 'ai' ? 'AI' : m.source === 'error' ? 'Алдаа' : 'Таны өгөгдлөөс тооцоолсон · API-гүй';
   return `<div class="msg msg-assistant">
     <div class="msg-avatar" aria-hidden="true">${icon('assistant', 16)}</div>
     <div class="msg-content">
@@ -10423,8 +10590,10 @@ function memoriesPanel() {
 function welcomeHTML() {
   return `<div class="ai-welcome">
     <div class="ai-welcome-mark">${icon('assistant', 26)}</div>
-    <h2>Юуг төлөвлөх вэ?</h2>
-    <p class="muted">Ажил, үйл явдлаа энгийн үгээр бичих эсвэл хуваарь гаргуулаарай. Өөрчлөлт бүрийг эхлээд санал хэлбэрээр харуулж, та баталгаажуулна.</p>
+    <h2>Юу асуух вэ?</h2>
+    <p class="muted">Таны хуанли, хичээл, ээлж, хийх зүйлсээс шууд тооцоолж хариулна.</p>
+    <div class="key-questions">${KEY_QUESTIONS.map((q) => `<button type="button" class="key-q" data-action="suggest" data-prompt="${esc(q.prompt)}"><span class="key-q-emoji" aria-hidden="true">${q.emoji}</span><span>${esc(q.label)}</span></button>`).join('')}</div>
+    <p class="small faint ai-welcome-more">Эсвэл ажил, үйл явдлаа энгийн үгээр бичээрэй — өөрчлөлт бүрийг эхлээд санал хэлбэрээр харуулж, та баталгаажуулна.</p>
     <div class="ai-capabilities">${CAPABILITIES.map((c) => `
       <button type="button" class="ai-cap" data-action="suggest" data-prompt="${esc(c.prompt)}">
         <span class="ai-cap-icon">${icon(c.icon, 17)}</span><span class="ai-cap-title">${esc(c.title)}</span><span class="ai-cap-text">${esc(c.text)}</span>
@@ -10555,7 +10724,7 @@ function bindMemoryForm(container, refresh) {
 
 /* ───────────── page ───────────── */
 const __default = {
-  title: 'AI туслах',
+  title: 'Туслах',
   render(root, route) {
     if (route.key !== lastRouteKey) {
       lastRouteKey = route.key;
@@ -10593,11 +10762,11 @@ const __default = {
                 <option value="">Шинэ яриа</option>${conversations.map((c) => `<option value="${c.id}" ${c.id === activeId ? 'selected' : ''}>${esc(c.title)}</option>`).join('')}</select>` : ''}
               <h2 class="ai-title">${esc(active?.title || 'Шинэ яриа')}</h2>
             </div>
-            <span class="badge ${connected ? 'tone-success' : 'tone-warning'}" title="${connected ? 'Мессеж таны AI endpoint руу явна' : 'Хариулт энгийн дүрмээс гарна'}">${icon(connected ? 'check' : 'info', 13)} ${connected ? 'AI холбогдсон' : 'AI холбогдоогүй'}</span>
+            <span class="badge ${connected ? 'tone-success' : 'tone-info'}" title="${connected ? 'Мессеж таны AI endpoint руу явна' : 'Хариулт таны өгөгдлөөс шууд тооцоологдоно'}">${icon(connected ? 'check' : 'info', 13)} ${connected ? 'AI холбогдсон' : 'API-гүй туслах'}</span>
             <button type="button" class="icon-btn ai-mem-btn" data-action="open-memories" aria-label="Санамж">${icon('bookmark')}</button>
             ${active ? `<button type="button" class="icon-btn ai-new-btn" data-action="new-chat" aria-label="Шинэ яриа">${icon('plus')}</button>` : ''}
           </header>
-          ${connected ? '' : `<div class="ai-notice">${icon('info', 16)}<p><strong>AI загвар холбогдоогүй байна.</strong> Хариултууд таны өгөгдлийг уншдаг цөөн тооны энгийн дүрмээс гарна — чөлөөт яриа биш, тодорхой командуудыг ойлгоно. Жинхэнэ загвар холбохын тулд <code>js/config.js</code>-д <code>AI_ENDPOINT</code>-ийг тохируулна уу.</p></div>`}
+          ${connected || !messages.length ? '' : `<div class="ai-notice">${icon('info', 16)}<p><strong>API-гүй туслах.</strong> Чөлөөт яриа биш — тогтсон асуултуудад таны өгөгдлөөс тооцоолж хариулна. Доорх товчнуудыг дараарай.</p></div>`}
           <div class="ai-messages" id="aiMessages" aria-live="polite">
             ${messages.length ? messages.map(messageHTML).join('') : welcomeHTML()}
             ${pending ? `<div class="msg msg-assistant"><div class="msg-avatar" aria-hidden="true">${icon('assistant', 16)}</div><div class="msg-content"><div class="msg-bubble typing" aria-label="Боловсруулж байна"><span></span><span></span><span></span></div></div></div>` : ''}
@@ -10712,7 +10881,7 @@ const __default = {
           const ids = el.dataset.ids.split(',');
           try {
             for (const id of ids) if (tasksService.get(id)) await tasksService.update(id, { due_date: todayKey() });
-            toast(`${ids.length} ажлыг өнөөдөр рүү шилжүүллээ`);
+            toast(`${ids.length} зүйлийг өнөөдөр рүү шилжүүллээ`);
           } catch (err) { toast(err.message, { tone: 'danger' }); }
           break;
         }
@@ -11433,7 +11602,7 @@ function aiCard() {
   } else {
     body = `<div class="ai-intro">
       <p>Хийх зүйлс, тэмдэглэл ба сэтгэл санаа, «юу сурсан бэ» тэмдэглэлүүд, хүсэл, зорилго, төсөл, сургууль, ажлын мэдээллээс чинь Claude хэв маяг олж, сайн тал, анхаарах зүйл, 3 санал гаргана.</p>
-      ${configured ? '' : '<p class="small muted">Supabase-тэй холбогдож нэвтэрсэн үед ажиллана. Одоохондоо доор энгийн тооцоо харагдаж байна.</p>'}
+      ${configured ? '' : '<p class="small muted">Одоогоор API-гүй горимд байгаа тул AI шинжилгээ унтраастай — доор таны өгөгдлөөс шууд тооцоолсон тойм харагдана. Claude API түлхүүр нэмбэл энэ хэсэг асна.</p>'}
       ${local.length ? `<div class="ai-local"><p class="ai-local-label">Энгийн тооцоо <span class="faint">(AI биш)</span></p><ul>${local.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>` : ''}
     </div>`;
   }
@@ -11442,7 +11611,7 @@ function aiCard() {
       <div><h2 class="card-title">${icon('sparkle', 18)} AI шинжилгээ</h2><p class="card-sub">🔒 Зөвхөн таны аккаунтын өгөгдөл Claude руу илгээгдэнэ</p></div>
       <div class="ai-controls no-print">
         <select class="select select-sm" id="aiPeriod" aria-label="Шинжлэх хугацаа">${PERIODS.map((p) => `<option value="${p.value}" ${p.value === ai.period ? 'selected' : ''}>${p.label}</option>`).join('')}</select>
-        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : 'Нэвтэрсэн үед ажиллана'}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
+        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : 'Claude API түлхүүр нэмбэл ажиллана'}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
       </div>
     </div>
     <div class="card-body">

@@ -12,6 +12,7 @@ import { prefs } from '../state/prefs.js';
 import { tasksService, PRIORITY_RANK } from '../services/tasksService.js';
 import { eventsService } from '../services/eventsService.js';
 import { shiftsOn, shiftSpan, workplaceById } from '../services/workService.js';
+import { classesOn, subjectById } from '../services/schoolService.js';
 import { todayKey, addDaysKey, timeToMin, minToTime, nowMinutes } from './dates.js';
 
 export const DEFAULT_ESTIMATE = 30;
@@ -42,7 +43,34 @@ function eventIntervals(dateKey) {
       const s = timeToMin(sh.start_time);
       return { s, e: Math.min(24 * 60, s + shiftSpan(sh)), title: `Ээлж: ${workplaceById(sh.workplace_id)?.name || 'Ажил'}`, id: sh.id, shift: true };
     }))
+    // Хичээлийн хуваарь ч завгүй цаг.
+    .concat(classesOn(dateKey).filter((c) => c.start_time && c.end_time).map((c) => ({
+      s: timeToMin(c.start_time), e: timeToMin(c.end_time), title: `Хичээл: ${subjectById(c.subject_id)?.name || ''}`.trim(), id: c.id, cls: true,
+    })))
     .sort((a, b) => a.s - b.s);
+}
+
+/**
+ * Тухайн өдрийн сул цагууд (үйл явдал, ажлын ээлж, хичээлийг хассан).
+ * window — өдрийн хүрээ (анхдагч 08:00–22:00). Өнөөдрийнх бол одооноос эхэлнэ.
+ * → { date, slots: [{ start, end, minutes }], freeMinutes, busy: [...] }
+ */
+export function freeSlots(dateKey = todayKey(), { from = '08:00', to = '22:00', minMinutes = 30, now = new Date() } = {}) {
+  const winStart = timeToMin(from);
+  const winEnd = timeToMin(to);
+  const start = dateKey === todayKey() ? Math.max(winStart, Math.ceil(nowMinutes(now) / 15) * 15) : winStart;
+  const busy = eventIntervals(dateKey);
+  const slots = [];
+  let cursor = start;
+  for (const b of busy) {
+    if (b.e <= cursor) continue;
+    if (b.s >= winEnd) break;
+    if (b.s - cursor >= minMinutes) slots.push({ s: cursor, e: Math.min(b.s, winEnd) });
+    cursor = Math.max(cursor, b.e);
+  }
+  if (winEnd - cursor >= minMinutes) slots.push({ s: cursor, e: winEnd });
+  const list = slots.filter((x) => x.e - x.s >= minMinutes).map((x) => ({ start: minToTime(x.s), end: minToTime(x.e), minutes: x.e - x.s }));
+  return { date: dateKey, slots: list, freeMinutes: list.reduce((sum, x) => sum + x.minutes, 0), busy, dayOver: start >= winEnd };
 }
 
 export function planDay(dateKey = todayKey(), now = new Date()) {

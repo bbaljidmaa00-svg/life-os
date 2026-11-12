@@ -164,7 +164,7 @@ function aiCard() {
   } else {
     body = `<div class="ai-intro">
       <p>Хийх зүйлс, тэмдэглэл ба сэтгэл санаа, «юу сурсан бэ» тэмдэглэлүүд, хүсэл, зорилго, төсөл, сургууль, ажлын мэдээллээс чинь Claude хэв маяг олж, сайн тал, анхаарах зүйл, 3 санал гаргана.</p>
-      ${configured ? '' : '<p class="small muted">Supabase-тэй холбогдож нэвтэрсэн үед ажиллана. Одоохондоо доор энгийн тооцоо харагдаж байна.</p>'}
+      ${configured ? '' : '<p class="small muted">Одоогоор API-гүй горимд байгаа тул AI шинжилгээ унтраастай — доор таны өгөгдлөөс шууд тооцоолсон тойм харагдана. Claude API түлхүүр нэмбэл энэ хэсэг асна.</p>'}
       ${local.length ? `<div class="ai-local"><p class="ai-local-label">Энгийн тооцоо <span class="faint">(AI биш)</span></p><ul>${local.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>` : ''}
     </div>`;
   }
@@ -173,7 +173,7 @@ function aiCard() {
       <div><h2 class="card-title">${icon('sparkle', 18)} AI шинжилгээ</h2><p class="card-sub">🔒 Зөвхөн таны аккаунтын өгөгдөл Claude руу илгээгдэнэ</p></div>
       <div class="ai-controls no-print">
         <select class="select select-sm" id="aiPeriod" aria-label="Шинжлэх хугацаа">${PERIODS.map((p) => `<option value="${p.value}" ${p.value === ai.period ? 'selected' : ''}>${p.label}</option>`).join('')}</select>
-        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : 'Нэвтэрсэн үед ажиллана'}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
+        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : 'Claude API түлхүүр нэмбэл ажиллана'}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
       </div>
     </div>
     <div class="card-body">

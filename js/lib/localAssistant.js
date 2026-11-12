@@ -89,7 +89,7 @@ export function respond(text) {
   if (/\b(add|create|new|remind me|todo|to-do|task|need to|have to|must|deadline|due)\b/.test(low) || has(low, /нэм|хэрэгтэй|ёстой|эцсийн хугацаа/) || parsed.date || parsed.time) {
     return taskProposal(t, /deadline|эцсийн хугацаа|дедлайн/.test(low));
   }
-  return fallback();
+  return fallback(t);
 }
 
 /* ---------- командууд ---------- */
@@ -381,13 +381,14 @@ function help(greet) {
 • Санамж хадгалах — “Санаарай: Би өглөө хамгийн сайн төвлөрдөг”`);
 }
 
-function fallback() {
-  return reply(`Үүнийг ойлгосонгүй 🙈 Би API-гүй туслах тул тогтсон асуултуудад хариулдаг. Иймэрхүү асуугаарай:
+function fallback(question = '') {
+  const ask = question ? [{ type: 'ask_claude', data: { question: question.slice(0, 2000) } }] : [];
+  return reply(`Үүнийг ойлгосонгүй 🙈 Би API-гүй туслах тул тогтсон асуултуудад хариулдаг. Энэ асуултыг доорх товчоор өөрийн Claude аккаунтаасаа үнэгүй асууж болно. Эсвэл иймэрхүү асуугаарай:
 • “Би хэзээ завтай вэ?” · “Маргааш хэзээ завтай вэ?”
 • “Юу юу хийгээгүй байна?”
 • “Хамгийн чухал хийх зүйл юу вэ?”
 • “Ажил: …” — огноо, цаг, ач холбогдолтой
 • “Өдрөө төлөвлө” / “Долоо хоногоо төлөвлө”
 • “Дуусаагүй зүйлс” / “Статистикаа харуул”
-• “Төслийг задла: …”`);
+• “Төслийг задла: …”`, ask);
 }

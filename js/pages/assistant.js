@@ -7,6 +7,7 @@
  * break a project into tasks…). Nothing changes until the user clicks.
  */
 import { aiService } from '../services/aiService.js';
+import { openClaudeHandoff, buildAskPrompt, mdLite } from '../components/claudeHandoff.js';
 import { KEY_QUESTIONS } from '../lib/localAssistant.js';
 import { tasksService } from '../services/tasksService.js';
 import { eventsService } from '../services/eventsService.js';
@@ -202,6 +203,7 @@ function renderAction(m, a, i) {
     case 'insights': return insightsCard(a);
     case 'breakdown': return breakdownCard(m, a, i);
     case 'link': return `<div class="ac-actions ac-inline"><a class="btn btn-sm" href="${esc(a.data.href)}">${esc(a.data.label)}</a></div>`;
+    case 'ask_claude': return `<div class="ac-actions ac-inline"><button type="button" class="btn btn-sm btn-primary" data-action="ask-claude" data-q="${esc(a.data.question)}">${icon('copy', 14)} Claude-д асуух (үнэгүй)</button></div>`;
     default: return '';
   }
 }
@@ -212,11 +214,11 @@ function messageHTML(m) {
   if (m.role === 'user') {
     return `<div class="msg msg-user"><div class="msg-bubble">${formatText(m.content)}</div></div>`;
   }
-  const source = m.source === 'ai' ? 'Claude AI' : m.source === 'error' ? 'Алдаа' : 'Таны өгөгдлөөс тооцоолсон · API-гүй';
+  const source = m.source === 'ai' ? 'Claude AI' : m.source === 'claude-chat' ? 'Claude (claude.ai-аас хуулсан)' : m.source === 'error' ? 'Алдаа' : 'Таны өгөгдлөөс тооцоолсон · API-гүй';
   return `<div class="msg msg-assistant">
     <div class="msg-avatar" aria-hidden="true">${icon('assistant', 16)}</div>
     <div class="msg-content">
-      <div class="msg-bubble ${m.source === 'error' ? 'is-error' : ''}">${formatText(m.content)}</div>
+      <div class="msg-bubble ${m.source === 'error' ? 'is-error' : ''} ${m.source === 'claude-chat' ? 'is-md' : ''}">${m.source === 'claude-chat' ? mdLite(m.content) : formatText(m.content)}</div>
       ${m.actions.map((a, i) => renderAction(m, a, i)).join('')}
       <p class="msg-source">${source} · ${time}</p>
     </div>
@@ -437,7 +439,7 @@ export default {
             <textarea id="aiInput" rows="1" maxlength="2000" placeholder="Ажил, үйл явдал бичих эсвэл төлөвлөгөө асуух…" aria-label="Мессеж">${esc(composer)}</textarea>
             <button type="submit" class="btn btn-primary btn-icon-only" aria-label="Илгээх" ${pending ? 'disabled' : ''}>${icon('send', 17)}</button>
           </form>
-          <p class="ai-hint small faint">Enter — илгээх · Shift + Enter — шинэ мөр</p>
+          <p class="ai-hint small faint"><span>Enter — илгээх · Shift + Enter — шинэ мөр</span><button type="button" class="link-btn ai-claude-link" data-action="ask-claude">${icon('copy', 13)} Claude-д асуух (үнэгүй)</button></p>
           </div>
         </section>
 
@@ -506,6 +508,28 @@ export default {
           break;
         }
         case 'suggest': send(el.dataset.prompt); break;
+        case 'ask-claude': {
+          const fromReply = el.dataset.q !== undefined;
+          openClaudeHandoff({
+            askQuestion: true,
+            question: fromReply ? el.dataset.q : composer,
+            getPrompt: (q) => buildAskPrompt(q),
+            saveLabel: 'Чатад хадгалах',
+            onSaveReply: async (text, q) => {
+              let id = activeId && aiService.conversations.get(activeId) ? activeId : null;
+              if (!id) id = (await aiService.startConversation(q)).id;
+              const last = aiService.messagesFor(id).filter((x) => x.role === 'user').pop();
+              if (!(fromReply && last && last.content.trim() === q)) {
+                await aiService.messages.create({ conversation_id: id, role: 'user', content: q, actions: [], source: 'user' });
+              }
+              await aiService.messages.create({ conversation_id: id, role: 'assistant', content: text, actions: [], source: 'claude-chat' });
+              if (!fromReply) composer = '';
+              toast('Claude-ийн хариулт чатад хадгалагдлаа');
+              if (id !== activeId) { activeId = id; navigate(`assistant/${id}`, { replace: true }); }
+            },
+          });
+          break;
+        }
         case 'open-memories':
           openModal({
             title: 'Санамж',

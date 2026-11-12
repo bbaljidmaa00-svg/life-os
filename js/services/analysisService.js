@@ -198,9 +198,16 @@ export async function analyzeWithAI(period) {
   return { report: json.report, model: json.model || '' };
 }
 
+/** claude.ai-аас хуулж paste хийсэн тайлан (API-гүй). */
+export function saveChatReport(period, text) {
+  return saveReport(period, { model: '', text: String(text).slice(0, 20000) }, 'claude-chat');
+}
+
 /** Тайланг хадгална — ижил хугацааных байвал шинэчилнэ (period_start+period_end давтагдахгүй). */
-export async function saveReport(period, result) {
-  const report_data = { source: 'ai', model: result.model, label: period.label, report: result.report };
+export async function saveReport(period, result, source = 'ai') {
+  const report_data = source === 'claude-chat'
+    ? { source, label: period.label, text: result.text }
+    : { source, model: result.model, label: period.label, report: result.report };
   const generated_at = new Date().toISOString();
   const existing = reportsService.all().find((r) => r.period_start === period.from && r.period_end === period.to);
   return existing

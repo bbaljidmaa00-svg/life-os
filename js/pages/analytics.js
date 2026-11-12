@@ -13,8 +13,9 @@ import { esc, plural, downloadFile } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
 import { todayKey, addDaysKey, fromKey, fmt, fmtDuration, keyOfTimestamp, WEEKDAYS, WEEKDAYS_SHORT } from '../lib/dates.js';
 import { prefs } from '../state/prefs.js';
-import { PERIODS, periodRange, buildDigest, digestSize, localSummary, analyzeWithAI, saveReport, latestReports, reportsService } from '../services/analysisService.js';
+import { PERIODS, periodRange, buildDigest, digestSize, localSummary, analyzeWithAI, saveReport, saveChatReport, latestReports, reportsService } from '../services/analysisService.js';
 import { aiReady, aiStatusText } from '../services/aiStatus.js';
+import { openClaudeHandoff, buildAnalyzePrompt, mdLite } from '../components/claudeHandoff.js';
 import { openJournalForm } from '../components/forms.js';
 
 const RANGES = [{ days: 7, label: '7 хоног' }, { days: 30, label: '30 хоног' }, { days: 90, label: '90 хоног' }];
@@ -131,6 +132,13 @@ function reportHTML(row) {
   const d = row.report_data || {};
   const r = d.report || {};
   const when = row.generated_at ? new Date(row.generated_at) : null;
+  const stamp = `${esc(d.label || '')} (${fmt.short(row.period_start)} – ${fmt.short(row.period_end)})${when ? ` · ${fmt.short(keyOfTimestamp(row.generated_at))} ${String(when.getHours()).padStart(2, '0')}:${String(when.getMinutes()).padStart(2, '0')}` : ''}`;
+  if (d.source === 'claude-chat') {
+    return `<article class="ai-report is-chat">
+      <div class="ai-md">${mdLite(d.text)}</div>
+      <p class="ai-meta small faint">${icon('copy', 12)} Claude (claude.ai-аас хуулсан) · ${stamp}</p>
+    </article>`;
+  }
   return `<article class="ai-report">
     <p class="ai-headline">${esc(r.headline || '')}</p>
     ${r.summary ? `<p class="ai-summary">${esc(r.summary)}</p>` : ''}
@@ -166,7 +174,8 @@ function aiCard() {
   } else {
     body = `<div class="ai-intro">
       <p>Хийх зүйлс, тэмдэглэл ба сэтгэл санаа, «юу сурсан бэ» тэмдэглэлүүд, хүсэл, зорилго, төсөл, сургууль, ажлын мэдээллээс чинь Claude хэв маяг олж, сайн тал, анхаарах зүйл, 3 санал гаргана.</p>
-      ${configured ? '' : `<p class="small muted">${esc(aiStatusText())} Тэр болтол AI шинжилгээ унтраастай — доор таны өгөгдлөөс шууд тооцоолсон тойм харагдана.</p>`}
+      ${configured ? '' : `<div class="ai-free-tip">${icon('copy', 16)}<p><b>Үнэгүй арга:</b> «Claude-д асуух» дараад өгөгдлийнхөө товчлолыг хуулж, өөрийн Claude аккаунтдаа шинжлүүлээрэй. Хариултыг нь буцааж хадгалж болно.</p></div>
+      <p class="small faint">${esc(aiStatusText())}</p>`}
       ${local.length ? `<div class="ai-local"><p class="ai-local-label">Энгийн тооцоо <span class="faint">(AI биш)</span></p><ul>${local.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div>` : ''}
     </div>`;
   }
@@ -175,7 +184,8 @@ function aiCard() {
       <div><h2 class="card-title">${icon('sparkle', 18)} AI шинжилгээ</h2><p class="card-sub">🔒 Зөвхөн таны аккаунтын өгөгдөл Claude руу илгээгдэнэ</p></div>
       <div class="ai-controls no-print">
         <select class="select select-sm" id="aiPeriod" aria-label="Шинжлэх хугацаа">${PERIODS.map((p) => `<option value="${p.value}" ${p.value === ai.period ? 'selected' : ''}>${p.label}</option>`).join('')}</select>
-        <button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy || !configured ? 'disabled' : ''} title="${configured ? '' : esc(aiStatusText())}">${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>
+        ${configured ? `<button type="button" class="btn btn-primary btn-sm" data-action="ai-run" ${ai.busy ? 'disabled' : ''}>${icon('sparkle', 14)} ${shown ? 'Дахин шинжлүүлэх' : 'Шинжлүүлэх'}</button>` : ''}
+        <button type="button" class="btn ${configured ? '' : 'btn-primary'} btn-sm" data-action="ai-claude" ${ai.busy ? 'disabled' : ''}>${icon('copy', 14)} Claude-д асуух</button>
       </div>
     </div>
     <div class="card-body">
@@ -282,6 +292,21 @@ export default {
         } catch (err) { ai.error = err.message || 'Алдаа гарлаа'; }
         ai.busy = false;
         this.render(root);
+        return;
+      }
+      if (el.dataset.action === 'ai-claude') {
+        const period = periodRange(ai.period);
+        openClaudeHandoff({
+          title: `Claude-д шинжлүүлэх · ${period.label}`,
+          getPrompt: () => buildAnalyzePrompt(period),
+          saveLabel: 'Тайлан болгож хадгалах',
+          onSaveReply: async (text) => {
+            const saved = await saveChatReport(period, text);
+            ai.selectedId = saved.id; ai.error = '';
+            toast('Тайлан хадгалагдлаа');
+            this.render(root);
+          },
+        });
         return;
       }
       if (el.dataset.action === 'ai-show') { ai.selectedId = el.dataset.id; ai.error = ''; this.render(root); return; }
